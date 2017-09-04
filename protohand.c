@@ -11,11 +11,14 @@
  *   *nix:    ?-y&--long-param=fubar which translates into: "-y --long-param=fubar"
  *   attributes: ?param1&param2 which translates into "param1 param2"
  * all schemes above can be mxed since it is up to the called program to interpret the commandline arguments and therefore the called program's specs must be met.
+ *
+ * 2017, Simon Wunderlin <swunderlin@gmail.com>
  */
 
 #include <stdio.h>
 #include <string.h>
 
+// maximum input length from stdin, prevent buffer overflows
 #define STDIN_MAX 1024
 
 // Error codes, used as return codes
