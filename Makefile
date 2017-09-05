@@ -16,18 +16,16 @@ ini_test:
 	gcc $(COPTS) -o ini_test.exe ini.o ini_test.c
 
 test:
-	echo "12345://67890" | protohand.exe || true
-	echo "12345:///67890" | protohand.exe || true
-	echo "12345://?67890" | protohand.exe || true
-	echo "12345://as/67890" | protohand.exe || true
-	echo "12345://as?67890" | protohand.exe || true
-	echo "12345://as/xy?67890" | protohand.exe || true
-
-	echo "12345:67890" | protohand.exe || true
-	echo "12345:/67890" | protohand.exe || true
-	echo "12345:?67890" | protohand.exe || true
-	echo "12345:as/67890" | protohand.exe || true
-	echo "12345:as?67890" | protohand.exe || true
-	echo "12345:as/xy?67890" | protohand.exe || true
-
-	echo "usb://centricity?--auth=user&pass=ab%20de" | protohand.exe || true
+	protohand.exe "12345://67890" || true
+	protohand.exe "12345:///67890" || true
+	protohand.exe "12345://?67890" || true
+	protohand.exe "12345://as/67890" || true
+	protohand.exe "12345://as?67890" || true
+	protohand.exe "12345://as/xy?67890" || true
+	protohand.exe "12345:67890" || true
+	protohand.exe "12345:/67890" || true
+	protohand.exe "12345:?67890" || true
+	protohand.exe "12345:as/67890" || true
+	protohand.exe "12345:as?67890" || true
+	protohand.exe "12345:as/xy?67890" || true
+	protohand.exe "usb://centricity?--auth=user&pass=ab%20de" || true
