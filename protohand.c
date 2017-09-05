@@ -75,6 +75,15 @@ int main(int argc, char** argv) {
 	}
 	
 	#if DEBUG == 1
+	// write debug log
+	FILE* logfile;
+	logfile = fopen("protohand.log", "wb+");
+	fwrite(buff, strlen(buff), 1, logfile);
+	fclose(logfile);
+	#endif
+	
+	
+	#if DEBUG == 1
 	printf("===========================\n");
 	printf("stdin: %s\n", buff);
 	#endif
