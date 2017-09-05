@@ -44,19 +44,26 @@ int main(int argc, char** argv) {
 	query[0]  = '\0';
 	reminder[0] = '\0';
 	
-	// read data from stdin. no data? return error.
-	if (fgets (buff, sz, stdin) == NULL)
-		return NO_INPUT;
-    
-	// If it was too long, there'll be no newline. In that case, we flush
-	// to end of line so that excess doesn't affect the next call.
-	if (buff[strlen(buff)-1] != '\n') {
-		extra = 0;
-		while (((ch = getchar()) != '\n') && (ch != EOF))
-			extra = 1;
+	if (feof(stdin)) {
+		// read data from stdin. no data? return error.
+		if (fgets (buff, sz, stdin) == NULL)
+			return NO_INPUT;
 		
-		if (extra == 1)
-			return TOO_LONG;
+		// If it was too long, there'll be no newline. In that case, we flush
+		// to end of line so that excess doesn't affect the next call.
+		if (buff[strlen(buff)-1] != '\n') {
+			extra = 0;
+			while (((ch = getchar()) != '\n') && (ch != EOF))
+				extra = 1;
+			
+			if (extra == 1)
+				return TOO_LONG;
+		}
+	} else if(argc == 2) {
+		// no data from stdin, try to read argv[1]
+		strncpy(buff, argv[1], strlen(argv[1]));
+	} else {
+		return NO_INPUT;
 	}
 	
 	// remove trailing newline
