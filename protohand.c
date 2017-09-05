@@ -168,7 +168,7 @@ int main(int argc, char** argv) {
 	
 	#if DEBUG == 1
 	printf("scheme    (%d): '%s'\n", found, scheme);
-	printf("authority (%d): '%s'\n", strlen(authority), authority);
+	printf("authority (%d): '%s'\n", (int) strlen(authority), authority);
 	printf("path      (%d): '%s'\n", found_slash, path);
 	printf("query     (%d): '%s'\n", found_questionmark, query);
 	#endif
