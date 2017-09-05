@@ -9,6 +9,10 @@ ini_example:
 	gcc -c ini.c
 	gcc -o ini/ini_example.exe ini.o ini/ini_example.c
 
+ini_test:
+	gcc -c ini.c
+	gcc -o ini_test.exe ini.o ini_test.c
+
 test:
 	echo "12345://67890" | protohand.exe || true
 	echo "12345:///67890" | protohand.exe || true
