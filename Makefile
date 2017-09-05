@@ -1,8 +1,9 @@
-COPTS = -Wall
+COPTS = -Wall -D_GNU_SOURCE
 
 all:
+	gcc $(COPTS) -c ini.c
 	gcc $(COPTS) -c urldecode2.c
-	gcc $(COPTS) -o protohand.exe urldecode2.o protohand.c
+	gcc $(COPTS) -o protohand.exe urldecode2.o ini.o protohand.c
 
 ini_dump:
 	gcc $(COPTS) -c ini.c
@@ -30,3 +31,6 @@ test:
 	protohand.exe "12345:as?67890" || true
 	protohand.exe "12345:as/xy?67890" || true
 	protohand.exe "usb://centricity?--auth=user&pass=ab%20de" || true
+
+clean:
+	rm -r *.o *.exe || true

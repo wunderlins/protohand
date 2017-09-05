@@ -15,28 +15,102 @@
  * 2017, Simon Wunderlin <swunderlin@gmail.com>
  */
 
+#include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
+#include "ini.h"
+#include "urldecode2.h"
 
-// maximum input length from stdin, prevent buffer overflows
+// maximum input lengths 
+// from stdin, prevent buffer overflows
 #define STDIN_MAX 1024
+// for paths
+#define MAX_CWD_LENGTH 1024
 
 // Error codes, used as return codes
-#define OK       0
-#define NO_INPUT 1
-#define TOO_LONG 2
-#define NO_SCHEME 3
-#define NO_AUTHORITY 4
+#define OK            0
+#define NO_INPUT      1
+#define TOO_LONG      2
+#define NO_SCHEME     3
+#define NO_AUTHORITY  4
+#define NO_CURRENTDIR 5
+
+#define INI_FILE_NAME "protohand.ini"
 
 // debug levels, 0=off, 1=on
 #define DEBUG 1
 
+// can hold one ini file entry
+typedef struct {
+	const char* section; // the section we are searchin for
+	const char* default_path;
+	const char* allowed_params;
+	const char* path_params;
+	const char* exe;
+	int found; // 1 if the section was found. initialize it to 0 otherwise
+} configuration;
+
+char separator() {
+#ifdef _WIN32
+	return '\\';
+#else
+	return '/';
+#endif
+}
+
+/**
+ * callback function for ini file parser
+ */
+static int dumper(void* user, const char* section, const char* name,
+                  const char* value) {
+	//static char prev_section[50] = "";
+	configuration* pconfig = (configuration*)user;
+
+	#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+	if (strcmp(pconfig->section, section) == 0) {
+		printf("%s => %s: %s [%s]\n", section, name, value, pconfig->section);
+
+		if (MATCH(section, "default_path")) {
+			pconfig->default_path = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "allowed_params")) {
+			pconfig->allowed_params = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "path_params")) {
+			pconfig->path_params = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "exe")) {
+			pconfig->exe = strdup(value);
+			pconfig->found = 1;
+		}
+	}
+	// printf("search section: %s\n", (const char *) pconfig->section);
+
+	return 1;
+}
+
 int main(int argc, char** argv) {
+	const char sep = separator();
 	
+	// initialize the config 
+	int error;
+	const char* empty = "";
+	configuration config;
+	config.section        = empty;
+	config.found          = 0;
+	config.default_path   = empty;
+	config.allowed_params = empty;
+	config.path_params    = empty;
+	config.exe            = empty;
+	
+	// url parts buffers
 	char buff[STDIN_MAX], scheme[STDIN_MAX], authority[STDIN_MAX], path[STDIN_MAX], query[STDIN_MAX], reminder[STDIN_MAX];
 	size_t sz = sizeof(buff);
 	int ch, extra;
 	
+	// set them all to empty strings
 	buff[0] = '\0';
 	scheme[0] = '\0';
 	authority[0] = '\0';
@@ -44,6 +118,26 @@ int main(int argc, char** argv) {
 	query[0]  = '\0';
 	reminder[0] = '\0';
 	
+	// find cwd and set ini path
+	char cwd[MAX_CWD_LENGTH];
+	if (getcwd(cwd, sizeof(cwd)) == NULL) {
+		perror("getcwd() error");
+		return NO_CURRENTDIR;
+	}
+	int l = strlen(cwd);
+	cwd[l] = sep;
+	cwd[l+1] = '\0';
+	
+	char ini_file[MAX_CWD_LENGTH];
+	strcpy(ini_file, cwd);
+	strcat(ini_file, INI_FILE_NAME);
+	
+	#if DEBUG == 1
+	fprintf(stdout, "Current working dir: %s\n", cwd);
+	fprintf(stdout, "Current ini file:    %s\n", ini_file);
+	#endif
+	
+	// read stdin
 	if (feof(stdin)) {
 		// read data from stdin. no data? return error.
 		if (fgets (buff, sz, stdin) == NULL)
@@ -85,7 +179,6 @@ int main(int argc, char** argv) {
 	fwrite(buff, strlen(buff), 1, logfile);
 	fclose(logfile);
 	#endif
-	
 	
 	#if DEBUG == 1
 	printf("===========================\n");
@@ -171,12 +264,30 @@ int main(int argc, char** argv) {
 		strncpy(query, reminder+found_questionmark+1, strlen(reminder)+1-found_questionmark);
 	}
 	
+	// display parsed uri
 	#if DEBUG == 1
 	printf("scheme    (%d): '%s'\n", found, scheme);
 	printf("authority (%d): '%s'\n", (int) strlen(authority), authority);
 	printf("path      (%d): '%s'\n", found_slash, path);
 	printf("query     (%d): '%s'\n", found_questionmark, query);
 	#endif
+	
+	// find the appropriate config in the ini file
+	// try to read ini file
+	char section[STDIN_MAX] = "";
+	strcpy(section, authority);
+	//strcat(section, "/");
+	strcat(section, path);
+	config.section = section;
+	error = ini_parse(ini_file, dumper, &config);
+	#if DEBUG == 1
+	printf("section:        %s\n", config.section);
+	printf("exe:            %s\n", config.exe);
+	printf("default_path:   %s\n", (config.default_path == empty) ? "(unset)" :  config.default_path);
+	printf("allowed_params: %s\n", (config.allowed_params == empty) ? "(unset)" :  config.allowed_params);
+	printf("path_params:    %s\n", (config.path_params == empty) ? "(unset)" :  config.path_params);
+	#endif
+
 	
 	return OK;
 }
