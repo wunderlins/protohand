@@ -1,7 +1,8 @@
 COPTS = -Wall
 
 all:
-	gcc $(COPTS) -o protohand.exe protohand.c
+	gcc $(COPTS) -c urldecode2.c
+	gcc $(COPTS) -o protohand.exe urldecode2.o protohand.c
 
 ini_dump:
 	gcc $(COPTS) -c ini.c
