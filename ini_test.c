@@ -50,38 +50,37 @@ static int dumper(void* user, const char* section, const char* name,
 	return 1;
 }
 
-int main(int argc, char* argv[])
-{
-    int error;
-    const char* empty = "";
-    configuration config;
-    config.section = "cmd/exe";
-    config.found = 0;
-    config.default_path = empty;
-    config.allowed_params = empty;
-    config.path_params = empty;
-    config.exe = empty;
-    //printf("%s\n", config.section);
+int main(int argc, char* argv[]) {
+	int error;
+	const char* empty = "";
+	configuration config;
+	config.section = "cmd/exe";
+	config.found = 0;
+	config.default_path = empty;
+	config.allowed_params = empty;
+	config.path_params = empty;
+	config.exe = empty;
+	//printf("%s\n", config.section);
 
-    if (argc <= 1) {
-        printf("Usage: ini_dump filename.ini\n");
-        return 1;
-    }
+	if (argc <= 1) {
+		printf("Usage: ini_dump filename.ini\n");
+		return 1;
+	}
 
-    error = ini_parse(argv[1], dumper, &config);
-    if (error < 0) {
-        printf("Can't read '%s'!\n", argv[1]);
-        return 2;
-    }
-    else if (error) {
-        printf("Bad config file (first error on line %d)!\n", error);
-        return 3;
-    }
-    
-    printf("exe:            %s\n", config.exe);
-    printf("default_path:   %s\n", (config.default_path == empty) ? "(unset)" :  config.default_path);
-    printf("allowed_params: %s\n", (config.allowed_params == empty) ? "(unset)" :  config.allowed_params);
-    printf("path_params:    %s\n", (config.path_params == empty) ? "(unset)" :  config.path_params);
-    
-    return 0;
+	error = ini_parse(argv[1], dumper, &config);
+	if (error < 0) {
+		printf("Can't read '%s'!\n", argv[1]);
+		return 2;
+	}
+	else if (error) {
+		printf("Bad config file (first error on line %d)!\n", error);
+		return 3;
+	}
+	
+	printf("exe:            %s\n", config.exe);
+	printf("default_path:   %s\n", (config.default_path == empty) ? "(unset)" :  config.default_path);
+	printf("allowed_params: %s\n", (config.allowed_params == empty) ? "(unset)" :  config.allowed_params);
+	printf("path_params:    %s\n", (config.path_params == empty) ? "(unset)" :  config.path_params);
+
+	return 0;
 }
