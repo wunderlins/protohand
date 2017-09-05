@@ -61,19 +61,22 @@ int main(int argc, char** argv) {
 		}
 	} else if(argc == 2) {
 		// no data from stdin, try to read argv[1]
-		strncpy(buff, argv[1], strlen(argv[1]));
+		int ln = strlen(argv[1]);
+		//printf("%d\n", ln);
+		strncpy(buff, argv[1], ln);
+		buff[ln] = '\0';
 	} else {
 		return NO_INPUT;
 	}
 	
 	// remove trailing newline
-	for(int i=0; i<strlen(buff); i++) {
+	for(int i=0; i<strlen(buff)+1; i++) {
 		if (buff[i] == '\n' || buff[i] == '\r') {
 			buff[i] = '\0';
 			break;
 		}
 	}
-	
+
 	#if DEBUG == 1
 	// write debug log
 	FILE* logfile;
@@ -86,6 +89,7 @@ int main(int argc, char** argv) {
 	#if DEBUG == 1
 	printf("===========================\n");
 	printf("stdin: %s\n", buff);
+	printf("stdin: %d, buff: %d\n", (int) strlen(argv[1]), (int) strlen(buff));
 	#endif
 	
 	// start parsing the string, find the scheme, check for ':'
