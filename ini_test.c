@@ -4,12 +4,24 @@
 #include <string.h>
 #include "ini.h"
 
+typedef struct
+{
+	const char* section;
+	const char* default_path;
+	const char* allowed_params;
+	const char* path_params;
+	const char* exe;
+} configuration;
+
 static int dumper(void* user, const char* section, const char* name,
                   const char* value)
 {
-    static char prev_section[50] = "";
+    //static char prev_section[50] = "";
+		configuration* pconfig = (configuration*)user;
 		
-		printf("%s => %s: %s\n", section, name, value);
+		if (strcmp(pconfig->section, section))
+			printf("%s => %s: %s\n", section, name, value);
+		// printf("search section: %s\n", (const char *) pconfig->section);
 		
 		/*
     if (strcmp(section, prev_section)) {
@@ -25,13 +37,16 @@ static int dumper(void* user, const char* section, const char* name,
 int main(int argc, char* argv[])
 {
     int error;
+    configuration config;
+    config.section = "fertimed/document";
+    printf("%s\n", config.section);
 
     if (argc <= 1) {
         printf("Usage: ini_dump filename.ini\n");
         return 1;
     }
 
-    error = ini_parse(argv[1], dumper, NULL);
+    error = ini_parse(argv[1], dumper, &config);
     if (error < 0) {
         printf("Can't read '%s'!\n", argv[1]);
         return 2;
