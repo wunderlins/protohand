@@ -1,4 +1,4 @@
-COPTS = -Wall -std=c99
+COPTS = -Wall
 
 all:
 	gcc $(COPTS) -o protohand.exe protohand.c

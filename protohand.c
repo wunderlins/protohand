@@ -70,7 +70,8 @@ int main(int argc, char** argv) {
 	}
 	
 	// remove trailing newline
-	for(int i=0; i<strlen(buff)+1; i++) {
+	int i;
+	for(i=0; i<strlen(buff)+1; i++) {
 		if (buff[i] == '\n' || buff[i] == '\r') {
 			buff[i] = '\0';
 			break;
