@@ -36,11 +36,14 @@
 #define NO_SCHEME     3
 #define NO_AUTHORITY  4
 #define NO_CURRENTDIR 5
+#define UNKNOWN_INI_KEY 6
 
 #define INI_FILE_NAME "protohand.ini"
 
 // debug levels, 0=off, 1=on
-#define DEBUG 1
+#ifndef DEBUG
+	#define DEBUG 0
+#endif
 
 // can hold one ini file entry
 typedef struct {
@@ -84,6 +87,8 @@ static int dumper(void* user, const char* section, const char* name,
 		} else if (MATCH(section, "exe")) {
 			pconfig->exe = strdup(value);
 			pconfig->found = 1;
+		} else {
+			return 0;
 		}
 	}
 	// printf("search section: %s\n", (const char *) pconfig->section);
@@ -140,8 +145,10 @@ int main(int argc, char** argv) {
 	// read stdin
 	if (feof(stdin)) {
 		// read data from stdin. no data? return error.
-		if (fgets (buff, sz, stdin) == NULL)
+		if (fgets (buff, sz, stdin) == NULL) {
+			perror("no input on stdin");
 			return NO_INPUT;
+		}
 		
 		// If it was too long, there'll be no newline. In that case, we flush
 		// to end of line so that excess doesn't affect the next call.
@@ -150,8 +157,10 @@ int main(int argc, char** argv) {
 			while (((ch = getchar()) != '\n') && (ch != EOF))
 				extra = 1;
 			
-			if (extra == 1)
+			if (extra == 1) {
+				perror("Too much data on stdin");
 				return TOO_LONG;
+			}
 		}
 	} else if(argc == 2) {
 		// no data from stdin, try to read argv[1]
@@ -160,6 +169,7 @@ int main(int argc, char** argv) {
 		strncpy(buff, argv[1], ln);
 		buff[ln] = '\0';
 	} else {
+		perror("argument 1 with uri missing");
 		return NO_INPUT;
 	}
 	
@@ -197,8 +207,10 @@ int main(int argc, char** argv) {
 	}
 	
 	// no scheme found, exit with error
-	if (found == 0)
+	if (found == 0) {
+		perror("uri parse error: no scheme found");
 		return NO_SCHEME;
+	}
 	
 	// copy scheme to scheme buffer
 	strncpy(scheme, buff, found);
@@ -215,8 +227,10 @@ int main(int argc, char** argv) {
 	
 	// if there is nothing left in the reminder, we got an malformed uri,
 	// missing an authority
-	if (strlen(reminder) == 0)
+	if (strlen(reminder) == 0) {
+		perror("uri parse error: no authority found");
 		return NO_AUTHORITY;
+	}
 	
 	// find the first occourance of '/' or '?'
 	int found_slash = -1;
@@ -233,8 +247,10 @@ int main(int argc, char** argv) {
 	}
 	
 	// if questionmark or path is at position 0 of reminder, we have no authority
-	if (found_slash == 0 || found_questionmark == 0)
+	if (found_slash == 0 || found_questionmark == 0) {
+		perror("uri parse error: no othority found");
 		return NO_AUTHORITY;
+	}
 	
 	// if we haven't found a questionmark and have not found a slash,
 	// the reminder equals to authority
@@ -264,12 +280,16 @@ int main(int argc, char** argv) {
 		strncpy(query, reminder+found_questionmark+1, strlen(reminder)+1-found_questionmark);
 	}
 	
+	// urldecode params
+	char *query_escaped = malloc(strlen(query)+1);
+	urldecode2(query_escaped, query);
+	
 	// display parsed uri
 	#if DEBUG == 1
 	printf("scheme    (%d): '%s'\n", found, scheme);
 	printf("authority (%d): '%s'\n", (int) strlen(authority), authority);
 	printf("path      (%d): '%s'\n", found_slash, path);
-	printf("query     (%d): '%s'\n", found_questionmark, query);
+	printf("query     (%d): '%s'\n", found_questionmark, query_escaped);
 	#endif
 	
 	// find the appropriate config in the ini file
@@ -280,6 +300,12 @@ int main(int argc, char** argv) {
 	strcat(section, path);
 	config.section = section;
 	error = ini_parse(ini_file, dumper, &config);
+	
+	if (error == 0) {
+		perror("unknown ini section or key");
+		return UNKNOWN_INI_KEY;
+	}
+	
 	#if DEBUG == 1
 	printf("section:        %s\n", config.section);
 	printf("exe:            %s\n", config.exe);

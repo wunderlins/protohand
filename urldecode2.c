@@ -2,6 +2,16 @@
 #include <ctype.h>
 #include "urldecode2.h"
 
+/*
+https://stackoverflow.com/questions/2673207/c-c-url-decode-library
+
+Example:
+
+char *output = malloc(strlen(input)+1);
+urldecode2(output, input);
+printf("Decoded string: %s\n", output);
+*/
+
 void urldecode2(char *dst, const char *src) {
 	char a, b;
 	while (*src) {

@@ -1,4 +1,4 @@
-COPTS = -Wall -D_GNU_SOURCE
+COPTS = -Wall -DDEBUG=1
 
 all:
 	gcc $(COPTS) -c ini.c
