@@ -1,11 +1,17 @@
 Usage: PROGNAME.exe <url>
 
-SYNOPSYS
+SYNOPSYS:
 
-TODO
+This rogram implements a shell protocol handler. A shell might register this 
+program (through registry on windows for example) and pass the called URI 
+as parameter 1 to the program (input is also read from stdin).
+
+The url is then translated a command line call (program and parameters). 
+Programs need to be configured in PROGNAME.ini. This is a security measure 
+so that only intended programs can be called.
 
 
-USAGE
+USAGE:
 
 On many modern platforms it is possible to register custom protocol handlers 
 with the shell. This program is intended to map URIs to pre-confiured 
@@ -37,7 +43,7 @@ the above example URI). This is done trough registering the protocol name to
 the executable with your shell (in the registry for windows users).
 
 
-CONFIGURATION
+CONFIGURATION:
 
 You need to register this progam with you shell so that it recognizes your 
 protocol name (Scheme) and redirects calls to thei executable. On Windows this 
@@ -65,10 +71,16 @@ actions that can be configured:
    document. This method can check if the document path is within a certain 
    location (for security reasons).
 
-2. Executa a program with any number of command line arguments. This method 
+2. Execut a program with any number of command line arguments. This method 
    is only as secure as the configuration allows. You need to take care
    that no arbitrary programs or code can be run.
 
+The authority part combined with the path are used to lookup a section in the 
+ini file. The URI
+  scheme://appname/exe/?-h
+would match the following section in the ini file:
+  [appname/exe]
+   
 Esample ini file:
 
 ===[INI FILE]===================================================================
@@ -88,7 +100,7 @@ path_params:   TODO
 default_path:  TODO
 
 
-FILES
+FILES:
 
 	PROGNAME.exe - This executable
 	PROGNAME.ini - Mapping between urls and executables. This file needs
@@ -99,14 +111,16 @@ FILES
 	               write permission.
 
 
-LIMITATIONS
+LIMITATIONS:
+
 1. The maximung length of an URI is limited to STDIN_MAX bytes 
    (1024 by default).
 
 2. The maximung length of a command (with all it's parameters) is limited 
    to MAX_CWD_LENGTH bytes (1024 by default).
 
-LICENSE
+
+LICENSE:
 
 This software is licensed by the BSD license. See LICENSE.txt in the source 
 code for the full license text.
