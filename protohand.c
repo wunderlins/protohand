@@ -12,6 +12,18 @@
  *   attributes: ?param1&param2 which translates into "param1 param2"
  * all schemes above can be mxed since it is up to the called program to interpret the commandline arguments and therefore the called program's specs must be met.
  *
+ 
+     foo://example/over/there?-a=1&-b=2#nose
+     \_/   \______/\________/ \_______/ \__/
+      |        |         |           |    |__
+   scheme  authority     path       query   fragment
+      |     ___|______   ____|____    __|____    |_
+     / \   /          \ /         \  /       \     |
+ [protocol] example.exe  profile]    -a=1 -b=2    unused
+  
+[protocol] is used by the Operating system and has no effect in this program.
+[profile] is used to define different actions for one executable.
+ 
  * 2017, Simon Wunderlin <swunderlin@gmail.com>
  */
 
@@ -55,6 +67,12 @@ typedef struct {
 	int found; // 1 if the section was found. initialize it to 0 otherwise
 } configuration;
 
+const char* allowed = "acbcdefghijklmnopqrstuvwxyz"
+                      "ACBCDEFGHIJKLMNOPQRSTUVWXYZ"
+                      "0123456789"
+                      "-._~"; // RFC3986, 2.3.  Unreserved Characters
+
+
 char separator() {
 #ifdef _WIN32
 	return '\\';
@@ -97,6 +115,7 @@ static int dumper(void* user, const char* section, const char* name,
 }
 
 void usage(void);
+int findchar(const char*, const char*);
 
 int main(int argc, char** argv) {
 	const char sep = separator();
@@ -184,6 +203,9 @@ int main(int argc, char** argv) {
 			break;
 		}
 	}
+	
+	// TODO: remove double and single quotes at the end and beginning of input.
+	//       some shells might pass them on to the programm.
 
 	#if DEBUG == 1
 	// write debug log
@@ -317,6 +339,9 @@ int main(int argc, char** argv) {
 	printf("path_params:    %s\n", (config.path_params == empty) ? "(unset)" :  config.path_params);
 	#endif
 	
+	// TODO: anitize user input
+	// check for allowed chars in authority and path
+	
 	return OK;
 }
 
@@ -356,4 +381,31 @@ printf("Usage: protohand.exe \"scheme:[//]authority[/path[?query]]\"\n"
 "6 UNKNOWN_INI_KEY - parser error, unrecognized section or key in ini file\n"
 "\n"
 , STDIN_MAX);
+}
+
+/**
+ * check string for allwoed characters
+ *
+ * return  1 if string contains a character that is not found in allowed.
+ * returns 0 if string does only contain characters found in allowed.
+ *
+ */
+int findchar(const char* allowed, const char* string) {
+	int leno = strlen(string);
+	int leni = strlen(allowed);
+	int o, i;
+	for (o=0; o<leno; o++) {
+		char c = string[o];
+		int found = 0;
+		//printf("ya\n");
+		
+		for (i=0; i<leni; i++) {
+			if (c == allowed[i])
+				found = 1;
+		}
+		if (found == 0)
+			return 1;
+	}
+	
+	return 0;
 }

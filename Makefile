@@ -17,6 +17,9 @@ ini_test:
 	gcc $(COPTS) -c ini.c
 	gcc $(COPTS) -o ini_test.exe ini.o ini_test.c
 
+compare:
+	gcc $(COPTS) -o compare.exe compare.c
+
 test:
 	protohand.exe "12345://67890" || true
 	protohand.exe "12345:///67890" || true
