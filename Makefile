@@ -1,9 +1,10 @@
-COPTS = -Wall -DDEBUG=1
+PROGNAME = protohand.exe
+COPTS = -Wall -DDEBUG=1 -DPROGNAME=$(PROGNAME)
 
 all:
 	gcc $(COPTS) -c ini.c
 	gcc $(COPTS) -c urldecode2.c
-	gcc $(COPTS) -o protohand.exe urldecode2.o ini.o protohand.c
+	gcc $(COPTS) -o $(PROGNAME) urldecode2.o ini.o protohand.c
 
 ini_dump:
 	gcc $(COPTS) -c ini.c
@@ -21,19 +22,19 @@ compare:
 	gcc $(COPTS) -o compare.exe compare.c
 
 test:
-	protohand.exe "12345://67890" || true
-	protohand.exe "12345:///67890" || true
-	protohand.exe "12345://?67890" || true
-	protohand.exe "12345://as/67890" || true
-	protohand.exe "12345://as?67890" || true
-	protohand.exe "12345://as/xy?67890" || true
-	protohand.exe "12345:67890" || true
-	protohand.exe "12345:/67890" || true
-	protohand.exe "12345:?67890" || true
-	protohand.exe "12345:as/67890" || true
-	protohand.exe "12345:as?67890" || true
-	protohand.exe "12345:as/xy?67890" || true
-	protohand.exe "usb://centricity?--auth=user&pass=ab%20de" || true
+	$(PROGNAME) "12345://67890" || true
+	$(PROGNAME) "12345:///67890" || true
+	$(PROGNAME) "12345://?67890" || true
+	$(PROGNAME) "12345://as/67890" || true
+	$(PROGNAME) "12345://as?67890" || true
+	$(PROGNAME) "12345://as/xy?67890" || true
+	$(PROGNAME) "12345:67890" || true
+	$(PROGNAME) "12345:/67890" || true
+	$(PROGNAME) "12345:?67890" || true
+	$(PROGNAME) "12345:as/67890" || true
+	$(PROGNAME) "12345:as?67890" || true
+	$(PROGNAME) "12345:as/xy?67890" || true
+	$(PROGNAME) "usb://centricity?--auth=user&pass=ab%20de" || true
 
 clean:
 	rm -r *.o *.exe || true
