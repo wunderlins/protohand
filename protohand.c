@@ -367,12 +367,12 @@ int main(int argc, char** argv) {
 	#endif
 	
 	// FIXME: sanitize paths
-	
 	char* cmd = malloc(sizeof(char) * STDIN_MAX*2);
 	strcpy(cmd, config.exe);
 	strcat(cmd, " ");
 	strcat(cmd, query);
 	
+	// TODO: run the command
 	printf("cmd: %s\n", cmd);
 	
 	return OK;
