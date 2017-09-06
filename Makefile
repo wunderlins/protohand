@@ -53,4 +53,6 @@ usage:
 	sed -i 's/STDIN_MAX/$(STDIN_MAX)/g' README.h
 	sed -i 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' README.h
 	sed -i 's/_EXT/$(_EXT)/g' README.h
-	
+
+todo:
+	egrep -nr "FIXME|TODO" *.c *.h

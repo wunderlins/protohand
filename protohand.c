@@ -5,7 +5,6 @@
  *
  * `scheme` is used by the os to invoke this program.
  * The program extracts then `authority` and maps it to an executable (external mapping).
- * FIXME: the `path`part can be useful but it's unclear for what yet.
  * the `query` part shall hold all program parameters. PAthis in the parameters must be checked and sanitized. The query string must be a properly urlencoded associtative array of program parameters in the form of:
  *   windows: ?/a&/b=1 which translates into "/a /b=1" command line parameters
  *   *nix:    ?-y&--long-param=fubar which translates into: "-y --long-param=fubar"
@@ -24,7 +23,7 @@
 [protocol] is used by the Operating system and has no effect in this program.
 [profile] is used to define different actions for one executable.
 
-FIXME: check for ';' in query. remove everything after ';' to make sure no additional programs are run.
+FIXME: check for ';' in query after unencoding. remove everything after ';' to make sure no additional programs are run.
 
  * 2017, Simon Wunderlin <swunderlin@gmail.com>
  */
@@ -388,6 +387,11 @@ int main(int argc, char** argv) {
 	strcpy(cmd, config.exe);
 	strcat(cmd, " ");
 	strcat(cmd, query);
+	
+	// TODO: make sure no additional command is run by checking query for 
+	//       an unquoted ';'. If the semicolon is not enclosed in ' or " the
+	//       remaining string must be removed.
+	// TODO: check base path for document or parameters
 	
 	// TODO: run the command
 	printf("cmd: %s\n", cmd);
