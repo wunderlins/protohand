@@ -69,6 +69,7 @@ typedef struct {
 	int found; // 1 if the section was found. initialize it to 0 otherwise
 } configuration;
 
+// characters allowed in host names and paths
 const char* allowed = "acbcdefghijklmnopqrstuvwxyz"
                       "ACBCDEFGHIJKLMNOPQRSTUVWXYZ"
                       "0123456789"
