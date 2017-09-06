@@ -75,7 +75,6 @@ const char* allowed = "acbcdefghijklmnopqrstuvwxyz"
                       "0123456789"
                       "-._~"; // RFC3986, 2.3.  Unreserved Characters
 
-
 char separator() {
 #ifdef _WIN32
 	return '\\';
@@ -366,6 +365,15 @@ int main(int argc, char** argv) {
 	printf("allowed_params: %s\n", (config.allowed_params == empty) ? "(unset)" :  config.allowed_params);
 	printf("path_params:    %s\n", (config.path_params == empty) ? "(unset)" :  config.path_params);
 	#endif
+	
+	// FIXME: sanitize paths
+	
+	char* cmd = malloc(sizeof(char) * STDIN_MAX*2);
+	strcpy(cmd, config.exe);
+	strcat(cmd, " ");
+	strcat(cmd, query);
+	
+	printf("cmd: %s\n", cmd);
 	
 	return OK;
 }
