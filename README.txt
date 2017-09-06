@@ -1,5 +1,4 @@
 Usage: PROGNAME_EXT <url>
-   or: echo "<url>" | PROGNAME_EXT
 
 SYNOPSYS:
 

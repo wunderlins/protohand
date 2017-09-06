@@ -150,8 +150,6 @@ int main(int argc, char** argv) {
 	
 	// url parts buffers
 	char buff[STDIN_MAX], scheme[STDIN_MAX], authority[STDIN_MAX], path[STDIN_MAX], query[STDIN_MAX], reminder[STDIN_MAX];
-	size_t sz = sizeof(buff);
-	int ch, extra;
 	
 	// set them all to empty strings
 	buff[0] = '\0';
@@ -181,7 +179,10 @@ int main(int argc, char** argv) {
 	#endif
 	
 	// read stdin
-	if (feof(stdin)) {
+	/*
+	size_t sz = sizeof(buff);
+	int ch, extra;
+	if (!feof(stdin)) {
 		// read data from stdin. no data? return error.
 		if (fgets (buff, sz, stdin) == NULL) {
 			perror("no input on stdin");
@@ -200,7 +201,8 @@ int main(int argc, char** argv) {
 				return TOO_LONG;
 			}
 		}
-	} else if(argc == 2) {
+	} else */
+	if(argc == 2) {
 		// no data from stdin, try to read argv[1]
 		int ln = strlen(argv[1]);
 		//printf("%d\n", ln);
@@ -305,6 +307,7 @@ int main(int argc, char** argv) {
 		strncpy(authority, reminder, strlen(reminder));
 		authority[found_slash] = '\0';
 		strncpy(path, reminder+found_slash, strlen(reminder)+1-found_slash);
+		path[strlen(reminder)+1-found_slash] = '\0';
 	}
 	
 	// authority and query
@@ -312,6 +315,7 @@ int main(int argc, char** argv) {
 		strncpy(authority, reminder, strlen(reminder));
 		authority[found_questionmark] = '\0';
 		strncpy(query, reminder+found_questionmark+1, strlen(reminder)+1-found_questionmark);
+		query[strlen(reminder)+1-found_questionmark] = '\0';
 	}
 	
 	// authority and path and query
@@ -319,7 +323,9 @@ int main(int argc, char** argv) {
 		strncpy(authority, reminder, strlen(reminder));
 		authority[found_slash] = '\0';
 		strncpy(path, reminder+found_slash, found_questionmark-found_slash);
+		path[found_questionmark-found_slash] = '\0';
 		strncpy(query, reminder+found_questionmark+1, strlen(reminder)+1-found_questionmark);
+		query[strlen(reminder)+1-found_questionmark] = '\0';
 	}
 	
 	// urldecode params
