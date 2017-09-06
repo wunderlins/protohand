@@ -23,7 +23,9 @@
   
 [protocol] is used by the Operating system and has no effect in this program.
 [profile] is used to define different actions for one executable.
- 
+
+FIXME: check for ';' in query. remove everything after ';' to make sure no additional programs are run.
+
  * 2017, Simon Wunderlin <swunderlin@gmail.com>
  */
 
@@ -37,9 +39,14 @@
 
 // maximum input lengths 
 // from stdin, prevent buffer overflows
-#define STDIN_MAX 1024
+#ifndef STDIN_MAX
+	#define STDIN_MAX 1024
+#endif
+
 // for paths
-#define MAX_CWD_LENGTH 1024
+#ifndef MAX_CWD_LENGTH
+	#define MAX_CWD_LENGTH 1024
+#endif
 
 // Error codes, used as return codes
 #define OK              0
