@@ -40,3 +40,11 @@ test:
 
 clean:
 	rm -r *.o *.exe || true
+
+usage:
+	echo "// Automatically generated file. Edit README.txt and run " > README.h
+	echo "// 'make usage' to update this documentation!" >> README.h
+	echo "" >> README.h
+	echo "char* usage_str = \"\"" >> README.h
+	sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' README.txt >> README.h
+	echo \""\";" >> README.h

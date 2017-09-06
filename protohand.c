@@ -36,6 +36,7 @@ FIXME: check for ';' in query. remove everything after ';' to make sure no addit
 #include <errno.h>
 #include "ini.h"
 #include "urldecode2.h"
+#include "README.h"
 
 // maximum input lengths 
 // from stdin, prevent buffer overflows
@@ -127,7 +128,10 @@ static int dumper(void* user, const char* section, const char* name,
 	return 1;
 }
 
-void usage(void);
+void usage(void) {
+	printf(usage_str);
+}
+
 int findchar(const char*, const char*);
 
 int main(int argc, char** argv) {
@@ -383,44 +387,6 @@ int main(int argc, char** argv) {
 	printf("cmd: %s\n", cmd);
 	
 	return OK;
-}
-
-void usage(void) {
-printf("Usage: protohand.exe \"scheme:[//]authority[/path[?query]]\"\n"
-"\n"
-"scheme:    the protocol part of your uri\n"
-"authority: then`host` or exe part of your uri\n"
-"path:      path contains the uri path or application handler\n"
-"query:     uri query part (must be url encoded) which translates to command line parameters\n"
-"\n"
-"On windows you need to register your protocol handler in the registry.\n"
-"Replace <yourapp> with the protocol name, and <path> with the absolute path \n"
-"to your executable. Example reg file:\n"
-"\n"
-"==[REG FILE] ==========================\n"
-"Windows Registry Editor Version 5.00\n"
-"\n"
-"[HKEY_CLASSES_ROOT\\yourapp]\n"
-"@=\"URL: Your Protocol\"\n"
-"\"URL Protocol\"=\"\"\n"
-"\n"
-"[HKEY_CLASSES_ROOT\\yourapp\\shell]\n"
-"[HKEY_CLASSES_ROOT\\yourapp\\shell\\open]\n"
-"[HKEY_CLASSES_ROOT\\yourapp\\shell\\open\\command]\n"
-"@=\"\\\"C:\\\\path\\\\protohand.exe\\\" \\\"%%1\\\"\"\n"
-"==[EOF] ==============================\n"
-"\n"
-"Exit Codes:\n"
-"\n"
-"0 OK\n"
-"1 NO_INPUT - empty string on stdin\n"
-"2 TOO_LONG - too long string on stdin, max(%d)\n"
-"3 NO_SCHEME - url parser did not find a scheme\n"
-"4 NO_AUTHORITY - url parser did not find authority\n"
-"5 NO_CURRENTDIR - cwd error, could not find current working dir\n"
-"6 UNKNOWN_INI_KEY - parser error, unrecognized section or key in ini file\n"
-"\n"
-, STDIN_MAX);
 }
 
 /**
