@@ -1,8 +1,9 @@
-Usage: PROGNAME.exe <url>
+Usage: PROGNAME_EXT <url>
+   or: echo "<url>" | PROGNAME_EXT
 
 SYNOPSYS:
 
-This rogram implements a shell protocol handler. A shell might register this 
+This program implements a shell protocol handler. A shell might register this 
 program (through registry on windows for example) and pass the called URI 
 as parameter 1 to the program (input is also read from stdin).
 
@@ -62,7 +63,7 @@ Windows Registry Editor Version 5.00
 [HKEY_CLASSES_ROOT\<proto>\shell]
 [HKEY_CLASSES_ROOT\<proto>\shell\open]
 [HKEY_CLASSES_ROOT\<proto>\shell\open\command]
-@="\"C:\\<path>\\protohand.exe\" \"%1\""
+@="\"C:\\<path>\\PROGNAME_EXT\" \"%1\""
 ===[EOF]========================================================================
 
 Mappings between URIs and executables are defined in PROGNAME.ini. There are 2 
@@ -102,7 +103,7 @@ default_path:  TODO
 
 FILES:
 
-	PROGNAME.exe - This executable
+	PROGNAME_EXT - This executable
 	PROGNAME.ini - Mapping between urls and executables. This file needs
 	               to be located in the same folder as the executable.
 	PROGNAME.log - (optional) enabled on compile time with the flag 
