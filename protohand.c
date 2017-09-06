@@ -42,13 +42,15 @@
 #define MAX_CWD_LENGTH 1024
 
 // Error codes, used as return codes
-#define OK            0
-#define NO_INPUT      1
-#define TOO_LONG      2
-#define NO_SCHEME     3
-#define NO_AUTHORITY  4
-#define NO_CURRENTDIR 5
+#define OK              0
+#define NO_INPUT        1
+#define TOO_LONG        2
+#define NO_SCHEME       3
+#define NO_AUTHORITY    4
+#define NO_CURRENTDIR   5
 #define UNKNOWN_INI_KEY 6
+#define UNALLOWED_CHAR_IN_AUTHORITY 11
+#define UNALLOWED_CHAR_IN_PATH 12
 
 #define INI_FILE_NAME "protohand.ini"
 
@@ -79,6 +81,10 @@ char separator() {
 #else
 	return '/';
 #endif
+}
+
+void printerr(char* errstr) {
+	fprintf(stderr, errstr);
 }
 
 /**
@@ -263,9 +269,9 @@ int main(int argc, char** argv) {
 	counter = 0;
 	
 	for(; counter<strlen(reminder); counter++) {
-		if (reminder[counter] == '/') 
+		if (reminder[counter] == '/' && found_slash == -1) 
 			found_slash = counter;
-		if (reminder[counter] == '?') 
+		if (reminder[counter] == '?' && found_questionmark == -1) 
 			found_questionmark = counter;
 		if (found_questionmark > -1 && found_slash > -1)
 			break;
@@ -316,6 +322,27 @@ int main(int argc, char** argv) {
 	printf("path      (%d): '%s'\n", found_slash, path);
 	printf("query     (%d): '%s'\n", found_questionmark, query_escaped);
 	#endif
+
+	// TODO: sanitize user input
+	// check for allowed chars in authority and path
+	int res_authority;
+	res_authority = findchar(allowed, (const char*) authority);
+	if (res_authority != 0) {
+		printerr("Unallowed character in authority\n");
+		return UNALLOWED_CHAR_IN_AUTHORITY;
+	}
+	
+	// check if there are disallwoed chars in path
+	int res_path;
+	char* allowedp = malloc(sizeof(char) * strlen(allowed)+2);
+	strcpy(allowedp, allowed);
+	strcat(allowedp, "/");
+	res_path = findchar(allowedp, (const char*) path);
+	if (res_path != 0) {
+		printerr("Unallowed character in path\n");
+		return UNALLOWED_CHAR_IN_PATH;
+	}
+
 	
 	// find the appropriate config in the ini file
 	// try to read ini file
@@ -338,9 +365,6 @@ int main(int argc, char** argv) {
 	printf("allowed_params: %s\n", (config.allowed_params == empty) ? "(unset)" :  config.allowed_params);
 	printf("path_params:    %s\n", (config.path_params == empty) ? "(unset)" :  config.path_params);
 	#endif
-	
-	// TODO: anitize user input
-	// check for allowed chars in authority and path
 	
 	return OK;
 }
