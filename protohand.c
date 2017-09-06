@@ -19,7 +19,7 @@
    scheme  authority     path       query   fragment
       |     ___|______   ____|____    __|____    |_
      / \   /          \ /         \  /       \     |
- [protocol] example.exe  profile]    -a=1 -b=2    unused
+ [protocol] example.exe  [profile]    -a=1 -b=2    unused
   
 [protocol] is used by the Operating system and has no effect in this program.
 [profile] is used to define different actions for one executable.
@@ -127,7 +127,7 @@ int main(int argc, char** argv) {
 	const char sep = separator();
 	
 	// initialize the config 
-	int error;
+	//int error;
 	const char* empty = "";
 	configuration config;
 	config.section        = empty;
@@ -323,7 +323,6 @@ int main(int argc, char** argv) {
 	printf("query     (%d): '%s'\n", found_questionmark, query_escaped);
 	#endif
 
-	// TODO: sanitize user input
 	// check for allowed chars in authority and path
 	int res_authority;
 	res_authority = findchar(allowed, (const char*) authority);
@@ -343,6 +342,7 @@ int main(int argc, char** argv) {
 		return UNALLOWED_CHAR_IN_PATH;
 	}
 
+	// TODO: check allowed characters in params ?
 	
 	// find the appropriate config in the ini file
 	// try to read ini file
@@ -351,9 +351,9 @@ int main(int argc, char** argv) {
 	//strcat(section, "/");
 	strcat(section, path);
 	config.section = section;
-	error = ini_parse(ini_file, dumper, &config);
+	ini_parse(ini_file, dumper, &config);
 	
-	if (error == 0) {
+	if (config.found == 0) {
 		perror("unknown ini section or key");
 		return UNKNOWN_INI_KEY;
 	}
