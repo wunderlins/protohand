@@ -22,7 +22,7 @@ Due to the non-interactive nature of such a program, a debug log can be written
 to PROGNAME.log.
 
 This a quick overview how url parts are mapped to an executable command line 
-string:
+string (see rfc3986, section 3 for details on URIs):
 
      foo://example/over/there?-a=1&-b=2#nose
      \_/   \______/\________/ \_______/ \__/
@@ -91,11 +91,12 @@ default_path:  TODO
 FILES
 
 	PROGNAME.exe - This executable
-	PROGNAME.ini - Mapping between urls and executables. This file needs to 
-	               be located in the same folder as the executable.
-	PROGNAME.log - (optional) enabled on compile time with the flag -DDEBUG=1
-	               The log will be written into the same directory as the 
-	               executable. Make sure the program has write permission.
+	PROGNAME.ini - Mapping between urls and executables. This file needs
+	               to be located in the same folder as the executable.
+	PROGNAME.log - (optional) enabled on compile time with the flag 
+	               -DDEBUG=1 The log will be written into the same 
+	               directory as the executable. Make sure the program has 
+	               write permission.
 
 
 LIMITATIONS
