@@ -59,6 +59,7 @@ FIXME: check for ';' in query after unencoding. remove everything after ';' to m
 #define UNKNOWN_INI_KEY 6
 #define UNALLOWED_CHAR_IN_AUTHORITY 11
 #define UNALLOWED_CHAR_IN_PATH 12
+#define PARAM_SPLIT_ERROR 13
 
 #define INI_FILE_NAME "protohand.ini"
 
@@ -73,6 +74,8 @@ typedef struct {
 	const char* default_path;
 	const char* allowed_params;
 	const char* path_params;
+	const char* params_prepend;
+	const char* params_append;
 	const char* exe;
 	int found; // 1 if the section was found. initialize it to 0 otherwise
 } configuration;
@@ -115,6 +118,12 @@ static int dumper(void* user, const char* section, const char* name,
 			pconfig->found = 1;
 		} else if (MATCH(section, "path_params")) {
 			pconfig->path_params = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "params_prepend")) {
+			pconfig->params_prepend = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "params_append")) {
+			pconfig->params_append = strdup(value);
 			pconfig->found = 1;
 		} else if (MATCH(section, "exe")) {
 			pconfig->exe = strdup(value);
@@ -381,57 +390,76 @@ int main(int argc, char** argv) {
 	#if DEBUG == 1
 	printf("section:        %s\n", config.section);
 	printf("exe:            %s\n", config.exe);
-	printf("default_path:   %s\n", (config.default_path == empty) ? "(unset)" :  config.default_path);
-	printf("allowed_params: %s\n", (config.allowed_params == empty) ? "(unset)" :  config.allowed_params);
-	printf("path_params:    %s\n", (config.path_params == empty) ? "(unset)" :  config.path_params);
+	printf("default_path:   %s\n", (strcmp(config.default_path, "") == 0) ? "(unset)" :  config.default_path);
+	printf("allowed_params: %s\n", (strcmp(config.allowed_params, "") == 0) ? "(unset)" :  config.allowed_params);
+	printf("path_params:    %s\n", (strcmp(config.path_params, "") == 0) ? "(unset)" :  config.path_params);
+	printf("params_prepend: %s\n", (strcmp(config.params_prepend, "") == 0) ? "(unset)" :  config.params_prepend);
+	printf("params_append:  %s\n", (strcmp(config.params_append, "") == 0) ? "(unset)" :  config.params_append);
 	#endif
 	
 	// split parameters by ',' into a char** array so we can check 
 	// against configuration
 	char *a_allowed_params[100];
 	char *allowed_params = strdup(config.allowed_params);
-	int res, count;
-	res = split(allowed_params, ",", a_allowed_params, &count);
+	int res, count_allowed_params;
+	res = split(allowed_params, ",", a_allowed_params, &count_allowed_params);
+	if (res != 0) {
+		printerr("Failed to parse allowed_params\n");
+		return PARAM_SPLIT_ERROR;
+	}
 	
 	#if DEBUG == 1
-	printf("allowed_params count: %d\n", count);
-	for (i = 0; i < count; ++i) 
+	printf("allowed_params count: %d\n", count_allowed_params);
+	for (i = 0; i < count_allowed_params; ++i) 
 		printf("%s\n", a_allowed_params[i]);
 	#endif
 	
 	// split the path_params accordingly into an array by ','
 	char *a_path_params[100];
+	int count_path_params;
 	char *path_params = strdup(config.path_params);
-	res = split(path_params, ",", a_path_params, &count);
+	res = split(path_params, ",", a_path_params, &count_path_params);
+	if (res != 0) {
+		printerr("Failed to parse path_params\n");
+		return PARAM_SPLIT_ERROR;
+	}
 	
 	#if DEBUG == 1
-	printf("path_params count: %d\n", count);
-	for (i = 0; i < count; ++i) 
+	printf("path_params count: %d\n", count_path_params);
+	for (i = 0; i < count_path_params; ++i) 
 		printf("%s\n", a_path_params[i]);
 	#endif
 	
 	// finally split the passed parameters
 	char *a_query_escaped[100];
-	res = split(query_escaped, "&", a_query_escaped, &count);
+	int count_query_escaped;
+	res = split(query_escaped, "&", a_query_escaped, &count_query_escaped);
+	if (res != 0) {
+		printerr("Failed to parse query_escaped\n");
+		return PARAM_SPLIT_ERROR;
+	}
 	
 	#if DEBUG == 1
-	printf("query_escaped count: %d\n", count);
-	for (i = 0; i < count; ++i) 
+	printf("query_escaped count: %d\n", count_query_escaped);
+	for (i = 0; i < count_query_escaped; ++i) 
 		printf("%s\n", a_query_escaped[i]);
 	#endif
 	
-	// FIXME: sanitize paths
-	char* cmd = malloc(sizeof(char) * STDIN_MAX*2);
-	strcpy(cmd, config.exe);
-	strcat(cmd, " ");
-	strcat(cmd, query_escaped);
+	// TODO: check that all parameters in q_query_escaped are also contained in
+	//       a_allowed_params to make sure no unwanted parameters are used
 	
+	// FIXME: sanitize paths
 	// TODO: make sure no additional command is run by checking query for 
 	//       an unquoted ';'. If the semicolon is not enclosed in ' or " the
 	//       remaining string must be removed.
 	// TODO: check base path for document or parameters
 	
+	// TODO: create command line arguments from a_query_escaped
 	// TODO: run the command
+	char* cmd = malloc(sizeof(char) * STDIN_MAX*2);
+	strcpy(cmd, config.exe);
+	strcat(cmd, " ");
+	strcat(cmd, query_escaped);
 	printf("cmd: %s\n", cmd);
 	
 	return OK;

@@ -58,6 +58,9 @@ test:
 	$(PROGNAME)$(_EXT) "12345:as/xy?67890" || true
 	$(PROGNAME)$(_EXT) "usb://centricity?--auth=user&pass=ab%20de" || true
 
+param_test:
+	$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=C:\\windows\\CSUP.txt&a=b&%20c=d" || true
+	
 clean:
 	rm -r *.o *$(_EXT) || true
 
