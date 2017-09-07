@@ -32,11 +32,11 @@ string (see rfc3986, section 3 for details on URIs):
 
      foo://example/over/there?-a=1&-b=2#nose
      \_/   \______/\________/ \_______/ \__/
-      |        |         |           |    |__
-   scheme  authority     path       query   fragment
+      |        |         |           |    |____
+   scheme  authority     path        query   fragment
       |     ___|______   ____|____    __|____    |_
      / \   /          \ /         \  /       \     |
- [protocol] example.exe  [profile]    -a=1 -b=2    unused
+ [protocol]  [profile]  example.exe  -a=1 -b=2    unused
 
 For this URI handler to work, it needs to be mapped to a protocol (foo in 
 the above example URI). This is done trough registering the protocol name to 
