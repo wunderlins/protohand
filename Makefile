@@ -1,5 +1,7 @@
 detected_OS := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 
+DEBUG=1
+
 SEDI_EXT=
 ifeq ($(detected_OS),Darwin)  # Mac OS X
 	SEDI_EXT = .bak 
@@ -9,28 +11,31 @@ PROGNAME = protohand
 _EXT = .exe
 STDIN_MAX = 1024
 MAX_CWD_LENGTH = 1024
-#COPTS = -Wall -DDEBUG=1 -DPROGNAME=$(PROGNAME) -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH) -s
-COPTS = -Wall -DDEBUG=1 -DPROGNAME=$(PROGNAME) -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
 
-all:
-	gcc $(COPTS) -c ini.c
-	gcc $(COPTS) -c urldecode2.c
-	gcc $(COPTS) -o $(PROGNAME)$(_EXT) urldecode2.o ini.o protohand.c
+CFLAGS = -Wall -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
+ifeq ($(DEBUG),0) 
+	CFLAGS += -s
+endif
+
+all: usage
+	gcc $(CFLAGS) -c ini.c
+	gcc $(CFLAGS) -c urldecode2.c
+	gcc $(CFLAGS) -o $(PROGNAME)$(_EXT) urldecode2.o ini.o protohand.c
 
 ini_dump:
-	gcc $(COPTS) -c ini.c
-	gcc $(COPTS) -o ini/ini_dump$(_EXT) ini.o ini/ini_dump.c
+	gcc $(CFLAGS) -c ini.c
+	gcc $(CFLAGS) -o ini/ini_dump$(_EXT) ini.o ini/ini_dump.c
 	
 ini_example:
-	gcc $(COPTS) -c ini.c
-	gcc $(COPTS) -o ini/ini_example$(_EXT) ini.o ini/ini_example.c
+	gcc $(CFLAGS) -c ini.c
+	gcc $(CFLAGS) -o ini/ini_example$(_EXT) ini.o ini/ini_example.c
 
 ini_test:
-	gcc $(COPTS) -c ini.c
-	gcc $(COPTS) -o ini_test$(_EXT) ini.o ini_test.c
+	gcc $(CFLAGS) -c ini.c
+	gcc $(CFLAGS) -o ini_test$(_EXT) ini.o ini_test.c
 
 compare:
-	gcc $(COPTS) -o compare$(_EXT) compare.c
+	gcc $(CFLAGS) -o compare$(_EXT) compare.c
 
 test:
 	$(PROGNAME)$(_EXT) "12345://67890" || true
