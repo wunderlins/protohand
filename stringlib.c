@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -71,21 +72,92 @@ int findchar(const char* allowed, const char* string) {
 	return 0;
 }
 
+int find_substr(char* string, char* search) {
+	int index = -1;
+	char *pch = strstr(string, search);
+	if (pch != NULL) {
+		index = pch - string;
+	}
+	return index;
+}
+
 /**
  * find a command line parameter search in a string array (options)
  *
  * since search may be a par of --param=value, compare only the part in 
  * front of the equal sign.
  *
- * Returns -1 if there is no match. Otherwise returns the position of the 
- * first character that matched. Typically this should be 0 if search is 
- * found at the beginning of an element in options.
+ * Returns 01 if there is no match. Otherwise returns 1.
  */
-int find_param(char* search, char** options) {
+int find_param(char* search, struct str_array* options) {
+
+	int res;
 	
-	return -1;
+	char* key;
+	int ret = strpos(search, '=');
+	
+	if (ret == -1) {
+		key = search;
+	} else {
+		key = malloc(sizeof(char *) * ret);
+		key = strncpy(key, search, ret);
+		key[ret] = '\0';
+	}
+	
+	#if DEBUG > 1
+	printf("key: %s\n", key);
+	int counter = 0;
+	#endif
+
+	for (counter=0; counter<options->length; counter++) {
+		res = find_substr(options->items[counter], key);
+		#if DEBUG > 1
+		printf("--> %s [%d]\n", options->items[counter], res);
+		#endif
+		
+		if (res == 0)
+			return 1;
+	}
+
+	return 0;
 }
 
+/**
+str_array with length: https://stackoverflow.com/questions/9522760/find-the-number-of-strings-in-an-str_array-of-strings-in-c
+
+As another way, you could create a struct that is filled with the values you want.
+
+And you would use it as such:
+
+struct str_array mystr_array = str_array("Hi", "There", "This", "Is", "A", "Test");
+// use mystr_array
+
+printf("%i", mystr_array.length);
+str_array_destroy(mystr_array);
+
+*/
+
+struct str_array str_array_make(char **elements, int count) {
+	struct str_array ret;
+	ret.items = malloc(sizeof(char *) * count);
+	ret.length = count;
+
+	for (int i = 0; i < count; i++) {
+		ret.items[i] = elements[i];
+	}
+
+	return ret;
+}
+
+int strpos(char* string, char find) {
+	int index = -1;
+	const char *ptr = strchr(string, find);
+	if(ptr) {
+		index = ptr - string;
+		// do something
+	}
+	return index;
+}
 
 /*
 int main () {
