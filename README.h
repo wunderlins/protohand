@@ -3,7 +3,6 @@
 
 char* usage_str = ""
 "Usage: protohand.exe <url>\n"
-"   or: echo \"<url>\" | protohand.exe\n"
 "\n"
 "SYNOPSYS:\n"
 "\n"

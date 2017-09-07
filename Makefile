@@ -49,10 +49,10 @@ usage:
 	echo "char* usage_str = \"\"" >> README.h
 	sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' README.txt >> README.h
 	echo \""\";" >> README.h
-	sed -i 's/PROGNAME/$(PROGNAME)/g' README.h
-	sed -i 's/STDIN_MAX/$(STDIN_MAX)/g' README.h
-	sed -i 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' README.h
-	sed -i 's/_EXT/$(_EXT)/g' README.h
+	sed -i .bak 's/PROGNAME/$(PROGNAME)/g' README.h
+	sed -i .bak 's/STDIN_MAX/$(STDIN_MAX)/g' README.h
+	sed -i .bak 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' README.h
+	sed -i .bak 's/_EXT/$(_EXT)/g' README.h
 
 todo:
 	egrep -nr "FIXME|TODO" *.c *.h
