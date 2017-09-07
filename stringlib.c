@@ -104,6 +104,9 @@ int find_param(char* search, struct str_array* options) {
 		key[ret] = '\0';
 	}
 	
+	// remove white space at the beginning and end
+	key = trim(key);
+	
 	#if DEBUG > 1
 	printf("key: %s\n", key);
 	int counter = 0;

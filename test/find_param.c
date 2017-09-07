@@ -4,7 +4,7 @@
 
 int main(int argc, char** argv) {
 	int i=0;
-	char* search = "--path=C:\\windows\\CSUP.txt";
+	char* search = "--path = 	C:\\windows\\CSUP.txt";
 	//char* search = "--help";
 	char* options[] = {"--help", "--search", "--path", "--whatever", "whatever--path"};
 	
