@@ -111,6 +111,12 @@ alowed_params (optional):
      caller. This mechanism is white list based. If a caller passes parameters
      not listed here, the program mwill not execute the exe.
 
+param_prepend (optiona):
+	 Add this string in after the exe and before the arguments which were 
+	 passed in the URIs query string. 
+
+param_append (optiona):
+	 Add this string at the endo of the command line. 
 
 FILES:
 
