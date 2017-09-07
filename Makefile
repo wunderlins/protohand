@@ -78,3 +78,7 @@ usage:
 
 todo:
 	egrep -nr "FIXME|TODO" *.c *.h
+
+find_param:
+	gcc $(CFLAGS) -c stringlib.c
+	gcc $(CFLAGS) -o test/find_param$(_EXT) stringlib.o test/find_param.c

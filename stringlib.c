@@ -71,6 +71,17 @@ int findchar(const char* allowed, const char* string) {
 	return 0;
 }
 
+/**
+ * find a command line parameter search in a string array (options)
+ *
+ * since search may be a par of --param=value, compare only the part in 
+ * front of the equal sign
+ */
+int find_param(char* search, char** options) {
+	
+	return -1;
+}
+
 
 /*
 int main () {
