@@ -135,6 +135,8 @@ LIMITATIONS:
    characters as per rfc3986: [a-zA-Z0-9-._~] and in the path part 
    additionally '/' is allowed.
 
+4. The length of the comma separated parameters list in the ini file is 
+   limited to 100 items.
 
 LICENSE:
 

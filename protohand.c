@@ -36,6 +36,7 @@ FIXME: check for ';' in query after unencoding. remove everything after ';' to m
 #include "ini.h"
 #include "urldecode2.h"
 #include "README.h"
+#include "stringlib.h"
 
 // maximum input lengths 
 // from stdin, prevent buffer overflows
@@ -360,6 +361,9 @@ int main(int argc, char** argv) {
 
 	// TODO: check allowed characters in params ?
 	
+	// FIXME: make authority/path to lowercase before mathing to ini section 
+	//        so we don't drive windows users crazy! xD
+	
 	// find the appropriate config in the ini file
 	// try to read ini file
 	char section[STDIN_MAX] = "";
@@ -382,11 +386,45 @@ int main(int argc, char** argv) {
 	printf("path_params:    %s\n", (config.path_params == empty) ? "(unset)" :  config.path_params);
 	#endif
 	
+	// split parameters by ',' into a char** array so we can check 
+	// against configuration
+	char *a_allowed_params[100];
+	char *allowed_params = strdup(config.allowed_params);
+	int res, count;
+	res = split(allowed_params, ",", a_allowed_params, &count);
+	
+	#if DEBUG == 1
+	printf("allowed_params count: %d\n", count);
+	for (i = 0; i < count; ++i) 
+		printf("%s\n", a_allowed_params[i]);
+	#endif
+	
+	// split the path_params accordingly into an array by ','
+	char *a_path_params[100];
+	char *path_params = strdup(config.path_params);
+	res = split(path_params, ",", a_path_params, &count);
+	
+	#if DEBUG == 1
+	printf("path_params count: %d\n", count);
+	for (i = 0; i < count; ++i) 
+		printf("%s\n", a_path_params[i]);
+	#endif
+	
+	// finally split the passed parameters
+	char *a_query_escaped[100];
+	res = split(query_escaped, "&", a_query_escaped, &count);
+	
+	#if DEBUG == 1
+	printf("query_escaped count: %d\n", count);
+	for (i = 0; i < count; ++i) 
+		printf("%s\n", a_query_escaped[i]);
+	#endif
+	
 	// FIXME: sanitize paths
 	char* cmd = malloc(sizeof(char) * STDIN_MAX*2);
 	strcpy(cmd, config.exe);
 	strcat(cmd, " ");
-	strcat(cmd, query);
+	strcat(cmd, query_escaped);
 	
 	// TODO: make sure no additional command is run by checking query for 
 	//       an unquoted ';'. If the semicolon is not enclosed in ' or " the
