@@ -1,3 +1,10 @@
+detected_OS := $(shell sh -c 'uname -s 2>/dev/null || echo not')
+
+SEDI_EXT=
+ifeq ($(detected_OS),Darwin)  # Mac OS X
+	SEDI_EXT = .bak 
+endif
+
 PROGNAME = protohand
 _EXT = .exe
 STDIN_MAX = 1024
@@ -49,10 +56,10 @@ usage:
 	echo "char* usage_str = \"\"" >> README.h
 	sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' README.txt >> README.h
 	echo \""\";" >> README.h
-	sed -i .bak 's/PROGNAME/$(PROGNAME)/g' README.h
-	sed -i .bak 's/STDIN_MAX/$(STDIN_MAX)/g' README.h
-	sed -i .bak 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' README.h
-	sed -i .bak 's/_EXT/$(_EXT)/g' README.h
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' README.h
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' README.h
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' README.h
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' README.h
 
 todo:
 	egrep -nr "FIXME|TODO" *.c *.h
