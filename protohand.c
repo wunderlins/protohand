@@ -142,6 +142,8 @@ void usage(void) {
 }
 
 int main(int argc, char** argv) {
+
+	int i;
 	const char sep = separator();
 	
 	// initialize the config 
@@ -180,7 +182,7 @@ int main(int argc, char** argv) {
 	strcpy(ini_file, cwd);
 	strcat(ini_file, INI_FILE_NAME);
 	
-	#if DEBUG == 1
+	#if DEBUG > 0
 	fprintf(stdout, "Current working dir: %s\n", cwd);
 	fprintf(stdout, "Current ini file:    %s\n", ini_file);
 	#endif
@@ -222,7 +224,6 @@ int main(int argc, char** argv) {
 	}
 	
 	// remove trailing newline
-	int i;
 	for(i=0; i<strlen(buff)+1; i++) {
 		if (buff[i] == '\n' || buff[i] == '\r') {
 			buff[i] = '\0';
@@ -233,7 +234,7 @@ int main(int argc, char** argv) {
 	// TODO: remove double and single quotes at the end and beginning of input.
 	//       some shells might pass them on to the programm.
 
-	#if DEBUG == 1
+	#if DEBUG > 0
 	// write debug log
 	FILE* logfile;
 	logfile = fopen("protohand.log", "wb+");
@@ -241,7 +242,7 @@ int main(int argc, char** argv) {
 	fclose(logfile);
 	#endif
 	
-	#if DEBUG == 1
+	#if DEBUG > 0
 	printf("===========================\n");
 	printf("stdin: %s\n", buff);
 	printf("stdin: %d, buff: %d\n", (int) strlen(argv[1]), (int) strlen(buff));
@@ -340,7 +341,7 @@ int main(int argc, char** argv) {
 	urldecode2(query_escaped, query);
 	
 	// display parsed uri
-	#if DEBUG == 1
+	#if DEBUG > 0
 	printf("scheme    (%d): '%s'\n", found, scheme);
 	printf("authority (%d): '%s'\n", (int) strlen(authority), authority);
 	printf("path      (%d): '%s'\n", found_slash, path);
@@ -385,7 +386,7 @@ int main(int argc, char** argv) {
 		return UNKNOWN_INI_KEY;
 	}
 	
-	#if DEBUG == 1
+	#if DEBUG > 0
 	printf("section:        %s\n", config.section);
 	printf("exe:            %s\n", config.exe);
 	printf("default_path:   %s\n", (strcmp(config.default_path, "") == 0) ? "(unset)" :  config.default_path);
@@ -397,50 +398,31 @@ int main(int argc, char** argv) {
 	
 	// split parameters by ',' into a char** array so we can check 
 	// against configuration
-	char *a_allowed_params[100];
-	char *allowed_params = strdup(config.allowed_params);
-	int res, count_allowed_params;
-	res = split(allowed_params, ",", a_allowed_params, &count_allowed_params);
-	if (res != 0) {
-		printerr("Failed to parse allowed_params\n");
-		return PARAM_SPLIT_ERROR;
-	}
+	struct str_array a_allowed_params = str_array_split(strdup(config.allowed_params), ",");
 	
-	#if DEBUG == 1
-	printf("allowed_params count: %d\n", count_allowed_params);
-	for (i = 0; i < count_allowed_params; ++i) 
-		printf("%s\n", a_allowed_params[i]);
+	#define \
+		str_array_debug(name, obj) ({ \
+			printf("%s count: %d\n", name, obj.length); \
+			for (i = 0; i < obj.length; ++i) \
+				printf("     param: %s\n", obj.items[i]); \
+		});
+	
+	#if DEBUG > 0
+	str_array_debug("allowed_params", a_allowed_params);
 	#endif
 	
 	// split the path_params accordingly into an array by ','
-	char *a_path_params[100];
-	int count_path_params;
-	char *path_params = strdup(config.path_params);
-	res = split(path_params, ",", a_path_params, &count_path_params);
-	if (res != 0) {
-		printerr("Failed to parse path_params\n");
-		return PARAM_SPLIT_ERROR;
-	}
-	
-	#if DEBUG == 1
-	printf("path_params count: %d\n", count_path_params);
-	for (i = 0; i < count_path_params; ++i) 
-		printf("%s\n", a_path_params[i]);
+	struct str_array a_path_params = str_array_split(strdup(config.path_params), ",");
+
+	#if DEBUG > 0
+	str_array_debug("path_params", a_path_params);
 	#endif
 	
 	// finally split the passed parameters
-	char *a_query_escaped[100];
-	int count_query_escaped;
-	res = split(query_escaped, "&", a_query_escaped, &count_query_escaped);
-	if (res != 0) {
-		printerr("Failed to parse query_escaped\n");
-		return PARAM_SPLIT_ERROR;
-	}
+	struct str_array a_query_escaped = str_array_split(strdup(query_escaped), "&");
 	
-	#if DEBUG == 1
-	printf("query_escaped count: %d\n", count_query_escaped);
-	for (i = 0; i < count_query_escaped; ++i) 
-		printf("%s\n", a_query_escaped[i]);
+	#if DEBUG > 0
+	str_array_debug("query_escaped", a_query_escaped);
 	#endif
 	
 	// TODO: check that all parameters in q_query_escaped are also contained in

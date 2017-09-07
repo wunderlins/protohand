@@ -152,6 +152,39 @@ struct str_array str_array_make(char **elements, int count) {
 	return ret;
 }
 
+/**
+ * split string by delim.
+ *
+ * returns a str_array containing items and length
+ */
+struct str_array str_array_split(char* string, char* delim) {
+	char** result = malloc(sizeof(char *) * 512);
+	struct str_array ret;
+
+	#if DEBUG > 1
+	printf("delim:  %s\n", delim);
+	printf("string: %s\n", string);
+	#endif
+	
+	//char buf[] =" abc / qwe / ccd ";
+	int i = 0;
+	char *p = strtok(string, delim);
+	//char *array[100];
+
+	while (p != NULL) {
+		p = trim(p);
+		result[i++] = p;
+		p = strtok (NULL, delim);
+	}
+	
+	if (result != NULL) {
+		ret.items = result;
+		ret.length = i;
+	} 
+	
+	return ret;
+}
+
 int strpos(char* string, char find) {
 	int index = -1;
 	const char *ptr = strchr(string, find);
