@@ -59,7 +59,7 @@ test:
 	$(PROGNAME)$(_EXT) "usb://centricity?--auth=user&pass=ab%20de" || true
 
 param_test:
-	$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=C:\\windows\\CSUP.txt&a=b&%20c=d&--help" || true
+	$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=C:\\windows\\CSUP.txt&a=b&%20&b=x&c=d&--help" || true
 	
 clean:
 	rm -r *.o *$(_EXT) || true

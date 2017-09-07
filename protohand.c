@@ -18,7 +18,7 @@
    scheme  authority     path       query   fragment
       |     ___|______   ____|____    __|____    |_
      / \   /          \ /         \  /       \     |
- [protocol] example.exe  [profile]    -a=1 -b=2    unused
+ [protocol] [profile]   example.exe  -a=1 -b=2    unused
   
 [protocol] is used by the Operating system and has no effect in this program.
 [profile] is used to define different actions for one executable.
@@ -52,7 +52,7 @@ FIXME: check for ';' in query after unencoding. remove everything after ';' to m
 // if there are more unvalidated parameters passed in via URI query, the 
 // program will give up. We assume that this is certainly a bogous request
 #ifndef MAX_UNVALIDATED_PARAMETERS
-	#define MAX_UNVALIDATED_PARAMETERS 2
+	#define MAX_UNVALIDATED_PARAMETERS 5
 #endif
 
 // Error codes, used as return codes
@@ -450,7 +450,9 @@ int main(int argc, char** argv) {
 		if (res == 0) {
 			int stack = unvalidated_counter-unvalidated_counter_start*-1;
 			unvalidated_params = 1;
+			#if DEBUG > 0
 			printf("Stack %d\n", stack);
+			#endif
 			unvalidated[unvalidated_length++] = a_query_escaped.items[i];
 			unvalidated_counter--;
 		}
@@ -466,6 +468,7 @@ int main(int argc, char** argv) {
 	
 	if (unvalidated_params == 1) {
 		char *buff = malloc(sizeof(char *) * STDIN_MAX);
+		buff[0] = '\0';
 		
 		for (i=unvalidated_counter_start; i>unvalidated_counter; i--) {
 			int index = (i-unvalidated_counter_start)*-1;
@@ -473,10 +476,10 @@ int main(int argc, char** argv) {
 			printf("  unvalidated [%d] -> '%s'\n", index, unvalidated[index]);
 			#endif
 			
-			if (i != 0)
-				strcpy(buff, ", ");
+			if (i != unvalidated_counter_start)
+				strcat(buff, ", ");
 			
-			strcpy(buff, unvalidated[index]);
+			strcat(buff, unvalidated[index]);
 		}
 		char *err_buff = malloc(sizeof(char *) * STDIN_MAX);
 		sprintf(err_buff, "Unvalidated parameter submitted: %s\n", buff);
