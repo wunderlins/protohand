@@ -107,14 +107,14 @@ int find_param(char* search, struct str_array* options) {
 	// remove white space at the beginning and end
 	key = trim(key);
 	
-	#if DEBUG > 1
+	#if DEBUG > 2
 	printf("key: %s\n", key);
-	int counter = 0;
 	#endif
 
+	int counter = 0;
 	for (counter=0; counter<options->length; counter++) {
 		res = find_substr(options->items[counter], key);
-		#if DEBUG > 1
+		#if DEBUG > 2
 		printf("--> %s [%d]\n", options->items[counter], res);
 		#endif
 		

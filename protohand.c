@@ -49,6 +49,12 @@ FIXME: check for ';' in query after unencoding. remove everything after ';' to m
 	#define MAX_CWD_LENGTH 1024
 #endif
 
+// if there are more unvalidated parameters passed in via URI query, the 
+// program will give up. We assume that this is certainly a bogous request
+#ifndef MAX_UNVALIDATED_PARAMETERS
+	#define MAX_UNVALIDATED_PARAMETERS 2
+#endif
+
 // Error codes, used as return codes
 #define OK              0
 #define NO_INPUT        1
@@ -60,6 +66,8 @@ FIXME: check for ';' in query after unencoding. remove everything after ';' to m
 #define UNALLOWED_CHAR_IN_AUTHORITY 11
 #define UNALLOWED_CHAR_IN_PATH 12
 #define PARAM_SPLIT_ERROR 13
+#define UNALLOWED_PARAM 14
+#define TOO_MANY_PARAMETERS 15
 
 #define INI_FILE_NAME "protohand.ini"
 
@@ -425,8 +433,56 @@ int main(int argc, char** argv) {
 	str_array_debug("query_escaped", a_query_escaped);
 	#endif
 	
-	// TODO: check that all parameters in q_query_escaped are also contained in
-	//       a_allowed_params to make sure no unwanted parameters are used
+	// check that all parameters in a_query_escaped are also contained in
+	// a_allowed_params to make sure no unwanted parameters are used
+	int unvalidated_params = 0;
+	const int unvalidated_counter_start = MAX_UNVALIDATED_PARAMETERS;
+	int unvalidated_counter = unvalidated_counter_start;
+	char **unvalidated = malloc(sizeof(char *) * unvalidated_counter);
+	int unvalidated_length = 0;
+	for (i=0; i<a_query_escaped.length; i++) {
+		int res = find_param(a_query_escaped.items[i], &a_allowed_params);
+		#if DEBUG > 0
+		printf("    %d: [%d]: '%s'\n", i, res, a_query_escaped.items[i]);
+		#endif
+		
+		// failed to find parameter
+		if (res == 0) {
+			int stack = unvalidated_counter-unvalidated_counter_start*-1;
+			unvalidated_params = 1;
+			printf("Stack %d\n", stack);
+			unvalidated[unvalidated_length++] = a_query_escaped.items[i];
+			unvalidated_counter--;
+		}
+		
+		if (unvalidated_counter < 1) {
+			char err[MAX_UNVALIDATED_PARAMETERS*30] = "";
+			sprintf(err, "Number of unvalidated parmaeters exhausetd (num: %d)\n",
+			        unvalidated_counter_start);
+			printerr(err);
+			return TOO_MANY_PARAMETERS;
+		}
+	}
+	
+	if (unvalidated_params == 1) {
+		char *buff = malloc(sizeof(char *) * STDIN_MAX);
+		
+		for (i=unvalidated_counter_start; i>unvalidated_counter; i--) {
+			int index = (i-unvalidated_counter_start)*-1;
+			#if DEBUG > 0
+			printf("  unvalidated [%d] -> '%s'\n", index, unvalidated[index]);
+			#endif
+			
+			if (i != 0)
+				strcpy(buff, ", ");
+			
+			strcpy(buff, unvalidated[index]);
+		}
+		char *err_buff = malloc(sizeof(char *) * STDIN_MAX);
+		sprintf(err_buff, "Unvalidated parameter submitted: %s\n", buff);
+		printerr(err_buff);
+		return UNALLOWED_PARAM;
+	}
 	
 	// FIXME: sanitize paths
 	// TODO: make sure no additional command is run by checking query for 
