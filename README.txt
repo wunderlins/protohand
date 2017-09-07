@@ -52,7 +52,7 @@ is done trough the registry.
 An example registry file would look like this. Replace <proto> with your 
 protocol name (scheme) and <path> with an absolute path to your executable.
 
-===[REG FILE]===================================================================
+===[REG FILE]==================================================================
 Windows Registry Editor Version 5.00
 
 [HKEY_CLASSES_ROOT\<proto>]
@@ -63,7 +63,7 @@ Windows Registry Editor Version 5.00
 [HKEY_CLASSES_ROOT\<proto>\shell\open]
 [HKEY_CLASSES_ROOT\<proto>\shell\open\command]
 @="\"C:\\<path>\\PROGNAME_EXT\" \"%1\""
-===[EOF]========================================================================
+===[EOF]=======================================================================
 
 Mappings between URIs and executables are defined in PROGNAME.ini. There are 2 
 actions that can be configured:
@@ -83,7 +83,7 @@ would match the following section in the ini file:
    
 Esample ini file:
 
-===[INI FILE]===================================================================
+===[INI FILE]==================================================================
 [word/document]
 default_path="\\server\share"
 ;allowed_params=
@@ -92,12 +92,24 @@ exe = word.exe
 
 [cmd/exe]
 exe = cmd.exe
-===[EOF]========================================================================
+===[EOF]=======================================================================
 
-exe:           TODO
-allowed_path:  TODO
-path_params:   TODO
-default_path:  TODO
+exe:            
+     Path to the file which needs to be executed.
+
+default_path (optional):   
+     Base directory in which documents must reside. If the caller tries to 
+     pass document paths outside of this directory, the program will abort 
+     and not execute the exe.
+
+path_params (optional):    
+     A coma separated list parameters which contain file paths that need to 
+     be checked.
+  
+alowed_params (optional):  
+     A comma separated list of parameters which can be passed in by the 
+     caller. This mechanism is white list based. If a caller passes parameters
+     not listed here, the program mwill not execute the exe.
 
 
 FILES:
@@ -118,6 +130,10 @@ LIMITATIONS:
 
 2. The maximung length of a command (with all it's parameters) is limited 
    to MAX_CWD_LENGTH bytes (1024 by default).
+
+3. the authority and path part in the URI are restricted to the following 
+   characters as per rfc3986: [a-zA-Z0-9-._~] and in the path part 
+   additionally '/' is allowed.
 
 
 LICENSE:
