@@ -173,6 +173,9 @@ find_param:
 stringlib:
 	gcc $(CFLAGS) -o stringlib$(_EXT) stringlib.c
 
+cleanpath:
+	gcc $(CFLAGS) -o test/cleanpath$(_EXT) test/cleanpath.c
+
 ini_dump:
 	gcc $(CFLAGS) -c ini.c
 	gcc $(CFLAGS) -o ini/ini_dump$(_EXT) ini.o ini/ini_dump.c
