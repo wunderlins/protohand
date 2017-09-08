@@ -117,7 +117,7 @@ static int dumper(void* user, const char* section, const char* name,
 
 	#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
 	if (strcmp(pconfig->section, section) == 0) {
-		#if DEBUG > 0
+		#if DEBUG > 1
 		printf("%s => %s: %s [%s]\n", section, name, value, pconfig->section);
 		#endif
 
@@ -455,7 +455,7 @@ int main(int argc, char** argv) {
 	unvalidated_buff[0] = '\0';
 	for (i=0; i<a_query_escaped.length; i++) {
 		int res = find_param(a_query_escaped.items[i], &a_allowed_params);
-		#if DEBUG > 0
+		#if DEBUG > 1
 		printf("    %d: [%d]: '%s'\n", i, res, a_query_escaped.items[i]);
 		#endif
 		
@@ -495,7 +495,7 @@ int main(int argc, char** argv) {
 			
 			// extract the value from the parameter
 			char* value = malloc(sizeof(char *) * strlen(a_query_escaped.items[i]));
-			int found = get_value_from_argument(a_query_escaped.items[i], value);
+			get_value_from_argument(a_query_escaped.items[i], value);
 			#if DEBUG > 0
 			printf("path param value: '%s'\n", value);
 			#endif
@@ -534,12 +534,24 @@ int main(int argc, char** argv) {
 	//       remaining string must be removed.
 	// TODO: check base path for document or parameters
 	
-	// TODO: create command line arguments from a_query_escaped
+	// create command line arguments from a_query_escaped
 	// TODO: run the command
 	char* cmd = malloc(sizeof(char) * STDIN_MAX*2);
 	strcpy(cmd, config.exe);
-	strcat(cmd, " ");
-	strcat(cmd, query_escaped);
+	if (strcmp(config.params_prepend, "") == 0) {
+		strcat(cmd, " ");
+		strcat(cmd, config.params_prepend);
+	}
+	
+	for (i=0; i<a_query_escaped.length; i++) {
+		strcat(cmd, " ");
+		strcat(cmd, a_query_escaped.items[i]);
+	}
+	
+	if (strcmp(config.params_append, "") == 0) {
+		strcat(cmd, " ");
+		strcat(cmd, config.params_append);
+	}
 	printf("cmd: %s\n", cmd);
 	
 	return OK;
