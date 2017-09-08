@@ -667,6 +667,12 @@ int main(int argc, char** argv, char **envp) {
 		return PROGRAM_IS_NOT_EXECUTABLE;
 	}
 	
+	// TODO: add a transformation mechanism for parameter names so that we can 
+	//       use different parameter names on the command line than in the URI
+	//       example:         proto://exe/profile?username=foo
+	//       transform username to /u
+	//       transfomed cmd:  profile.exe /u foo
+	
 	// run the command, spawn a new process and end this application
 	int proc = 0;
 	printf("%s\n", config.exe);
