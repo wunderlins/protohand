@@ -43,6 +43,9 @@ ini_test:
 compare:
 	gcc $(CFLAGS) -o compare$(_EXT) compare.c
 
+testcmd:
+	gcc $(CFLAGS) -o testcmd$(_EXT) testcmd.c
+
 test:
 	$(PROGNAME)$(_EXT) "12345://67890" || true
 	$(PROGNAME)$(_EXT) "12345:///67890" || true
