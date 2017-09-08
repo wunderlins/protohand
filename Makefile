@@ -1,8 +1,8 @@
-.PHONY: stringlib ini usage test param_test
+.PHONY: stringlib ini usage test param_test release
 
 # DUBUG=0 disables debugging, other levels from 1-3
 DEBUG=3
-
+VERSION=0.1.0
 # naming
 PROGNAME = protohand
 _EXT = .exe
@@ -24,6 +24,44 @@ ifeq ($(DEBUG),0)
 	CFLAGS += -s
 endif
 
+# OS DETECTION
+operating_system=
+ifeq ($(OS),Windows_NT)
+    operating_system=WIN32
+    ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
+        operating_system=WIN_AMD64
+    else
+        ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+            operating_system=WIN_AMD64
+        endif
+        ifeq ($(PROCESSOR_ARCHITECTURE),x86)
+            operating_system=WIN_IA32
+        endif
+    endif
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        operating_system=LINUX
+    endif
+    ifeq ($(UNAME_S),Darwin)
+        operating_system=OSX
+    endif
+    UNAME_P := $(shell uname -p)
+    ifeq ($(UNAME_P),x86_64)
+        operating_system=AMD64
+    endif
+    ifneq ($(filter %86,$(UNAME_P)),)
+        operating_system=IA32
+    endif
+    ifneq ($(filter arm%,$(UNAME_P)),)
+        operating_system=ARM
+    endif
+endif
+
+# create release name: OS_VERSION_TIMESTAMP
+timestamp=$(shell date "+%Y%m%d%H%M%S")
+rel = $(operating_system)_$(VERSION)_$(timestamp)
+
 # build the programm
 all: usage ini
 	gcc $(CFLAGS) -c ini.c
@@ -31,6 +69,19 @@ all: usage ini
 	gcc $(CFLAGS) -c urldecode2.c
 	gcc $(CFLAGS) -o $(PROGNAME)$(_EXT) stringlib.o urldecode2.o ini.o protohand.c
 
+# create a release
+release:
+	git pull
+	$(MAKE) all
+	@echo release/$(rel)
+	mkdir "release/$(rel)"
+	cd release/$(rel); cp ../../$(PROGNAME)$(_EXT) .; cp ../../README.txt .; ../../bin/zip.exe "../$(rel).zip" *
+	rm -r "release/$(rel)"
+	git add release/*.zip
+	git commit -am "Added release $rel"
+	git push
+	git tag $(rel) && git push --tags
+	
 # generate a simple cmd utility that will print all parameters
 testcmd:
 	gcc $(CFLAGS) -o testcmd$(_EXT) testcmd.c
