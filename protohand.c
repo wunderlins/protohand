@@ -34,10 +34,15 @@ FIXME: check for ';' in query after unencoding. remove everything after ';' to m
 #include <string.h>
 #include <errno.h>
 #include <process.h> 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "ini.h"
 #include "urldecode2.h"
 #include "README.h"
 #include "stringlib.h"
+
+#define LOG_TO_FILE 0
 
 // debug levels, 0=off, 1=on
 #ifndef DEBUG
@@ -92,6 +97,7 @@ FIXME: check for ';' in query after unencoding. remove everything after ';' to m
 #define UNALLOWED_PARAM 14
 #define TOO_MANY_PARAMETERS 15
 #define PATH_NOT_ALLOWED 16
+#define PROGRAM_IS_NOT_EXECUTABLE 17
 
 #define INI_FILE_NAME "protohand.ini"
 
@@ -213,11 +219,15 @@ int main(int argc, char** argv, char **envp) {
 	// open log file
 	#if DEBUG > 0
 	// write debug log
-	char log_file[MAX_CWD_LENGTH];
-	strcpy(log_file, cwd);
-	strcat(log_file, "protohand.log");
-	logfile = fopen(log_file, "wb+");
-	fwrite(buff, strlen(buff), 1, logfile);
+		#if LOG_TO_FILE == 1
+		char log_file[MAX_CWD_LENGTH];
+		strcpy(log_file, cwd);
+		strcat(log_file, "protohand.log");
+		logfile = fopen(log_file, "wb+");
+		fwrite(buff, strlen(buff), 1, logfile);
+		#else
+			logfile = stdout;
+		#endif
 	#endif
 	
 	char ini_file[MAX_CWD_LENGTH];
@@ -462,13 +472,18 @@ int main(int argc, char** argv, char **envp) {
 	char *unvalidated_buff = malloc(sizeof(char *) * STDIN_MAX);
 	unvalidated_buff[0] = '\0';
 	for (i=0; i<a_query_escaped.length; i++) {
+		int is_param = 0;
+		if (a_query_escaped.items[i][0] == '-' ||
+		    a_query_escaped.items[i][0] == '/')
+			is_param = 1;
+			
 		int res = find_param(a_query_escaped.items[i], &a_allowed_params);
 		#if DEBUG > 1
 		fprintf(logfile, "    %d: [%d]: '%s'\n", i, res, a_query_escaped.items[i]);
 		#endif
 		
 		// failed to find parameter in allowd parameters
-		if (res == 0) {
+		if (res == 0 && is_param) {
 			unvalidated_params = 1;
 			#if DEBUG > 0
 			int stack = unvalidated_counter-unvalidated_counter_start*-1;
@@ -503,10 +518,17 @@ int main(int argc, char** argv, char **envp) {
 			
 			// extract the value from the parameter
 			char* value = malloc(sizeof(char *) * strlen(a_query_escaped.items[i]));
-			get_value_from_argument(a_query_escaped.items[i], value);
+			int has_value = get_value_from_argument(a_query_escaped.items[i], value);
+			if (has_value == 0) {
+				if (a_query_escaped.length > i+1) {
+					value = a_query_escaped.items[i+1];
+				}
+			}
 			#if DEBUG > 0
 			fprintf(logfile, "path param value: '%s'\n", value);
 			#endif
+			
+			// FIXME: check for '.' and '..' in paths and normalize (remove) them.
 			
 			// default path configured, we must make sure the path parameter 
 			// starts with this value
@@ -520,7 +542,7 @@ int main(int argc, char** argv, char **envp) {
 					char err[STDIN_MAX] = "";
 					sprintf(err, "Path in parameter not inside the configured "
 					             "'default_path': %s\n",
-							a_query_escaped.items[i]);
+							config.default_path);
 					printerr(err);
 					return PATH_NOT_ALLOWED;
 				}
@@ -546,6 +568,11 @@ int main(int argc, char** argv, char **envp) {
 	// create command line arguments from a_query_escaped
 	int numargs = 0;
 	const char* myargs[100];
+	
+	// this is a hack, so myrgs in spawnve is never empty
+	myargs[numargs++] = " "; 
+	myargs[numargs] = NULL;
+
 	char* cmd = malloc(sizeof(char) * STDIN_MAX*2);
 	strcpy(cmd, config.exe);
 	if (strcmp(config.params_prepend, "") != 0) {
@@ -574,14 +601,28 @@ int main(int argc, char** argv, char **envp) {
 		str_array_destroy(p);
 	}
 	
-	myargs[numargs++] = " "; // this is a hack, so myrgs in spawnve is never empty
-	myargs[numargs] = NULL;
 	//printf("%d\n", numargs);
-	fprintf(logfile, "cmd: %s\n", cmd);
+	fprintf(logfile, "cmd: '%s'\n", cmd);
+	
+	// check if the file is executable
+	struct stat sb;
+	if (stat(config.exe, &sb) == 0 && sb.st_mode & S_IXUSR) {
+		#if DEBUG > 0
+		fprintf(logfile, "Program '%s' is executable\n", config.exe);
+		#endif
+		;
+	} else {
+		#if DEBUG > 0
+		fprintf(logfile, "Program '%s' is not executable\n", config.exe);
+		#endif
+		fprintf(stderr, "Program '%s' is not executable\n", config.exe);
+		return PROGRAM_IS_NOT_EXECUTABLE;
+	}
 	
 	// run the command, spawn a new process and end this application
 	int proc = 0;
-	//printf("%s\n", config.exe);
+	printf("%s\n", config.exe);
+	printf("%s\n", myargs[0]);
 	proc = spawnve(P_NOWAIT, config.exe, myargs, (const char * const *) environ);
 	//proc = spawnle(P_NOWAIT, config.exe, "", NULL, (const char * const *) environ);
 	
@@ -593,8 +634,9 @@ int main(int argc, char** argv, char **envp) {
 		perror("spawnv() error");
 		fprintf(stderr, "Make sure the program is in your search path. Otherwise define fully qualified path in the ini file.\n");
 	}
+	//system(cmd);
 
-	#if DEBUG > 0
+	#if DEBUG > 0 && LOG_TO_FILE == 1
 	fclose(logfile);
 	#endif
 

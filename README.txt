@@ -149,9 +149,12 @@ LIMITATIONS:
    proto://document/myapp but your section in the ini is called 
    [document/MyApp], the section will not be found.
 
-6. Fully qualidief path's to executables must be used in the the ini file's 
-   `exe` directive.
+6. Fully qualified path's to executables must be used in the the ini file's 
+   `exe` directive. You might get lucky by using relative paths, but this can 
+   be a security concern.
 
+7. TODO: in any path that is passed in from query '.' and '..' are removed
+ 
 LICENSE:
 
 This software is licensed by the BSD license. See LICENSE.txt in the source 
