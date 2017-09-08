@@ -183,8 +183,8 @@ ini_example:
 
 ini_test:
 	gcc $(CFLAGS) -c ini.c
-	gcc $(CFLAGS) -o ini_test$(_EXT) ini.o ini_test.c
+	gcc $(CFLAGS) -o test/ini_test$(_EXT) ini.o test/ini_test.c
 
 compare:
-	gcc $(CFLAGS) -o compare$(_EXT) compare.c
+	gcc $(CFLAGS) -o test/compare$(_EXT) test/compare.c
 
