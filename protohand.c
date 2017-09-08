@@ -33,7 +33,6 @@ FIXME: check for ';' in query after unencoding. remove everything after ';' to m
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include <signal.h>
 #include "ini.h"
 #include "urldecode2.h"
 #include "README.h"
