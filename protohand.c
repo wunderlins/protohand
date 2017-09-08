@@ -33,6 +33,7 @@ FIXME: check for ';' in query after unencoding. remove everything after ';' to m
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <process.h> 
 #include "ini.h"
 #include "urldecode2.h"
 #include "README.h"
@@ -152,8 +153,9 @@ void usage(void) {
 	printf(usage_str);
 }
 
-int main(int argc, char** argv) {
-
+extern char **environ;
+int main(int argc, char** argv, char **envp) {
+	environ = envp;
 	int i;
 	const char sep = separator();
 	
@@ -167,6 +169,8 @@ int main(int argc, char** argv) {
 	config.allowed_params = empty;
 	config.path_params    = empty;
 	config.exe            = empty;
+	config.params_append  = empty;
+	config.params_prepend = empty;
 	
 	// url parts buffers
 	char buff[STDIN_MAX], scheme[STDIN_MAX], authority[STDIN_MAX], path[STDIN_MAX], query[STDIN_MAX], reminder[STDIN_MAX];
@@ -538,31 +542,59 @@ int main(int argc, char** argv) {
 	//       remaining string must be removed.
 	
 	// create command line arguments from a_query_escaped
+	int numargs = 0;
+	const char* myargs[100];
 	char* cmd = malloc(sizeof(char) * STDIN_MAX*2);
 	strcpy(cmd, config.exe);
-	if (strcmp(config.params_prepend, "") == 0) {
+	if (strcmp(config.params_prepend, "") != 0) {
 		strcat(cmd, " ");
 		strcat(cmd, config.params_prepend);
+		
+		struct str_array p = str_array_split(strdup(config.params_prepend), " ");
+		for (i=0; i<p.length; i++)
+			myargs[numargs++] = p.items[i];
+		str_array_destroy(p);
 	}
 	
 	for (i=0; i<a_query_escaped.length; i++) {
 		strcat(cmd, " ");
 		strcat(cmd, a_query_escaped.items[i]);
+		myargs[numargs++] = a_query_escaped.items[i];
 	}
 	
-	if (strcmp(config.params_append, "") == 0) {
+	if (strcmp(config.params_append, "") != 0) {
 		strcat(cmd, " ");
 		strcat(cmd, config.params_append);
+		
+		struct str_array p = str_array_split(strdup(config.params_append), " ");
+		for (i=0; i<p.length; i++)
+			myargs[numargs++] = p.items[i];
+		str_array_destroy(p);
 	}
 	
-	printf("cmd: %s\n", cmd);
+	myargs[numargs++] = " "; // this is a hack, so myrgs in spawnve is never empty
+	myargs[numargs] = NULL;
+	//printf("%d\n", numargs);
+	//printf("cmd: %s\n", cmd);
 	
+	// run the command, spawn a new process and end this application
+	int proc = 0;
+	//printf("%s\n", config.exe);
+	proc = spawnve(P_NOWAIT, config.exe, myargs, (const char * const *) environ);
+	//proc = spawnle(P_NOWAIT, config.exe, "", NULL, (const char * const *) environ);
+	
+	if (proc == -1) {
+		#if DEBUG > 0
+		fprintf(logfile, "spanv: %d, error: %d\n", proc, errno);
+		#endif
+		fprintf(stderr, "exe: %s\n", config.exe);
+		perror("spawnv() error");
+		fprintf(stderr, "Make sure the program is in your search path. Otherwise define fully qualified path in the ini file.\n");
+	}
+
 	#if DEBUG > 0
 	fclose(logfile);
 	#endif
 
-	// TODO: run the command
-	int sysret = system(cmd);
-
-	return sysret;
+	return OK;
 }

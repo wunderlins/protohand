@@ -22,7 +22,7 @@ int get_value_from_argument(char* argument, char* ret);
 int find_param(char* search, struct str_array* options);
 
 #define str_array(elements...) ({ char *values[] = { elements }; str_array_make(values, sizeof(values) / sizeof(char *)); })
-#define str_array_destroy(arr) ({ free(arr.values); })
+#define str_array_destroy(arr) ({ free(arr.items); })
 struct str_array str_array_make(char **elements, int count);
 struct str_array str_array_split(char* string, char* delim);
 

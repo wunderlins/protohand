@@ -149,6 +149,8 @@ LIMITATIONS:
    proto://document/myapp but your section in the ini is called 
    [document/MyApp], the section will not be found.
 
+6. Fully qualidief path's to executables must be used in the the ini file's 
+   `exe` directive.
 
 LICENSE:
 
