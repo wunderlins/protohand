@@ -2,7 +2,7 @@
 
 detected_OS := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 
-DEBUG=1
+DEBUG=2
 
 SEDI_EXT=
 ifeq ($(detected_OS),Darwin)  # Mac OS X
@@ -59,9 +59,9 @@ test:
 	$(PROGNAME)$(_EXT) "usb://centricity?--auth=user&pass=ab%20de" || true
 
 param_test:
-	$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=C:\\windows\\CSUP.txt&a=b&%20&b=x&c=d&--help" || true
-	$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=%20C:\\windows\\CSUP.txt&--help" || true
-	$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=\\\\anacom03\\tegris\\c$$\\windows\\CSUP.txt&--help" || true
+	$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=C:\\windows\\CSUP.txt&a=b&%20&b=x&c=d&--help" || cat protohand.log
+	$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=%20C:\\windows\\CSUP.txt&--help" ||  cat protohand.log
+	$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=\\\\anacom03\\tegris\\c$$\\windows\\CSUP.txt&--help" || cat protohand.log
 	
 clean:
 	rm -r *.o *$(_EXT) || true

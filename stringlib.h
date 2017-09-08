@@ -6,6 +6,8 @@
 extern "C" {
 #endif
 
+FILE* logfile;
+
 struct str_array {
     char **items;
     int length;

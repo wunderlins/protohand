@@ -83,7 +83,7 @@ int find_substr(char* string, char* search) {
 
 int starts_with(const char *pre, const char *str) {
 	#if DEBUG > 2
-	printf("search '%s' for '%s'\n", str, pre);
+	fprintf(logfile, "search '%s' for '%s'\n", str, pre);
 	#endif
     size_t lenpre = strlen(pre),
            lenstr = strlen(str);
@@ -136,14 +136,14 @@ int find_param(char* search, struct str_array* options) {
 	key = trim(key);
 	
 	#if DEBUG > 2
-	printf("key: %s\n", key);
+	fprintf(logfile, "key: %s\n", key);
 	#endif
 
 	int counter = 0;
 	for (counter=0; counter<options->length; counter++) {
 		res = find_substr(options->items[counter], key);
 		#if DEBUG > 2
-		printf("--> %s [%d]\n", options->items[counter], res);
+		fprintf(logfile, "--> %s [%d]\n", options->items[counter], res);
 		#endif
 		
 		if (res == 0)
@@ -190,8 +190,8 @@ struct str_array str_array_split(char* string, char* delim) {
 	struct str_array ret;
 
 	#if DEBUG > 1
-	printf("delim:  %s\n", delim);
-	printf("string: %s\n", string);
+	fprintf(logfile, "delim:  %s\n", delim);
+	fprintf(logfile, "string: %s\n", string);
 	#endif
 	
 	//char buf[] =" abc / qwe / ccd ";

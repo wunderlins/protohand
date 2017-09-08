@@ -118,7 +118,7 @@ static int dumper(void* user, const char* section, const char* name,
 	#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
 	if (strcmp(pconfig->section, section) == 0) {
 		#if DEBUG > 1
-		printf("%s => %s: %s [%s]\n", section, name, value, pconfig->section);
+		fprintf(logfile, "%s => %s: %s [%s]\n", section, name, value, pconfig->section);
 		#endif
 
 		if (MATCH(section, "default_path")) {
@@ -189,13 +189,23 @@ int main(int argc, char** argv) {
 	cwd[l] = sep;
 	cwd[l+1] = '\0';
 	
+	// open log file
+	#if DEBUG > 0
+	// write debug log
+	char log_file[MAX_CWD_LENGTH];
+	strcpy(log_file, cwd);
+	strcat(log_file, "protohand.log");
+	logfile = fopen(log_file, "wb+");
+	fwrite(buff, strlen(buff), 1, logfile);
+	#endif
+	
 	char ini_file[MAX_CWD_LENGTH];
 	strcpy(ini_file, cwd);
 	strcat(ini_file, INI_FILE_NAME);
 	
 	#if DEBUG > 0
-	fprintf(stdout, "Current working dir: %s\n", cwd);
-	fprintf(stdout, "Current ini file:    %s\n", ini_file);
+	fprintf(logfile, "Current working dir: %s\n", cwd);
+	fprintf(logfile, "Current ini file:    %s\n", ini_file);
 	#endif
 	
 	// read stdin
@@ -246,17 +256,9 @@ int main(int argc, char** argv) {
 	//       some shells might pass them on to the programm.
 
 	#if DEBUG > 0
-	// write debug log
-	FILE* logfile;
-	logfile = fopen("protohand.log", "wb+");
-	fwrite(buff, strlen(buff), 1, logfile);
-	fclose(logfile);
-	#endif
-	
-	#if DEBUG > 0
-	printf("===========================\n");
-	printf("stdin: %s\n", buff);
-	printf("stdin: %d, buff: %d\n", (int) strlen(argv[1]), (int) strlen(buff));
+	fprintf(logfile, "===========================\n");
+	fprintf(logfile, "stdin: %s\n", buff);
+	fprintf(logfile, "stdin: %d, buff: %d\n", (int) strlen(argv[1]), (int) strlen(buff));
 	#endif
 	
 	// start parsing the string, find the scheme, check for ':'
@@ -353,10 +355,10 @@ int main(int argc, char** argv) {
 	
 	// display parsed uri
 	#if DEBUG > 0
-	printf("scheme    (%d): '%s'\n", found, scheme);
-	printf("authority (%d): '%s'\n", (int) strlen(authority), authority);
-	printf("path      (%d): '%s'\n", found_slash, path);
-	printf("query     (%d): '%s'\n", found_questionmark, query_escaped);
+	fprintf(logfile, "scheme    (%d): '%s'\n", found, scheme);
+	fprintf(logfile, "authority (%d): '%s'\n", (int) strlen(authority), authority);
+	fprintf(logfile, "path      (%d): '%s'\n", found_slash, path);
+	fprintf(logfile, "query     (%d): '%s'\n", found_questionmark, query_escaped);
 	#endif
 
 	// check for allowed chars in authority and path
@@ -398,13 +400,13 @@ int main(int argc, char** argv) {
 	}
 	
 	#if DEBUG > 0
-	printf("section:        %s\n", config.section);
-	printf("exe:            %s\n", config.exe);
-	printf("default_path:   %s\n", (strcmp(config.default_path, "") == 0) ? "(unset)" :  config.default_path);
-	printf("allowed_params: %s\n", (strcmp(config.allowed_params, "") == 0) ? "(unset)" :  config.allowed_params);
-	printf("path_params:    %s\n", (strcmp(config.path_params, "") == 0) ? "(unset)" :  config.path_params);
-	printf("params_prepend: %s\n", (strcmp(config.params_prepend, "") == 0) ? "(unset)" :  config.params_prepend);
-	printf("params_append:  %s\n", (strcmp(config.params_append, "") == 0) ? "(unset)" :  config.params_append);
+	fprintf(logfile, "section:        %s\n", config.section);
+	fprintf(logfile, "exe:            %s\n", config.exe);
+	fprintf(logfile, "default_path:   %s\n", (strcmp(config.default_path, "") == 0) ? "(unset)" :  config.default_path);
+	fprintf(logfile, "allowed_params: %s\n", (strcmp(config.allowed_params, "") == 0) ? "(unset)" :  config.allowed_params);
+	fprintf(logfile, "path_params:    %s\n", (strcmp(config.path_params, "") == 0) ? "(unset)" :  config.path_params);
+	fprintf(logfile, "params_prepend: %s\n", (strcmp(config.params_prepend, "") == 0) ? "(unset)" :  config.params_prepend);
+	fprintf(logfile, "params_append:  %s\n", (strcmp(config.params_append, "") == 0) ? "(unset)" :  config.params_append);
 	#endif
 	
 	// split parameters by ',' into a char** array so we can check 
@@ -414,15 +416,15 @@ int main(int argc, char** argv) {
 	#if DEBUG > 1
 		#define \
 			str_array_debug(name, obj) ({ \
-				printf("%s count: %d\n", name, obj.length); \
+				fprintf(logfile, "%s count: %d\n", name, obj.length); \
 				for (i = 0; i < obj.length; ++i) \
-					printf("     param: %s\n", obj.items[i]); \
+					fprintf(logfile, "     param: %s\n", obj.items[i]); \
 			});
 		
 	#elif DEBUG == 1
 		#define \
 			str_array_debug(name, obj) ({ \
-			printf("%s count: %d\n", name, obj.length); });
+			fprintf(logfile, "%s count: %d\n", name, obj.length); });
 	#else 
 		#define str_array_debug(name, obj) ;
 	#endif
@@ -456,7 +458,7 @@ int main(int argc, char** argv) {
 	for (i=0; i<a_query_escaped.length; i++) {
 		int res = find_param(a_query_escaped.items[i], &a_allowed_params);
 		#if DEBUG > 1
-		printf("    %d: [%d]: '%s'\n", i, res, a_query_escaped.items[i]);
+		fprintf(logfile, "    %d: [%d]: '%s'\n", i, res, a_query_escaped.items[i]);
 		#endif
 		
 		// failed to find parameter in allowd parameters
@@ -464,7 +466,7 @@ int main(int argc, char** argv) {
 			unvalidated_params = 1;
 			#if DEBUG > 0
 			int stack = unvalidated_counter-unvalidated_counter_start*-1;
-			printf("Stack %d\n", stack);
+			fprintf(logfile, "Stack %d\n", stack);
 			#endif
 			unvalidated[unvalidated_length++] = a_query_escaped.items[i];
 			unvalidated_counter--;
@@ -497,7 +499,7 @@ int main(int argc, char** argv) {
 			char* value = malloc(sizeof(char *) * strlen(a_query_escaped.items[i]));
 			get_value_from_argument(a_query_escaped.items[i], value);
 			#if DEBUG > 0
-			printf("path param value: '%s'\n", value);
+			fprintf(logfile, "path param value: '%s'\n", value);
 			#endif
 			
 			// default path configured, we must make sure the path parameter 
@@ -505,7 +507,7 @@ int main(int argc, char** argv) {
 			if (strcmp(config.default_path, "") != 0) {
 				int start = starts_with(config.default_path, value);
 				#if DEBUG > 0
-				printf("Path starts with default_path: %d\n", start);
+				fprintf(logfile, "Path starts with default_path: %d\n", start);
 				#endif
 				
 				if (start != 0) {
@@ -535,7 +537,6 @@ int main(int argc, char** argv) {
 	// TODO: check base path for document or parameters
 	
 	// create command line arguments from a_query_escaped
-	// TODO: run the command
 	char* cmd = malloc(sizeof(char) * STDIN_MAX*2);
 	strcpy(cmd, config.exe);
 	if (strcmp(config.params_prepend, "") == 0) {
@@ -552,7 +553,13 @@ int main(int argc, char** argv) {
 		strcat(cmd, " ");
 		strcat(cmd, config.params_append);
 	}
+	
 	printf("cmd: %s\n", cmd);
 	
+	// TODO: run the command
+
+	#if DEBUG > 0
+	fclose(logfile);
+	#endif
 	return OK;
 }
