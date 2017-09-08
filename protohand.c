@@ -39,6 +39,11 @@ FIXME: check for ';' in query after unencoding. remove everything after ';' to m
 #include "README.h"
 #include "stringlib.h"
 
+// debug levels, 0=off, 1=on
+#ifndef DEBUG
+	#define DEBUG 0
+#endif
+
 // maximum input lengths 
 // from stdin, prevent buffer overflows
 #ifndef STDIN_MAX
@@ -54,6 +59,23 @@ FIXME: check for ';' in query after unencoding. remove everything after ';' to m
 // program will give up. We assume that this is certainly a bogous request
 #ifndef MAX_UNVALIDATED_PARAMETERS
 	#define MAX_UNVALIDATED_PARAMETERS 5
+#endif
+
+// debug outut macro for str_array
+#if DEBUG > 1
+	#define \
+		str_array_debug(name, obj) ({ \
+			fprintf(logfile, "%s count: %d\n", name, obj.length); \
+			for (i = 0; i < obj.length; ++i) \
+				fprintf(logfile, "     param: %s\n", obj.items[i]); \
+		});
+	
+#elif DEBUG == 1
+	#define \
+		str_array_debug(name, obj) ({ \
+		fprintf(logfile, "%s count: %d\n", name, obj.length); });
+#else 
+	#define str_array_debug(name, obj) ;
 #endif
 
 // Error codes, used as return codes
@@ -72,11 +94,6 @@ FIXME: check for ';' in query after unencoding. remove everything after ';' to m
 #define PATH_NOT_ALLOWED 16
 
 #define INI_FILE_NAME "protohand.ini"
-
-// debug levels, 0=off, 1=on
-#ifndef DEBUG
-	#define DEBUG 0
-#endif
 
 // can hold one ini file entry
 typedef struct {
@@ -417,21 +434,6 @@ int main(int argc, char** argv, char **envp) {
 	// against configuration
 	struct str_array a_allowed_params = str_array_split(strdup(config.allowed_params), ",");
 	
-	#if DEBUG > 1
-		#define \
-			str_array_debug(name, obj) ({ \
-				fprintf(logfile, "%s count: %d\n", name, obj.length); \
-				for (i = 0; i < obj.length; ++i) \
-					fprintf(logfile, "     param: %s\n", obj.items[i]); \
-			});
-		
-	#elif DEBUG == 1
-		#define \
-			str_array_debug(name, obj) ({ \
-			fprintf(logfile, "%s count: %d\n", name, obj.length); });
-	#else 
-		#define str_array_debug(name, obj) ;
-	#endif
 	#if DEBUG > 0
 	str_array_debug("allowed_params", a_allowed_params);
 	#endif
@@ -575,7 +577,7 @@ int main(int argc, char** argv, char **envp) {
 	myargs[numargs++] = " "; // this is a hack, so myrgs in spawnve is never empty
 	myargs[numargs] = NULL;
 	//printf("%d\n", numargs);
-	//printf("cmd: %s\n", cmd);
+	fprintf(logfile, "cmd: %s\n", cmd);
 	
 	// run the command, spawn a new process and end this application
 	int proc = 0;

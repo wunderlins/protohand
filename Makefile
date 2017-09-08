@@ -2,7 +2,7 @@
 
 detected_OS := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 
-DEBUG=2
+DEBUG=3
 
 SEDI_EXT=
 ifeq ($(detected_OS),Darwin)  # Mac OS X
