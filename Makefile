@@ -1,4 +1,4 @@
-.PHONY: stringlib
+.PHONY: stringlib ini usage
 
 detected_OS := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 
@@ -22,7 +22,7 @@ endif
 stringlib:
 	gcc $(CFLAGS) -o stringlib$(_EXT) stringlib.c
 
-all: usage
+all: usage ini
 	gcc $(CFLAGS) -c ini.c
 	gcc $(CFLAGS) -c stringlib.c
 	gcc $(CFLAGS) -c urldecode2.c
@@ -80,6 +80,18 @@ usage:
 	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' README.h
 	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' README.h
 	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' README.h
+
+ini:
+	echo "// Automatically generated file. Edit example.ini and run " > example_ini.h
+	echo "// 'make ini' to update this documentation!" >> example_ini.h
+	echo "" >> example_ini.h
+	echo "char* ini_str = \"\"" >> example_ini.h
+	sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' example.ini >> example_ini.h
+	echo \""\";" >> example_ini.h
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' example_ini.h
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' example_ini.h
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' example_ini.h
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' example_ini.h
 
 todo:
 	egrep -nr "FIXME|TODO" *.c *.h

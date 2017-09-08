@@ -36,6 +36,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "ini.h"
+#include "example_ini.h"
 #include "urldecode2.h"
 #include "README.h"
 #include "stringlib.h"
@@ -96,6 +97,8 @@
 #define TOO_MANY_PARAMETERS 15
 #define PATH_NOT_ALLOWED 16
 #define PROGRAM_IS_NOT_EXECUTABLE 17
+#define INI_PERMISSION_DENIED 18
+#define INI_CREATION_FAILED 19
 
 #define INI_FILE_NAME "protohand.ini"
 
@@ -170,8 +173,51 @@ static int dumper(void* user, const char* section, const char* name,
 	return 1;
 }
 
+/**
+ * Display usage
+ */
 void usage(void) {
 	printf(usage_str);
+}
+
+/**
+ * Create an example ini file
+ */
+int create_ini(char* ini_file) {
+	fprintf(stderr, "Failed to open the ini file, trying to create it:\n");
+	fprintf(stderr, "%s\n", ini_file);
+	
+	FILE* fpinifile;
+	fpinifile = fopen(ini_file, "wb+");
+	
+	if (fpinifile == NULL) {
+		if (errno == EACCES) {
+			printerr("Permission denied!\n");
+			#if DEBUG > 0
+			fprintf(logfile, "Failed to created ini file '%s'. "
+							 "Permission denied.\n", ini_file);
+			#endif
+			return INI_PERMISSION_DENIED;
+		}
+		
+		#if DEBUG > 0
+		fprintf(logfile, "Failed to created ini file '%s'. "
+						 "Error: %d: %s.\n", ini_file, errno, 
+						 strerror(errno));
+		#endif
+		perror("Failed to create ini file.");
+		return INI_CREATION_FAILED;
+	}
+	
+	// write default ini file 
+	//printf("length: %d\n", sizeof(ini_str));
+	fwrite(ini_str , sizeof(char), strlen(ini_str), fpinifile);
+	fclose(fpinifile);
+	
+	// show user that the ini file was created and quit
+	printf("Example ini file has been created. You should review and "
+		   "change it to your needs. Aborting.");
+	return OK;
 }
 
 extern char **environ;
@@ -231,6 +277,16 @@ int main(int argc, char** argv, char **envp) {
 	char ini_file[MAX_CWD_LENGTH];
 	strcpy(ini_file, cwd);
 	strcat(ini_file, INI_FILE_NAME);
+	
+	// check if the ini file exists. if no try to create it.
+	if( access(ini_file, F_OK) == -1 ) {
+		// file doesn't exist, create it
+		int ret = create_ini(ini_file);
+		
+		// something went wong? abolt!
+		if (ret != OK)
+			return ret;
+	}
 	
 	#if DEBUG > 0
 	fprintf(logfile, "Current working dir: %s\n", cwd);
@@ -416,7 +472,14 @@ int main(int argc, char** argv, char **envp) {
 	//strcat(section, "/");
 	strcat(section, path);
 	config.section = section;
-	ini_parse(ini_file, dumper, &config);
+	int retp = ini_parse(ini_file, dumper, &config);
+	
+	// check if we failed to open the file
+	if (retp == -1) {
+		fprintf(stderr, "Failed to open the ini file, trying to create it:\n");
+		fprintf(stderr, "%s\n", ini_file);
+		return INI_PERMISSION_DENIED;
+	}
 	
 	if (config.found == 0) {
 		perror("unknown ini section or key");
