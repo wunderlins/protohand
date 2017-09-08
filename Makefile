@@ -75,7 +75,7 @@ release:
 	$(MAKE) all
 	@echo release/$(rel)
 	mkdir "release/$(rel)"
-	cd release/$(rel); cp ../../$(PROGNAME)$(_EXT) .; cp ../../README.txt .; ../../bin/zip.exe "../$(rel).zip" *
+	cd release/$(rel); cp ../../$(PROGNAME)$(_EXT) .; sed 's/$$/\r\n/' ../../README.txt > README.txt; ../../bin/zip.exe "../$(rel).zip" *
 	rm -r "release/$(rel)"
 	git add release/*.zip
 	git commit -am "Added release $rel"
