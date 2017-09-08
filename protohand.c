@@ -1,5 +1,5 @@
 /**
- * Read string from stdinput nd parse uri parts [authority,path,query].
+ * Read string from stdinput and parse uri parts [authority,path,query].
  * for a detailed URI spec see: https://tools.ietf.org/html/rfc3986
  * (See section 3 for a quick start about schemes).
  *
@@ -12,13 +12,13 @@
  * all schemes above can be mxed since it is up to the called program to interpret the commandline arguments and therefore the called program's specs must be met.
  *
  
-     foo://example/over/there?-a=1&-b=2#nose
-     \_/   \______/\________/ \_______/ \__/
-      |        |         |           |    |__
-   scheme  authority     path       query   fragment
-      |     ___|______   ____|____    __|____    |_
-     / \   /          \ /         \  /       \     |
- [protocol] [profile]   example.exe  -a=1 -b=2    unused
+  protohand://example/over/there?-a=1&-b=2#nose
+        \_/   \______/\________/ \_______/ \__/
+         |        |         |           |    |____
+      scheme  authority     path        query   fragment
+         |     ___|______   ____|____    __|____    |_
+        / \   /          \ /         \  /       \     |
+    [protocol]  [profile]  example.exe  -a=1 -b=2    unused
   
 [protocol] is used by the Operating system and has no effect in this program.
 [profile] is used to define different actions for one executable.
