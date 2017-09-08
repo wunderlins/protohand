@@ -59,7 +59,7 @@ else
 endif
 
 # create release name: OS_VERSION_TIMESTAMP
-timestamp=$(shell date "+%Y%m%d%H%M%S")
+timestamp=$(shell date "+%Y%m%d%H%M")
 rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 # build the programm
@@ -71,14 +71,37 @@ all: usage ini
 
 # create a release
 release:
+	# get latest code
 	git pull
+	
+	# build the application
 	$(MAKE) all
+	
+	# make release directory
 	@echo release/$(rel)
 	mkdir "release/$(rel)"
-	cd release/$(rel); cp ../../$(PROGNAME)$(_EXT) .; sed 's/$$/\r\n/' ../../README.txt > README.txt; ../../bin/zip.exe "../$(rel).zip" *
+	
+	# copy files to release directory
+	cp $(PROGNAME)$(_EXT) "release/$(rel)"
+	cp README.txt "release/$(rel)/"
+	
+	# subsitute all keywords in the README.txt file
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' release/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' release/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' release/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' release/$(rel)/README.txt
+	# windows line endings
+	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/README.txt
+	
+	# create zip file
+	cd release/$(rel); ../../bin/zip.exe "../$(rel).zip" * 
+	
+	# remove working directory
 	rm -r "release/$(rel)"
+	
+	# add to git repo, tag release and push changes/tags
 	git add release/*.zip
-	git commit -am "Added release $rel"
+	git commit -am "Added release $(rel)"
 	git push
 	git tag $(rel) && git push --tags
 	
