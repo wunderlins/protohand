@@ -146,7 +146,7 @@ LIMITATIONS:
    limited to 100 items.
 
 5. url parts are matched with the ini section case sesitive. if you call
-   proto://document/myapp but your section in the ini is called 
+   protohand://document/myapp but your section in the ini is called 
    [document/MyApp], the section will not be found.
 
 6. Fully qualified path's to executables must be used in the the ini file's 
@@ -154,7 +154,12 @@ LIMITATIONS:
    be a security concern.
 
 7. TODO: in any path that is passed in from query '.' and '..' are removed
- 
+
+8. It is unclear how this program will behave on multibyte character sets 
+   coming from user input. It will probably crash and burn your computer and 
+   desk down. Huzzah!
+
+
 LICENSE:
 
 This software is licensed by the BSD license. See LICENSE.txt in the source 

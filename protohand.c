@@ -23,8 +23,6 @@
 [protocol] is used by the Operating system and has no effect in this program.
 [profile] is used to define different actions for one executable.
 
-FIXME: check for ';' in query after unencoding. remove everything after ';' to make sure no additional programs are run.
-
  * 2017, Simon Wunderlin <swunderlin@gmail.com>
  */
 
@@ -411,11 +409,6 @@ int main(int argc, char** argv, char **envp) {
 		return UNALLOWED_CHAR_IN_PATH;
 	}
 
-	// TODO: check allowed characters in params ?
-	
-	// FIXME: make authority/path to lowercase before mathing to ini section 
-	//        so we don't drive windows users crazy! xD
-	
 	// find the appropriate config in the ini file
 	// try to read ini file
 	char section[STDIN_MAX] = "";
@@ -512,10 +505,6 @@ int main(int argc, char** argv, char **envp) {
 		// This is a path parameter, clean it up
 		if (res == 1) {
 			
-			// FIXME: if the path_param ends with '=' the value has to be 
-			//        taken from a_query_escaped.items[i] (done), if not
-			//        it must be taken from a_query_escaped.items[i+1]
-			
 			// extract the value from the parameter
 			char* value = malloc(sizeof(char *) * strlen(a_query_escaped.items[i]));
 			int has_value = get_value_from_argument(a_query_escaped.items[i], value);
@@ -560,10 +549,6 @@ int main(int argc, char** argv, char **envp) {
 		printerr(err_buff);
 		return UNALLOWED_PARAM;
 	}
-	
-	// TODO: make sure no additional command is run by checking query for 
-	//       an unquoted ';'. If the semicolon is not enclosed in ' or " the
-	//       remaining string must be removed.
 	
 	// create command line arguments from a_query_escaped
 	int numargs = 0;
