@@ -145,6 +145,11 @@ LIMITATIONS:
 4. The length of the comma separated parameters list in the ini file is 
    limited to 100 items.
 
+5. url parts are matched with the ini section case sesitive. if you call
+   proto://document/myapp but your section in the ini is called 
+   [document/MyApp], the section will not be found.
+
+
 LICENSE:
 
 This software is licensed by the BSD license. See LICENSE.txt in the source 
