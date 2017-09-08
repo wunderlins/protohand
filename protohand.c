@@ -438,8 +438,10 @@ int main(int argc, char** argv) {
 	int unvalidated_params = 0;
 	const int unvalidated_counter_start = MAX_UNVALIDATED_PARAMETERS;
 	int unvalidated_counter = unvalidated_counter_start;
-	char **unvalidated = malloc(sizeof(char *) * unvalidated_counter);
+	char **unvalidated = malloc(sizeof(char *) * MAX_UNVALIDATED_PARAMETERS);
 	int unvalidated_length = 0;
+	char *unvalidated_buff = malloc(sizeof(char *) * STDIN_MAX);
+	unvalidated_buff[0] = '\0';
 	for (i=0; i<a_query_escaped.length; i++) {
 		int res = find_param(a_query_escaped.items[i], &a_allowed_params);
 		#if DEBUG > 0
@@ -448,13 +450,18 @@ int main(int argc, char** argv) {
 		
 		// failed to find parameter
 		if (res == 0) {
-			int stack = unvalidated_counter-unvalidated_counter_start*-1;
 			unvalidated_params = 1;
 			#if DEBUG > 0
+			int stack = unvalidated_counter-unvalidated_counter_start*-1;
 			printf("Stack %d\n", stack);
 			#endif
 			unvalidated[unvalidated_length++] = a_query_escaped.items[i];
 			unvalidated_counter--;
+
+			if (unvalidated_length != 1)
+				strcat(unvalidated_buff, ", ");
+			
+			strcat(unvalidated_buff, unvalidated[unvalidated_length-1]);
 		}
 		
 		if (unvalidated_counter < 1) {
@@ -467,22 +474,8 @@ int main(int argc, char** argv) {
 	}
 	
 	if (unvalidated_params == 1) {
-		char *buff = malloc(sizeof(char *) * STDIN_MAX);
-		buff[0] = '\0';
-		
-		for (i=unvalidated_counter_start; i>unvalidated_counter; i--) {
-			int index = (i-unvalidated_counter_start)*-1;
-			#if DEBUG > 0
-			printf("  unvalidated [%d] -> '%s'\n", index, unvalidated[index]);
-			#endif
-			
-			if (i != unvalidated_counter_start)
-				strcat(buff, ", ");
-			
-			strcat(buff, unvalidated[index]);
-		}
 		char *err_buff = malloc(sizeof(char *) * STDIN_MAX);
-		sprintf(err_buff, "Unvalidated parameter submitted: %s\n", buff);
+		sprintf(err_buff, "Unvalidated parameter submitted: %s\n", unvalidated_buff);
 		printerr(err_buff);
 		return UNALLOWED_PARAM;
 	}
