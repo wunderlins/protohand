@@ -33,6 +33,7 @@ FIXME: check for ';' in query after unencoding. remove everything after ';' to m
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <signal.h>
 #include "ini.h"
 #include "urldecode2.h"
 #include "README.h"
@@ -524,6 +525,8 @@ int main(int argc, char** argv) {
 		}
 	}
 	
+	// if there are parameters passed in with the query string which are not 
+	// in allowed_params abort
 	if (unvalidated_params == 1) {
 		char *err_buff = malloc(sizeof(char *) * STDIN_MAX);
 		sprintf(err_buff, "Unvalidated parameter submitted: %s\n", unvalidated_buff);
@@ -534,7 +537,6 @@ int main(int argc, char** argv) {
 	// TODO: make sure no additional command is run by checking query for 
 	//       an unquoted ';'. If the semicolon is not enclosed in ' or " the
 	//       remaining string must be removed.
-	// TODO: check base path for document or parameters
 	
 	// create command line arguments from a_query_escaped
 	char* cmd = malloc(sizeof(char) * STDIN_MAX*2);
@@ -556,10 +558,12 @@ int main(int argc, char** argv) {
 	
 	printf("cmd: %s\n", cmd);
 	
-	// TODO: run the command
-
 	#if DEBUG > 0
 	fclose(logfile);
 	#endif
-	return OK;
+
+	// TODO: run the command
+	int sysret = system(cmd);
+
+	return sysret;
 }
