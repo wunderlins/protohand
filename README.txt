@@ -15,10 +15,10 @@ USAGE:
 
 On many modern platforms it is possible to register custom protocol handlers 
 with the shell. This program is intended to map URIs to pre-confiured 
-programms and execute certain actions as well as limited input validation for
-security reasons.
+programms and execute certain actions as well as doing limited input validation 
+for security reasons.
 
-Once the program is called, it expects a URI as first parameter or from stdin.
+Once the program is called, it expects a URI as first parameter.
 The URI is broken down into scheme, authority, path and query (see rfc3986,
 section 3 for details). Once the described parts are extracted from the URI it 
 is mapped to a local executable. The definition which URIs can be mapped to 
