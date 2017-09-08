@@ -81,13 +81,41 @@ int find_substr(char* string, char* search) {
 	return index;
 }
 
+int starts_with(const char *pre, const char *str) {
+	#if DEBUG > 2
+	printf("search '%s' for '%s'\n", str, pre);
+	#endif
+    size_t lenpre = strlen(pre),
+           lenstr = strlen(str);
+    return lenstr < lenpre ? -1 : strncmp(pre, str, lenpre);
+}
+
+int get_value_from_argument(char* argument, char* ret) {
+	
+	int end = strlen(argument);
+	int r = strpos(argument, '=');
+	
+	if (r == -1) {
+		strcpy(ret, argument);
+		return 0;
+	}
+	
+	// copy value and get rid of trailing white space
+	end = end - (r+1);
+	argument = argument+r+1;
+	while(isspace((unsigned char)*argument)) argument++;
+	strncpy(ret, argument, strlen(argument)+1);
+	ret[end] = '\0';
+	return 1;
+}
+
 /**
  * find a command line parameter search in a string array (options)
  *
  * since search may be a par of --param=value, compare only the part in 
  * front of the equal sign.
  *
- * Returns 01 if there is no match. Otherwise returns 1.
+ * Returns 0 if there is no match. Otherwise returns 1.
  */
 int find_param(char* search, struct str_array* options) {
 

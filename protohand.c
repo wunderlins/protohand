@@ -68,6 +68,7 @@ FIXME: check for ';' in query after unencoding. remove everything after ';' to m
 #define PARAM_SPLIT_ERROR 13
 #define UNALLOWED_PARAM 14
 #define TOO_MANY_PARAMETERS 15
+#define PATH_NOT_ALLOWED 16
 
 #define INI_FILE_NAME "protohand.ini"
 
@@ -116,7 +117,9 @@ static int dumper(void* user, const char* section, const char* name,
 
 	#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
 	if (strcmp(pconfig->section, section) == 0) {
+		#if DEBUG > 0
 		printf("%s => %s: %s [%s]\n", section, name, value, pconfig->section);
+		#endif
 
 		if (MATCH(section, "default_path")) {
 			pconfig->default_path = strdup(value);
@@ -408,13 +411,21 @@ int main(int argc, char** argv) {
 	// against configuration
 	struct str_array a_allowed_params = str_array_split(strdup(config.allowed_params), ",");
 	
-	#define \
-		str_array_debug(name, obj) ({ \
-			printf("%s count: %d\n", name, obj.length); \
-			for (i = 0; i < obj.length; ++i) \
-				printf("     param: %s\n", obj.items[i]); \
-		});
-	
+	#if DEBUG > 1
+		#define \
+			str_array_debug(name, obj) ({ \
+				printf("%s count: %d\n", name, obj.length); \
+				for (i = 0; i < obj.length; ++i) \
+					printf("     param: %s\n", obj.items[i]); \
+			});
+		
+	#elif DEBUG == 1
+		#define \
+			str_array_debug(name, obj) ({ \
+			printf("%s count: %d\n", name, obj.length); });
+	#else 
+		#define str_array_debug(name, obj) ;
+	#endif
 	#if DEBUG > 0
 	str_array_debug("allowed_params", a_allowed_params);
 	#endif
@@ -448,7 +459,7 @@ int main(int argc, char** argv) {
 		printf("    %d: [%d]: '%s'\n", i, res, a_query_escaped.items[i]);
 		#endif
 		
-		// failed to find parameter
+		// failed to find parameter in allowd parameters
 		if (res == 0) {
 			unvalidated_params = 1;
 			#if DEBUG > 0
@@ -471,6 +482,44 @@ int main(int argc, char** argv) {
 			printerr(err);
 			return TOO_MANY_PARAMETERS;
 		}
+		
+		// check if it is a path parameter
+		res = find_param(a_query_escaped.items[i], &a_path_params);
+		
+		// This is a path parameter, clean it up
+		if (res == 1) {
+			
+			// FIXME: if the path_param ends with '=' the value has to be 
+			//        taken from a_query_escaped.items[i] (done), if not
+			//        it must be taken from a_query_escaped.items[i+1]
+			
+			// extract the value from the parameter
+			char* value = malloc(sizeof(char *) * strlen(a_query_escaped.items[i]));
+			int found = get_value_from_argument(a_query_escaped.items[i], value);
+			#if DEBUG > 0
+			printf("path param value: '%s'\n", value);
+			#endif
+			
+			// default path configured, we must make sure the path parameter 
+			// starts with this value
+			if (strcmp(config.default_path, "") != 0) {
+				int start = starts_with(config.default_path, value);
+				#if DEBUG > 0
+				printf("Path starts with default_path: %d\n", start);
+				#endif
+				
+				if (start != 0) {
+					char err[STDIN_MAX] = "";
+					sprintf(err, "Path in parameter not inside the configured "
+					             "'default_path': %s\n",
+							a_query_escaped.items[i]);
+					printerr(err);
+					return PATH_NOT_ALLOWED;
+				}
+			}
+			
+			free(value);
+		}
 	}
 	
 	if (unvalidated_params == 1) {
@@ -480,7 +529,6 @@ int main(int argc, char** argv) {
 		return UNALLOWED_PARAM;
 	}
 	
-	// FIXME: sanitize paths
 	// TODO: make sure no additional command is run by checking query for 
 	//       an unquoted ';'. If the semicolon is not enclosed in ' or " the
 	//       remaining string must be removed.
