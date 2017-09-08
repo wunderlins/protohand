@@ -19,14 +19,14 @@ ifeq ($(DEBUG),0)
 	CFLAGS += -s
 endif
 
-stringlib:
-	gcc $(CFLAGS) -o stringlib$(_EXT) stringlib.c
-
 all: usage ini
 	gcc $(CFLAGS) -c ini.c
 	gcc $(CFLAGS) -c stringlib.c
 	gcc $(CFLAGS) -c urldecode2.c
 	gcc $(CFLAGS) -o $(PROGNAME)$(_EXT) stringlib.o urldecode2.o ini.o protohand.c
+
+stringlib:
+	gcc $(CFLAGS) -o stringlib$(_EXT) stringlib.c
 
 ini_dump:
 	gcc $(CFLAGS) -c ini.c
