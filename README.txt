@@ -65,15 +65,9 @@ Windows Registry Editor Version 5.00
 @="\"C:\\<path>\\PROGNAME_EXT\" \"%1\""
 ===[EOF]=======================================================================
 
-Mappings between URIs and executables are defined in PROGNAME.ini. There are 2 
-actions that can be configured:
-1. Run an executable that expects 1 command line argument which points to a 
-   document. This method can check if the document path is within a certain 
-   location (for security reasons).
-
-2. Execut a program with any number of command line arguments. This method 
-   is only as secure as the configuration allows. You need to take care
-   that no arbitrary programs or code can be run.
+Mappings between URIs and executables are defined in PROGNAME.ini. 
+If the ini file does not exist, it can be created by running the command once:
+	c:\> PROGNAME_EXT [--create]
 
 The authority part combined with the path are used to lookup a section in the 
 ini file. The URI
@@ -84,14 +78,51 @@ would match the following section in the ini file:
 Esample ini file:
 
 ===[INI FILE]==================================================================
-[word/document]
-default_path="\\server\share"
-;allowed_params=
-;path_params=
-exe = word.exe
+;; NOTE: do not quote values
 
-[cmd/exe]
-exe = cmd.exe
+[exe/notepad]
+; an example how to provide static command lin parameters, try it by running:
+; protohand.exe "protohand://exe/notepad"
+; result: 'c:\windows\notepad.exe /f c:\windows\OEMVer.txt'
+exe = c:\windows\notepad.exe
+params_prepend=/f c:\windows\OEMVer.txt
+
+[exe/notepad/pathparam1]
+; Example opening file from parameters, making suer the document is in a 
+; certain directory. Files outside of `default_path` will not be opened:
+; protohand.exe "protohand://exe/notepad/pathparam1?/f&c:\windows\OEMVer.txt"
+; result: 'c:\windows\notepad.exe /f c:\windows\OEMVer.txt'
+default_path=c:\windows\
+exe = c:\windows\notepad.exe
+allowed_params=/f
+path_params=/f
+
+
+[exe/notepad/pathparam2]
+; Example that fails because the requested file is outside the allowed
+; `default_path` folder:
+; protohand.exe "protohand://exe/notepad/pathparam2?/A&c:\windows\OEMVer.txt"
+; result: ERROR, will not open file because it is outside the base_path
+default_path=\\some_server\some_share
+allowed_params=/A,/U
+path_params=/A
+exe = c:\windows\notepad.exe
+params_prepend=
+params_append=
+
+[exe/dfrgui]
+; minimalistic config, just run a program
+; protohand.exe "protohand://exe/dfrgui"
+; FIXME: dfrgui.exe will not be launched, path is correct, permissions too 
+; (at home, W10)
+exe = C:\Windows\System32\dfrgui.exe
+
+[exe/ie]
+; launch internet explorer with an url provided in the query string:
+; protohand.exe "protohand://exe/ie?http://www.google.com"
+; result: '"C:\Program Files (x86)\Internet Explorer\iexplore.exe" 
+;          "http://www.google.com"'
+exe = C:\Program Files (x86)\Internet Explorer\iexplore.exe
 ===[EOF]=======================================================================
 
 exe:            
