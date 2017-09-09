@@ -3,8 +3,8 @@
 # DUBUG=0 disables debugging, other levels from 1-3
 # LOG_TO_FILE=1 will send dbg output to stdout, else to protohand.log
 DEBUG=3
-LOG_TO_FILE=1
-VERSION=0.1.0
+LOG_TO_FILE=0
+VERSION=0.2.0
 # naming
 PROGNAME = protohand
 _EXT = .exe
