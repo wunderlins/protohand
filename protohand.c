@@ -638,8 +638,7 @@ int main(int argc, char** argv, char **envp) {
 				}
 			}
 			
-			//free(value);
-			// FIXME: set cleaned path back to query string
+			// set cleaned path back to query string
 			if (has_value) {
 				char* key = find_key(a_query_escaped.items[i]);
 				printf("key: %s\n", key);
