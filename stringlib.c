@@ -110,6 +110,30 @@ int get_value_from_argument(char* argument, char* ret) {
 }
 
 /**
+ * returns the key of a key=value pair
+ *
+ * returns NULL if nothing is found
+ */
+char* find_key(char* search) {
+	
+	char* key;
+	int ret = strpos(search, '=');
+	
+	if (ret == -1) {
+		return NULL;
+	} 
+	
+	key = malloc(sizeof(char *) * ret);
+	key = strncpy(key, search, ret);
+	key[ret] = '\0';
+	
+	// remove white space at the beginning and end
+	key = trim(key);
+	
+	return key;
+}
+
+/**
  * find a command line parameter search in a string array (options)
  *
  * since search may be a par of --param=value, compare only the part in 
@@ -251,6 +275,51 @@ void urldecode2(char *dst, const char *src) {
 		}
 	}
 	*dst++ = '\0';
+}
+
+void hex_dump(char *desc, void *addr, int len)  {
+    int i;
+    unsigned char buff[17];
+    unsigned char *pc = (unsigned char*)addr;
+
+    // Output description if given.
+    if (desc != NULL)
+        printf ("%s:\n", desc);
+
+    // Process every byte in the data.
+    for (i = 0; i < len; i++) {
+        // Multiple of 16 means new line (with line offset).
+
+        if ((i % 16) == 0) {
+            // Just don't print ASCII for the zeroth line.
+            if (i != 0)
+                printf("  %s\n", buff);
+
+            // Output the offset.
+            printf("  %04x ", i);
+        }
+
+        // Now the hex code for the specific character.
+        printf(" %02x", pc[i]);
+
+        // And store a printable ASCII character for later.
+        if ((pc[i] < 0x20) || (pc[i] > 0x7e)) {
+            buff[i % 16] = '.';
+        } else {
+            buff[i % 16] = pc[i];
+        }
+
+        buff[(i % 16) + 1] = '\0';
+    }
+
+    // Pad out last line if not exactly 16 characters.
+    while ((i % 16) != 0) {
+        printf("   ");
+        i++;
+    }
+
+    // And print the final ASCII bit.
+    printf("  %s\n", buff);
 }
 
 /*

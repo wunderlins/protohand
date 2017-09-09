@@ -6,6 +6,8 @@ Copyright (C) September 8, 2005
 I am placing this in the public domain for anyone to use or modify
 */
 
+#include <stdio.h>
+
 #include <windows.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -32,7 +34,7 @@ char *realpath(const char *path, char resolved_path[PATH_MAX])
     {
       //This is a Win32 API function similar to what realpath() is supposed to do
       size_t size = GetFullPathNameA(path, PATH_MAX, return_path, 0);
-
+	  
       //GetFullPathNameA() returns a size larger than buffer if buffer is too small
       if (size > PATH_MAX)
       {
@@ -62,6 +64,7 @@ char *realpath(const char *path, char resolved_path[PATH_MAX])
           {
             //I wasn't sure what to return here, but the standard does say to return EINVAL
             //if resolved_path is null, and in this case we couldn't malloc large enough buffer
+			printf("err 3\n");
             errno = EINVAL;
           }  
         }
@@ -109,26 +112,29 @@ char *realpath(const char *path, char resolved_path[PATH_MAX])
         struct stat stat_buffer;
 
         //Make sure path exists, stat() returns 0 on success
+        printf("err 4, %d, '%s'\n", errno, return_path);
         if (stat(return_path, &stat_buffer)) 
         {
           if (return_path != resolved_path)
           {
             free(return_path);
           }
-        
           return_path = 0;
           //stat() will set the correct errno for us
         }
+        printf("return_path [%d] '%s'\n", errno, return_path);
         //else we succeeded!
       }
     }
     else
     {
+	  printf("err 1\n");
       errno = EINVAL;
     }
   }
   else
   {
+    printf("err 2\n");
     errno = EINVAL;
   }
     

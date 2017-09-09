@@ -19,6 +19,8 @@ int findchar(const char* allowed, const char* string);
 int find_substr(char* string, char* search);
 int starts_with(const char *pre, const char *str);
 int get_value_from_argument(char* argument, char* ret);
+
+char* find_key(char* search);
 int find_param(char* search, struct str_array* options);
 
 #define str_array(elements...) ({ char *values[] = { elements }; str_array_make(values, sizeof(values) / sizeof(char *)); })
@@ -28,6 +30,8 @@ struct str_array str_array_split(char* string, char* delim);
 
 int strpos(char* string, char find);
 void urldecode2(char*, const char*);
+
+void hex_dump(char *desc, void *addr, int len);
 
 #ifdef __cplusplus
 }

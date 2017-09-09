@@ -520,6 +520,17 @@ int main(int argc, char** argv, char **envp) {
 	str_array_debug("query_escaped", a_query_escaped);
 	#endif
 	
+	int cc;
+	char* default_path = malloc(sizeof(char*) * (strlen(config.default_path)+1));
+	strcpy(default_path, config.default_path);
+	// replace all '\\' in paths with '/'.
+	if (strcmp(default_path, "") != 0) {
+		for(cc=0; cc<strlen(default_path); cc++)
+			if (default_path[cc] == '\\')
+				default_path[cc] = '/';
+		//printf("New default path: %s\n", default_path);
+	}
+	
 	// check that all parameters in a_query_escaped are also contained in
 	// a_allowed_params to make sure no unwanted parameters are used
 	int unvalidated_params = 0;
@@ -590,13 +601,19 @@ int main(int argc, char** argv, char **envp) {
 				return INVALID_PATH;
 			}
 			
+			// replace all '\\' in paths with '/'.
+			for(cc=0; cc<strlen(value); cc++)
+				if (value[cc] == '\\')
+					value[cc] = '/';
+			
 			// check for '.' and '..' in paths and normalize (remove) them.
-			// FIXME: replace all '\\' in paths with '/'.
+			errno = 0; // FIXME: we have unhandled errors down here, so i need to reset errno. Typically EINVAL=22
 			realpath(value, clean_path);
 			if (errno != 0) {
 				perror("realpath failed");
 				#if DEBUG > 0
-				fprintf(logfile, "realpath() failed to clean up path: '%s'\n", value);
+				fprintf(logfile, "realpath() failed to clean up path [%d]: '%s'\n", errno, value);
+				//hex_dump("path value: ", value, strlen(value));
 				#endif
 				return INVALID_PATH;
 			}
@@ -604,7 +621,7 @@ int main(int argc, char** argv, char **envp) {
 			// default path configured, we must make sure the path parameter 
 			// starts with this value
 			if (strcmp(config.default_path, "") != 0) {
-				int start = starts_with(config.default_path, value);
+				int start = starts_with(default_path, value);
 				#if DEBUG > 0
 				fprintf(logfile, "Path starts with default_path: %d\n", start);
 				#endif
@@ -613,13 +630,24 @@ int main(int argc, char** argv, char **envp) {
 					char err[STDIN_MAX] = "";
 					sprintf(err, "Path in parameter not inside the configured "
 					             "'default_path': %s\n",
-							config.default_path);
+							default_path);
 					printerr(err);
 					return PATH_NOT_ALLOWED;
 				}
 			}
 			
 			//free(value);
+			// FIXME: set cleaned path back to query string
+			if (has_value) {
+				char* key = find_key(a_query_escaped.items[i]);
+				printf("key: %s\n", key);
+				char* tmpbuff = malloc(sizeof(char) * strlen(a_query_escaped.items[i])+1 );
+				strcpy(tmpbuff, key);
+				strcat(tmpbuff, "=");
+				strcat(tmpbuff, clean_path);
+			} else {
+				a_query_escaped.items[i+1] = clean_path;
+			}
 		}
 	}
 	
