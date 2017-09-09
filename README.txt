@@ -184,7 +184,7 @@ LIMITATIONS:
    `exe` directive. You might get lucky by using relative paths, but this can 
    be a security concern.
 
-7. TODO: in any path that is passed in from query '.' and '..' are removed
+7. in any path that is passed in from query '.' and '..' are removed
 
 8. It is unclear how this program will behave on multibyte character sets 
    coming from user input. It will probably crash and burn your computer and 
