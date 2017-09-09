@@ -35,6 +35,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <limits.h>
 #include "ini.h"
 #include "example_ini.h"
 #include "README.h"
@@ -99,6 +100,7 @@
 #define PROGRAM_IS_NOT_EXECUTABLE 17
 #define INI_PERMISSION_DENIED 18
 #define INI_CREATION_FAILED 19
+#define INVALID_PATH 20
 
 #define INI_FILE_NAME "protohand.ini"
 
@@ -526,6 +528,7 @@ int main(int argc, char** argv, char **envp) {
 	char **unvalidated = malloc(sizeof(char *) * MAX_UNVALIDATED_PARAMETERS);
 	int unvalidated_length = 0;
 	char *unvalidated_buff = malloc(sizeof(char *) * STDIN_MAX);
+	char clean_path[PATH_MAX];
 	unvalidated_buff[0] = '\0';
 	for (i=0; i<a_query_escaped.length; i++) {
 		int is_param = 0;
@@ -580,7 +583,23 @@ int main(int argc, char** argv, char **envp) {
 			fprintf(logfile, "path param value: '%s'\n", value);
 			#endif
 			
-			// FIXME: check for '.' and '..' in paths and normalize (remove) them.
+			if (value[0] == '.' && value[1] == '.') {
+				#if DEBUG > 0
+				fprintf(logfile, "path starts with '..': '%s'\n", value);
+				#endif
+				return INVALID_PATH;
+			}
+			
+			// check for '.' and '..' in paths and normalize (remove) them.
+			// FIXME: replace all '\\' in paths with '/'.
+			realpath(value, clean_path);
+			if (errno != 0) {
+				perror("realpath failed");
+				#if DEBUG > 0
+				fprintf(logfile, "realpath() failed to clean up path: '%s'\n", value);
+				#endif
+				return INVALID_PATH;
+			}
 			
 			// default path configured, we must make sure the path parameter 
 			// starts with this value
@@ -600,7 +619,7 @@ int main(int argc, char** argv, char **envp) {
 				}
 			}
 			
-			free(value);
+			//free(value);
 		}
 	}
 	

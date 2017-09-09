@@ -64,9 +64,10 @@ rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 # build the programm
 all: usage ini
+	gcc $(CFLAGS) -c realpath.c -o realpath.o
 	gcc $(CFLAGS) -c ini.c
 	gcc $(CFLAGS) -c stringlib.c
-	gcc $(CFLAGS) -o $(PROGNAME)$(_EXT) stringlib.o ini.o protohand.c
+	gcc $(CFLAGS) -o $(PROGNAME)$(_EXT) realpath.o stringlib.o ini.o protohand.c
 
 # create a release
 release:
