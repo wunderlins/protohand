@@ -87,6 +87,7 @@ release:
 	cp $(PROGNAME)$(_EXT) "release/$(rel)"
 	cp README.txt "release/$(rel)/"
 	cp protohand.reg "release/$(rel)/"
+	cp LICENSE.txt "release/$(rel)/"
 	
 	# subsitute all keywords in the README.txt file
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' release/$(rel)/README.txt
