@@ -27,6 +27,7 @@ struct str_array str_array_make(char **elements, int count);
 struct str_array str_array_split(char* string, char* delim);
 
 int strpos(char* string, char find);
+void urldecode2(char*, const char*);
 
 #ifdef __cplusplus
 }

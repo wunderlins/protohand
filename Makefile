@@ -66,8 +66,7 @@ rel = $(operating_system)_$(VERSION)_$(timestamp)
 all: usage ini
 	gcc $(CFLAGS) -c ini.c
 	gcc $(CFLAGS) -c stringlib.c
-	gcc $(CFLAGS) -c urldecode2.c
-	gcc $(CFLAGS) -o $(PROGNAME)$(_EXT) stringlib.o urldecode2.o ini.o protohand.c
+	gcc $(CFLAGS) -o $(PROGNAME)$(_EXT) stringlib.o ini.o protohand.c
 
 # create a release
 release:
@@ -84,6 +83,7 @@ release:
 	# copy files to release directory
 	cp $(PROGNAME)$(_EXT) "release/$(rel)"
 	cp README.txt "release/$(rel)/"
+	cp protohand.reg "release/$(rel)/"
 	
 	# subsitute all keywords in the README.txt file
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' release/$(rel)/README.txt
