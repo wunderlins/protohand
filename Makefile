@@ -208,9 +208,9 @@ ini_test:
 	gcc $(CFLAGS) -c ini.c
 	gcc $(CFLAGS) -o test/ini_test$(_EXT) ini.o test/ini_test.c
 
-replace:
+nvlist:
 	gcc $(CFLAGS) -c stringlib.c
-	gcc $(CFLAGS) -D NVLIST_MAIN -o test/replace$(_EXT) stringlib.o test/replace.c
+	gcc $(CFLAGS) -D NVLIST_MAIN -o test/nvlist$(_EXT) stringlib.o test/nvlist.c
 
 compare:
 	gcc $(CFLAGS) -o test/compare$(_EXT) test/compare.c
