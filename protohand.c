@@ -39,6 +39,7 @@
 #include "example_ini.h"
 #include "README.h"
 #include "stringlib.h"
+#include "realpath.h"
 
 #define LOG_TO_FILE 0
 

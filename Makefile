@@ -173,6 +173,10 @@ find_param:
 stringlib:
 	gcc $(CFLAGS) -o stringlib$(_EXT) stringlib.c
 
+realpath:
+	gcc $(CFLAGS) -c realpath.c -o realpath.o
+	gcc $(CFLAGS) -o test/realpath_test$(_EXT) realpath.o test/realpath_test.c
+
 cleanpath:
 	gcc $(CFLAGS) -o test/cleanpath$(_EXT) test/cleanpath.c
 
