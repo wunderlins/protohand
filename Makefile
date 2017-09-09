@@ -1,7 +1,9 @@
 .PHONY: stringlib ini usage test param_test release
 
 # DUBUG=0 disables debugging, other levels from 1-3
+# LOG_TO_FILE=1 will send dbg output to stdout, else to protohand.log
 DEBUG=3
+LOG_TO_FILE=1
 VERSION=0.1.0
 # naming
 PROGNAME = protohand
@@ -19,7 +21,7 @@ STDIN_MAX = 1024
 MAX_CWD_LENGTH = 1024
 
 # cflags, strip if debuggign is disabled
-CFLAGS = -Wall -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
+CFLAGS = -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
 ifeq ($(DEBUG),0) 
 	CFLAGS += -s
 endif

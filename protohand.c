@@ -42,7 +42,9 @@
 #include "stringlib.h"
 #include "realpath.h"
 
-#define LOG_TO_FILE 0
+#ifndef LOG_TO_FILE
+	#define LOG_TO_FILE 0
+#endif
 
 // debug levels, 0=off, 1=on
 #ifndef DEBUG
@@ -646,6 +648,7 @@ int main(int argc, char** argv, char **envp) {
 				strcat(tmpbuff, "=");
 				strcat(tmpbuff, clean_path);
 			} else {
+				//printf("%s\n", clean_path);
 				a_query_escaped.items[i+1] = clean_path;
 			}
 		}
@@ -696,9 +699,6 @@ int main(int argc, char** argv, char **envp) {
 		str_array_destroy(p);
 	}
 	
-	//printf("%d\n", numargs);
-	fprintf(logfile, "cmd: '%s'\n", cmd);
-	
 	// check if the file is executable
 	struct stat sb;
 	if (stat(config.exe, &sb) == 0 && sb.st_mode & S_IXUSR) {
@@ -720,10 +720,20 @@ int main(int argc, char** argv, char **envp) {
 	//       transform username to /u
 	//       transfomed cmd:  profile.exe /u foo
 	
+
+	cmd[0] = '\0';
+	strcat(cmd, config.exe);
+	for (i=0; i<a_query_escaped.length; i++) {
+		strcat(cmd, " ");
+		strcat(cmd, a_query_escaped.items[i]);
+	}
+	
+	fprintf(logfile, "Executing: %s\n", cmd);
+
 	// run the command, spawn a new process and end this application
 	int proc = 0;
-	printf("%s\n", config.exe);
-	printf("%s\n", myargs[0]);
+	//printf("%s\n", config.exe);
+	//printf("%s\n", myargs[0]);
 	proc = spawnve(P_NOWAIT, config.exe, myargs, (const char * const *) environ);
 	//proc = spawnle(P_NOWAIT, config.exe, "", NULL, (const char * const *) environ);
 	
