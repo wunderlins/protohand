@@ -8,12 +8,13 @@ struct nvlist_pair {
 	char* value;
 };
 
-struct nvlist_replacements {
-	struct nvlist_pair items[100];
+struct nvlist_list {
+	struct nvlist_pair *items;
 	int length;
+	int max;
 };
 
-int nvlist_addpair(struct nvlist_replacements *rep, char* key, char* value) {
+int nvlist_addpair(struct nvlist_list *rep, char* key, char* value) {
 	struct nvlist_pair p;
 	p.key = key;
 	p.value = value;
@@ -21,11 +22,19 @@ int nvlist_addpair(struct nvlist_replacements *rep, char* key, char* value) {
 	return rep->length;
 }
 
+struct nvlist_list nvlist_make(int size) {
+	struct nvlist_list rep;
+	rep.items = malloc(sizeof(struct nvlist_pair *) * size);
+	rep.length = 0;
+	rep.max = size;
+	return rep;
+}
 
+
+#ifdef NVLIST_MAIN
 int main(int argc, char** argv, char **envp) {
 	
-	struct nvlist_replacements rep;
-	rep.length = 0;
+	struct nvlist_list rep = nvlist_make(50);
 	
 	nvlist_addpair(&rep, "k1", "v1");
 	nvlist_addpair(&rep, "k2", "v2");
@@ -36,3 +45,4 @@ int main(int argc, char** argv, char **envp) {
 	
 	return 0;
 }
+#endif

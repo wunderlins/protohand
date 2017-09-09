@@ -210,7 +210,7 @@ ini_test:
 
 replace:
 	gcc $(CFLAGS) -c stringlib.c
-	gcc $(CFLAGS) -o test/replace$(_EXT) stringlib.o test/replace.c
+	gcc $(CFLAGS) -D NVLIST_MAIN -o test/replace$(_EXT) stringlib.o test/replace.c
 
 compare:
 	gcc $(CFLAGS) -o test/compare$(_EXT) test/compare.c
