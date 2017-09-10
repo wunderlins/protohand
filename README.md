@@ -29,3 +29,15 @@ LIMITATIONS
 	make test
 
 ini parser from https://github.com/benhoyt/inih (BSD license)
+
+
+## referemces
+
+Registering an Application to a URI Scheme:
+https://msdn.microsoft.com/en-us/library/aa767914(v=vs.85).aspx
+
+About Asynchronous Pluggable Protocols
+https://msdn.microsoft.com/en-us/library/aa767916(v=vs.85).aspx
+
+A primer for windows:
+https://blogs.msdn.microsoft.com/ieinternals/2011/07/13/understanding-protocols/
