@@ -1,4 +1,4 @@
-.PHONY: stringlib ini usage test param_test release
+.PHONY: stringlib ini usage test param_test release puh
 
 # DUBUG=0 disables debugging, other levels from 1-3
 # LOG_TO_FILE=1 will send dbg output to stdout, else to protohand.log
@@ -71,6 +71,10 @@ all: usage ini
 	gcc $(CFLAGS) -c stringlib.c
 	gcc $(CFLAGS) -o $(PROGNAME)$(_EXT) realpath.o stringlib.o ini.o protohand.c
 
+# unicode test
+phu:
+	gcc $(CFLAGS) -o phu8$(_EXT) phu8.c
+
 # create a release
 release:
 	# get latest code
@@ -138,6 +142,7 @@ param_test:
 
 # cleanup
 clean:
+	rm -r phu8$(_EXT) || true
 	rm -r $(PROGNAME)$(_EXT) || true
 	rm -r stringlib$(_EXT) || true
 	rm -r test/realpath_test$(_EXT) || true
