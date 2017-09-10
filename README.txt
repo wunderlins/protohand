@@ -63,6 +63,16 @@ Windows Registry Editor Version 5.00
 [HKEY_CLASSES_ROOT\<proto>\shell\open]
 [HKEY_CLASSES_ROOT\<proto>\shell\open\command]
 @="\"C:\\<path>\\PROGNAME_EXT\" \"%1\""
+
+;; internet explorer will show a warning when this protocol is used, you can 
+;; disable this warning site wide or per user
+; per user setting
+;[HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\ProtocolExecute\<proto>]
+;"WarnOnOpen"=dword:00000000
+
+; computer setting
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer\ProtocolExecute\<proto>]
+"WarnOnOpen"=dword:00000000
 ===[EOF]=======================================================================
 
 Mappings between URIs and executables are defined in PROGNAME.ini. 
