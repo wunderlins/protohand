@@ -23,6 +23,11 @@
 [protocol] is used by the Operating system and has no effect in this program.
 [profile] is used to define different actions for one executable.
 
+FIXME: The 0.1.0 Branch might have to be abandonend due to the lack of 
+       multi character support. It has to be investigated in detail in what 
+	   encoding(s) the input might be provided to the program. Possibly 
+	   figure out how different browsers on different platforms handle input.
+
  * 2017, Simon Wunderlin <swunderlin@gmail.com>
  */
 

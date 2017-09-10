@@ -71,7 +71,7 @@ int main(int argc, char** argv, char **envp) {
 	nvlist_addstr(&rep, "k3&v3", '&');
 	
 	// FIXME: umlauts don't work on W10 msys with a us codepage
-	//printf("”\n"); // works if file uses CP 'OEM 852' 
+	//printf("Ã¶\n"); // works if file uses CP 'OEM 852' 
 	
 	int i;
 	for (i=0; i<rep.length; i++) {
