@@ -114,6 +114,7 @@ typedef struct {
 	const char* path_params;
 	const char* params_prepend;
 	const char* params_append;
+	const char* replace;
 	const char* exe;
 	int found; // 1 if the section was found. initialize it to 0 otherwise
 } configuration;
@@ -167,6 +168,9 @@ static int dumper(void* user, const char* section, const char* name,
 			pconfig->found = 1;
 		} else if (MATCH(section, "exe")) {
 			pconfig->exe = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "replace")) {
+			pconfig->replace = strdup(value);
 			pconfig->found = 1;
 		} else {
 			return 0;
@@ -242,6 +246,7 @@ int main(int argc, char** argv, char **envp) {
 	config.exe            = empty;
 	config.params_append  = empty;
 	config.params_prepend = empty;
+	config.replace        = empty;
 	
 	// url parts buffers
 	char buff[STDIN_MAX], scheme[STDIN_MAX], authority[STDIN_MAX], path[STDIN_MAX], query[STDIN_MAX], reminder[STDIN_MAX];

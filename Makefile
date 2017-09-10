@@ -138,7 +138,18 @@ param_test:
 
 # cleanup
 clean:
-	rm -r *.o *$(_EXT) || true
+	rm -r $(PROGNAME)$(_EXT) || true
+	rm -r stringlib$(_EXT) || true
+	rm -r test/realpath_test$(_EXT) || true
+	rm -r test/find_param$(_EXT) || true
+	rm -r test/cleanpath$(_EXT) || true
+	rm -r ini/ini_dump$(_EXT) || true
+	rm -r ini/ini_example$(_EXT) || true
+	rm -r test/ini_test$(_EXT) || true
+	rm -r test/compare$(_EXT) || true
+	rm -r *.o || true
+	rm -r test/*.o || true
+	rm *.bak || true
 
 # create usage README.h header file from README.txt
 usage:
@@ -196,6 +207,10 @@ ini_example:
 ini_test:
 	gcc $(CFLAGS) -c ini.c
 	gcc $(CFLAGS) -o test/ini_test$(_EXT) ini.o test/ini_test.c
+
+nvlist:
+	gcc $(CFLAGS) -c stringlib.c
+	gcc $(CFLAGS) -D NVLIST_MAIN -o test/nvlist$(_EXT) stringlib.o test/nvlist.c
 
 compare:
 	gcc $(CFLAGS) -o test/compare$(_EXT) test/compare.c
