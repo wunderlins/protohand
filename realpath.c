@@ -6,7 +6,9 @@ Copyright (C) September 8, 2005
 I am placing this in the public domain for anyone to use or modify
 */
 
+#if defined(_WIN32) || defined(WIN32) 
 #include <windows.h>
+#endif
 #include <stdlib.h>
 #include <limits.h>
 #include <errno.h>

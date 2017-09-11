@@ -45,7 +45,9 @@ FIXME: The 0.1.0 Branch might have to be abandonend due to the lack of
 #include "example_ini.h"
 #include "README.h"
 #include "stringlib.h"
+#if defined(_WIN32) || defined(WIN32) 
 #include "realpath.h"
+#endif
 
 #ifndef LOG_TO_FILE
 	#define LOG_TO_FILE 0

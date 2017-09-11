@@ -196,8 +196,9 @@ struct str_array str_array_make(char **elements, int count) {
 	struct str_array ret;
 	ret.items = malloc(sizeof(char *) * count);
 	ret.length = count;
-
-	for (int i = 0; i < count; i++) {
+	
+	int i;
+	for (i = 0; i < count; i++) {
 		ret.items[i] = elements[i];
 	}
 
