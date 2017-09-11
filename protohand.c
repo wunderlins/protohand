@@ -677,9 +677,11 @@ int main(int argc, char** argv, char **envp) {
 	const char* myargs[100];
 	
 	// this is a hack, so myrgs in spawnve is never empty
-	//myargs[numargs++] = " "; 
+	myargs[numargs++] = " "; 
+	/*
 	myargs[numargs++] = "/C"; 
 	myargs[numargs++] = config.exe; 
+	*/
 	myargs[numargs] = NULL;
 
 	char* cmd = malloc(sizeof(char) * STDIN_MAX*2);
@@ -746,7 +748,7 @@ int main(int argc, char** argv, char **envp) {
 	int proc = 0;
 	//printf("%s\n", config.exe);
 	//printf("%s\n", myargs[0]);
-	proc = spawnve(P_NOWAIT, "c:\\windows\\system32\\cmd.exe", 
+	proc = spawnve(P_NOWAIT, config.exe, 
 	                         myargs, (const char * const *) environ);
 	//proc = spawnle(P_NOWAIT, config.exe, "", NULL, (const char * const *) environ);
 	
