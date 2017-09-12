@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 	//char *uri = "proto://authority/path?name=ferret&n2=v2#fragment";
 	char *uri = "proto://authority?query";
 	
-	int stage = 0;
+	int stage = 1;
 	int i = 0;
 	int length = strlen(uri);
 	
@@ -41,63 +41,41 @@ int main(int argc, char *argv[]) {
 	
 	for (i=0; i<length; i++) {
 		
-		printf("[%04d] %c %d", i, uri[i], stage);
-		if (stage < FOUND_PROTO && uri[i] == ':') {
-			stage = FOUND_PROTO;
-			uri_parsed.pos[FOUND_PROTO] = i;
-			printf(", found proto");
-			if (uri[i+1] == '/' && uri[i+2] == '/') {
-				printf(", have double slash");
-				i=i+2;
-			}
-			printf("\n");
-			continue;
-		} 
-		
-		if (stage < FOUND_AUTHORITY && (uri[i] == '/' || length == i+1)) {
+		if (stage < FOUND_AUTHORITY && uri[i] == ':') {
 			stage = FOUND_AUTHORITY;
-			uri_parsed.pos[FOUND_AUTHORITY] = i;
-			if (length == i+1)
-				uri_parsed.pos[FOUND_AUTHORITY]++;
-			printf(", found authority");
-			printf("\n");
-			continue;
-		}
-		
-		if (stage < FOUND_PATH && (uri[i] == '?' || length == i+1)) {
-			stage = FOUND_PATH;
-			uri_parsed.pos[FOUND_PATH] = i;
-			if (length == i+1) {
-				uri_parsed.pos[FOUND_PATH]++;
+			uri_parsed.pos[FOUND_PROTO] = i;
+			printf(", found proto\n");
+			if (uri[i+1] == '/' && uri[i+2] == '/') {
+				printf(", have double slash\n");
+				i=i+3;
 			}
-			printf(", found path");
-			printf("\n");
-			continue;
 		}
-		
-		if (stage < FOUND_QUERY && (uri[i] == '/' || length == i+1)) {
-			stage = FOUND_QUERY;
-			uri_parsed.pos[FOUND_QUERY] = i;
-			if (length == i+1) {
-				uri_parsed.pos[FOUND_QUERY]++;
-				if (uri_parsed.pos[FOUND_AUTHORITY] == -1)
-					uri_parsed.pos[FOUND_AUTHORITY] = i;
-			}
-			printf(", found query");
-			printf("\n");
-			continue;
-		}
-		
-		if (stage < FOUND_FRAGMENT && (uri[i] == '/' || length == i+1)) {
-			stage = FOUND_FRAGMENT;
-			uri_parsed.pos[FOUND_FRAGMENT] = i;
-			if (length == i+1)
-				uri_parsed.pos[FOUND_FRAGMENT]++;
-			printf(", found fragment");
-			printf("\n");
-			continue;
-		}
-		
+        
+        if (stage < FOUND_PATH && (uri[i] == '/' || length == i+1)) {
+            stage = FOUND_PATH;
+            uri_parsed.pos[FOUND_PATH] = i;
+            if (length == i+1)
+                uri_parsed.pos[FOUND_PATH]++;
+            printf(", found path\n");
+        }
+        
+        if (stage < FOUND_QUERY && (uri[i] == '?' || length == i+1)) {
+            stage = FOUND_QUERY;
+            uri_parsed.pos[FOUND_QUERY] = i;
+            if (length == i+1)
+                uri_parsed.pos[FOUND_QUERY]++;
+            printf(", found query\n");
+        }
+        
+        if (stage < FOUND_FRAGMENT && (uri[i] == '#')) {
+            stage = FOUND_FRAGMENT;
+            uri_parsed.pos[FOUND_FRAGMENT] = i;
+            if (length == i+1)
+                uri_parsed.pos[FOUND_FRAGMENT]++;
+            printf(", found fragment\n");
+        }
+
+        printf("[%04d] %c %d", i, uri[i], stage);
 		printf("\n");
 		
 	}
