@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 	char *uri;
 	// uri = "proto://authority/path?name=ferret&n2=v2#fragment";
 	// uri = "proto://authority?query";
-	uri = "proto://authority";
+	uri = "proto:authority?a";
 	//uri = "proto://authority#f";
 	
 	int doubleslash = 0;
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
 			if (uri[i+1] == '/' && uri[i+2] == '/') {
 				printf(", have double slash\n");
 				i=i+3;
-				doubleslash = 1;
+				doubleslash = 2;
 			}
 			continue;
 		}
@@ -129,7 +129,15 @@ int main(int argc, char *argv[]) {
 	uri_parsed.proto = malloc(sizeof(char*) * uri_parsed.pos[FOUND_PROTO]+1);
 	strncpy(uri_parsed.proto, uri_parsed.uri, uri_parsed.pos[FOUND_PROTO]);
 	uri_parsed.proto[uri_parsed.pos[FOUND_PROTO]+1] = '\0';
-	printf("proto: %s, %s\n", uri_parsed.proto, uri_parsed.uri);
+	
+	uri_parsed.authority = malloc(sizeof(char*) * (uri_parsed.pos[FOUND_AUTHORITY]+1));
+	strncpy(uri_parsed.authority, 
+	        uri_parsed.uri+(uri_parsed.pos[FOUND_PROTO]+doubleslash+1), 
+	        uri_parsed.pos[FOUND_AUTHORITY]-uri_parsed.pos[FOUND_PROTO]-doubleslash-1);
+	uri_parsed.authority[uri_parsed.pos[FOUND_AUTHORITY]-uri_parsed.pos[FOUND_PROTO]-doubleslash-1] = '\0';
+	
+	printf("proto:     %s\n", uri_parsed.proto);
+	printf("authority: %s\n", uri_parsed.authority);
 	
 	return 0;
 }
