@@ -17,11 +17,11 @@ rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 # build the programm
 all:
-	gcc $(CFLAGS) -c realpath.c -o realpath.o
-	gcc $(CFLAGS) -c ini.c
-	gcc $(CFLAGS) -c stringlib.c
-	gcc $(CFLAGS) -c uriparse.c
-	gcc $(CFLAGS) -o $(PROGNAME)$(_EXT) realpath.o stringlib.o ini.o uriparse.o protohand.c
+	gcc $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
+	gcc $(CFLAGS) -c lib/ini.c -o lib/ini.o
+	gcc $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
+	gcc $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
+	gcc $(CFLAGS) -o $(PROGNAME)$(_EXT) lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o protohand.c
 
 # auto-update documentation
 doc: usage ini
@@ -93,7 +93,6 @@ param_test:
 
 # cleanup
 clean:
-	rm -r phu8$(_EXT) || true
 	rm -r $(PROGNAME)$(_EXT) || true
 	rm -r stringlib$(_EXT) || true
 	rm -r test/realpath_test$(_EXT) || true
@@ -104,6 +103,7 @@ clean:
 	rm -r test/ini_test$(_EXT) || true
 	rm -r test/compare$(_EXT) || true
 	rm -r *.o || true
+	rm -r lib/*.o || true
 	rm -r test/*.o || true
 	rm *.bak || true
 

@@ -41,13 +41,13 @@ FIXME: The 0.1.0 Branch might have to be abandonend due to the lack of
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <limits.h>
-#include "ini.h"
+#include "lib/ini.h"
 #include "example_ini.h"
 #include "README.h"
-#include "stringlib.h"
-#include "uriparse.h"
+#include "lib/stringlib.h"
+#include "lib/uriparse.h"
 #if defined(_WIN32) || defined(WIN32) 
-#include "realpath.h"
+#include "lib/realpath.h"
 #endif
 
 #ifndef LOG_TO_FILE
