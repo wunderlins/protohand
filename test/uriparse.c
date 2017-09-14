@@ -131,6 +131,25 @@ int parse(char* uri, struct t_uri* uri_parsed, char* empty) {
 	printf("proto:     %s\n", uri_parsed->proto);
 	printf("authority: %s\n", uri_parsed->authority);
 	
+	if (uri_parsed->pos[FOUND_PATH] != -1) {
+		int len = 0;
+		
+		if (uri_parsed->pos[FOUND_QUERY] != -1)
+			len = uri_parsed->pos[FOUND_QUERY] - uri_parsed->pos[FOUND_PATH];
+		else if (uri_parsed->pos[FOUND_FRAGMENT] != -1)
+			len = uri_parsed->pos[FOUND_FRAGMENT] - uri_parsed->pos[FOUND_PATH];
+		else
+			len = length - uri_parsed->pos[FOUND_PATH];
+		
+		printf("len: %d\n", len);
+		
+		uri_parsed->path = malloc(sizeof(char*) * (length+1));
+		strncpy(uri_parsed->path, 
+				uri_parsed->uri+uri_parsed->pos[FOUND_PATH]+1, // skip '/'
+				len);
+		uri_parsed->path[len-1] = '\0';
+	}
+	printf("path:     %s\n", uri_parsed->path);
 	return 0;	
 }
 
@@ -154,7 +173,7 @@ int main(int argc, char *argv[]) {
 	//uri_parsed.pos[FOUND_END] = length;
 	
 	int res, r;
-	uri = "proto:authority?a";
+	uri = "proto:authority/p?a";
 	struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	res = parse(uri, &uri_parsed, empty);
 	r = uri_test(uri, "proto", "authority", "", "a", "");
