@@ -65,12 +65,15 @@ timestamp=$(shell date "+%Y%m%d%H%M")
 rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 # build the programm
-all: usage ini
+all:
 	gcc $(CFLAGS) -c realpath.c -o realpath.o
 	gcc $(CFLAGS) -c ini.c
 	gcc $(CFLAGS) -c stringlib.c
-	gcc $(CFLAGS) -o $(PROGNAME)$(_EXT) realpath.o stringlib.o ini.o protohand.c
+	gcc $(CFLAGS) -c uriparse.c
+	gcc $(CFLAGS) -o $(PROGNAME)$(_EXT) realpath.o stringlib.o ini.o uriparse.o protohand.c
 
+doc: usage ini
+	
 # unicode test
 phu:
 	gcc $(CFLAGS) -o phu8$(_EXT) phu8.c
