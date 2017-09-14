@@ -72,12 +72,9 @@ all:
 	gcc $(CFLAGS) -c uriparse.c
 	gcc $(CFLAGS) -o $(PROGNAME)$(_EXT) realpath.o stringlib.o ini.o uriparse.o protohand.c
 
+# auto-update documentation
 doc: usage ini
 	
-# unicode test
-phu:
-	gcc $(CFLAGS) -o phu8$(_EXT) phu8.c
-
 # create a release
 release:
 	# get latest code
