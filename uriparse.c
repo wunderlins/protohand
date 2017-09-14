@@ -1,5 +1,8 @@
 #include "uriparse.h"
 
+// placeholder for an empty string
+char* empty = "";
+
 struct t_uri uriparse_create(char* uri) {
 	struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	return uri_parsed;

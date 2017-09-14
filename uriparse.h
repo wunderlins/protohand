@@ -20,9 +20,6 @@ extern "C" {
 	#define URIPARSE_DEBUG 0
 #endif
 
-// placeholder for an empty string
-char* empty = "";
-
 // proto:[//]authority[/path][?name=ferret[&n1=v1]][#fragment]
 #define FOUND_START      0
 #define FOUND_PROTO      1
