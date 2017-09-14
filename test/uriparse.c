@@ -2,8 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#define DEBUG 1
-#define URIPARSE_DEBUG 1
+#ifndef DEBUG
+	#define DEBUG 1
+#endif
+
+#ifndef URIPARSE_DEBUG
+	#define URIPARSE_DEBUG 0
+#endif
 
 // placeholder for an empty string
 char* empty = "";
@@ -138,7 +143,7 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 	// start chopping strings out of the original string
 	uri_parsed->proto = malloc(sizeof(char*) * uri_parsed->pos[FOUND_PROTO]+1);
 	strncpy(uri_parsed->proto, uri_parsed->uri, uri_parsed->pos[FOUND_PROTO]);
-	uri_parsed->proto[uri_parsed->pos[FOUND_PROTO]+1] = '\0';
+	uri_parsed->proto[uri_parsed->pos[FOUND_PROTO]] = '\0';
 	
 	uri_parsed->authority = malloc(sizeof(char*) * (uri_parsed->pos[FOUND_AUTHORITY]+1));
 	strncpy(uri_parsed->authority, 
@@ -207,61 +212,61 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 
 #ifdef URIPARSE_DEBUG
 #if URIPARSE_DEBUG > 0
-int uri_test(char* uri, char* proto, char* authority, char* path, char* query, char* fragment) {
-	int res, r;
+int uriparse_test(char* uri, char* proto, char* authority, char* path, char* query, char* fragment) {
+	int ret = 0;
+	int res;
 	struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	res = parse(uri, &uri_parsed);
+	if (res != 0) {
+		ret = 127+res;
+		printf("Parser Error %d, %s\n", res, uri);
+		return ret;
+	}
 
-	printf("%-10s, %03d, check: '%s', result: '%s'\n", "proto", strcmp(uri_parsed.proto, proto), proto, uri_parsed.proto);
-	printf("%-10s, %03d, check: '%s', result: '%s'\n", "authority", strcmp(uri_parsed.authority, authority), authority, uri_parsed.authority);
-	printf("%-10s, %03d, check: '%s', result: '%s'\n", "path", strcmp(uri_parsed.path, path), path, uri_parsed.path);
-	printf("%-10s, %03d, check: '%s', result: '%s'\n", "query", strcmp(uri_parsed.query, query), query, uri_parsed.query);
-	printf("%-10s, %03d, check: '%s', result: '%s'\n", "fragment", strcmp(uri_parsed.fragment, fragment), fragment, uri_parsed.fragment);
-	
 	if (strcmp(uri_parsed.proto, proto) != 0)
-		return FOUND_PROTO;
+		ret = FOUND_PROTO;
 	
 	if (strcmp(uri_parsed.authority, authority) != 0)
-		return FOUND_AUTHORITY;
+		ret = FOUND_AUTHORITY;
 	
 	if (strcmp(uri_parsed.path, path) != 0)
-		return FOUND_PATH;
+		ret = FOUND_PATH;
 	
 	if (strcmp(uri_parsed.query, query) != 0)
-		return FOUND_PATH;
+		ret = FOUND_PATH;
 	
 	if (strcmp(uri_parsed.query, query) != 0)
-		return FOUND_QUERY;
+		ret = FOUND_QUERY;
 	
 	if (strcmp(uri_parsed.fragment, fragment) != 0)
-		return FOUND_FRAGMENT;
+		ret = FOUND_FRAGMENT;
+
+	if (ret == 0) {
+		printf("OK     %s\n", uri);
+	} else {
+		printf("Failed %s\n", uri);
+		printf("%-10s, %03d, check: '%s', result: '%s'\n", "proto", strcmp(uri_parsed.proto, proto), proto, uri_parsed.proto);
+		printf("%-10s, %03d, check: '%s', result: '%s'\n", "authority", strcmp(uri_parsed.authority, authority), authority, uri_parsed.authority);
+		printf("%-10s, %03d, check: '%s', result: '%s'\n", "path", strcmp(uri_parsed.path, path), path, uri_parsed.path);
+		printf("%-10s, %03d, check: '%s', result: '%s'\n", "query", strcmp(uri_parsed.query, query), query, uri_parsed.query);
+		printf("%-10s, %03d, check: '%s', result: '%s'\n", "fragment", strcmp(uri_parsed.fragment, fragment), fragment, uri_parsed.fragment);
+	}
 	
-	return 0;
+	return ret;
 }
 
 int main(int argc, char *argv[]) {
 	
-	// parse an example uri onto the following parts
-	char *uri;
-	// uri = "proto://authority/path?name=ferret&n2=v2#fragment";
-	// uri = "proto://authority?query";
-	//uri = "proto://authority#f";
+	// unit testing of the uri parser
+	uriparse_test("proto:authority", "proto", "authority", empty, empty, empty);
+	uriparse_test("proto:authority/p", "proto", "authority", "p", empty, empty);
+	uriparse_test("proto:authority?q", "proto", "authority", empty, "q", empty);
+	uriparse_test("proto:authority#f", "proto", "authority", empty, empty, "f");
+	uriparse_test("proto:authority?q#f", "proto", "authority", empty, "q", "f");
+	uriparse_test("proto:authority/p#f", "proto", "authority", "p", empty, "f");
+	uriparse_test("proto:authority/p?q", "proto", "authority", "p", "q", empty);
+	uriparse_test("proto:authority/p?a#f", "proto", "authority", "p", "a", "f");
 	
-	//uri_parsed.pos[0] = 0;
-	//uri_parsed.pos[FOUND_END] = length;
-	
-	/*
-	struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
-	res = parse(uri, &uri_parsed);
-	*/
-	int r;
-	uri = "proto:authority/p?a#f";
-	r = uri_test(uri, "proto", "authority", "p", "a", "f");
-	if (r == 0) {
-		printf("OK     %s\n", uri);
-	} else {
-		printf("Failed %s\n", uri);
-	}
 }
 #endif
 #endif
