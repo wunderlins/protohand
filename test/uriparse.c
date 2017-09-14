@@ -1,39 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-#ifndef DEBUG
-	#define DEBUG 1
-#endif
-
-#ifndef URIPARSE_DEBUG
-	#define URIPARSE_DEBUG 0
-#endif
-
-// placeholder for an empty string
-char* empty = "";
-
-// proto:[//]authority[/path][?name=ferret[&n1=v1]][#fragment]
-#define FOUND_START      0
-#define FOUND_PROTO      1
-#define FOUND_AUTHORITY  2
-#define FOUND_PATH       3
-#define FOUND_QUERY      4
-#define FOUND_FRAGMENT   5
-#define FOUND_END        6
-// how many stages?
-#define NUM_URI_PARTS    6
-
-struct t_uri {
-	char *uri;        // original uri
-	char *proto;      // protocol part
-	char *authority;  // 
-	char *path;       // 
-	char *query;      // 
-	char *fragment;   // 
-	
-	int pos[NUM_URI_PARTS+1]; // -1 == unset
-};
+#include "uriparse.h"
 
 int parse(char* uri, struct t_uri* uri_parsed) {
 	int doubleslash = 0;
