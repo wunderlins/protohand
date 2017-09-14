@@ -48,13 +48,20 @@ struct t_uri {
 };
 
 /**
+ * Create empty t_uri struct
+ *
+ * sets all strings to empty ("") and positions to -1
+ */
+struct t_uri uriparse_create(char* uri);
+
+/**
  * parse a string into an uri struct
  *
  * The struct supports 
  * proto:[//]authority[/path][?name=ferret[&n1=v1]][#fragment]. Credentials
  * in the authority are ignored (considered part of the authority).
  */
-int parse(char* uri, struct t_uri* uri_parsed);
+int uriparse_parse(char* uri, struct t_uri* uri_parsed);
 
 #ifdef URIPARSE_DEBUG
 #if URIPARSE_DEBUG > 0

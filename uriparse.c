@@ -1,5 +1,10 @@
 #include "uriparse.h"
 
+struct t_uri uriparse_create(char* uri) {
+	struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
+	return uri_parsed;
+}
+
 int parse(char* uri, struct t_uri* uri_parsed) {
 	int doubleslash = 0;
 	int stage = 1;
@@ -180,7 +185,8 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 int uriparse_test(char* uri, char* proto, char* authority, char* path, char* query, char* fragment) {
 	int ret = 0;
 	int res;
-	struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
+	//struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
+	struct t_uri uri_parsed = uriparse_create(uri);
 	res = parse(uri, &uri_parsed);
 	if (res != 0) {
 		ret = 127+res;
