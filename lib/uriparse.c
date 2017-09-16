@@ -3,6 +3,52 @@
 // placeholder for an empty string
 char* empty = "";
 
+int nvlist_addpair(struct nvlist_list *rep, char* key, char* value) {
+	struct nvlist_pair p;
+	p.key = key;
+	p.value = value;
+	rep->items[rep->length++] = p;
+	return rep->length;
+}
+
+int nvlist_addstr(struct nvlist_list *rep, char* str, char delim) {
+	int i = 0;
+	int len = strlen(str);
+	for(i=0; i< len; i++) {
+		if (str[i] == delim) {
+			char *key = malloc(sizeof(char*) * (i+1));
+			char *val = malloc(sizeof(char*) * len);
+			strncpy(key, str, i);
+			key[i] = '\0';
+			strncpy(val, str+i+1, len);
+			
+			return nvlist_addpair(rep, key, val);
+		}
+	}
+	
+	return -1;
+}
+
+struct nvlist_list nvlist_create(int size) {
+	struct nvlist_list rep;
+	rep.items = malloc(sizeof(struct nvlist_pair *) * size);
+	rep.length = 0;
+	rep.max = size;
+	return rep;
+}
+
+void nvlist_destroy(struct nvlist_list *rep) {
+	int i;
+	for (i=0; i<rep->length; i++) {
+		//printf("%s=%s\n", rep.items[i].key, rep.items[i].value);
+		free(rep->items[i].key);
+		free(rep->items[i].value);
+	}
+	
+	free(rep->items);
+	free(rep);
+}
+
 struct t_uri uriparse_create(char* uri) {
 	struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	return uri_parsed;
@@ -239,7 +285,7 @@ int main(int argc, char *argv[]) {
 	uriparse_test("proto:authority?q#f", "proto", "authority", empty, "q", "f");
 	uriparse_test("proto:authority/p#f", "proto", "authority", "p", empty, "f");
 	uriparse_test("proto:authority/p?q", "proto", "authority", "p", "q", empty);
-	uriparse_test("proto:authority/p?a#f", "proto", "authority", "p", "a", "f");
+	uriparse_test("proto://authority/p?a=1&b=2&c=3#f", "proto", "authority", "p", "a=1&b=2&c=3", "f");
 	
 }
 #endif

@@ -8,7 +8,7 @@ VERSION=0.1.1
 # naming
 PROGNAME = protohand
 _EXT = .exe
-
+CC = gcc
 include os.mk
 
 # create release name: OS_VERSION_TIMESTAMP
@@ -17,11 +17,11 @@ rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 # build the programm
 all:
-	gcc $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
-	gcc $(CFLAGS) -c lib/ini.c -o lib/ini.o
-	gcc $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
-	gcc $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
-	gcc $(CFLAGS) -o $(PROGNAME)$(_EXT) lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o protohand.c
+	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
+	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
+	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
+	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
+	$(CC) $(CFLAGS) -o $(PROGNAME)$(_EXT) lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o protohand.c
 
 # auto-update documentation
 doc: usage ini
@@ -67,7 +67,7 @@ release:
 	
 # generate a simple cmd utility that will print all parameters
 testcmd:
-	gcc $(CFLAGS) -o testcmd$(_EXT) testcmd.c
+	$(CC) $(CFLAGS) -o testcmd$(_EXT) testcmd.c
 
 # test url parser
 test:
@@ -139,35 +139,39 @@ todo:
 
 # example programs for library test
 find_param:
-	gcc $(CFLAGS) -c stringlib.c
-	gcc $(CFLAGS) -o test/find_param$(_EXT) stringlib.o test/find_param.c
+	$(CC) $(CFLAGS) -c lib/stringlib.c
+	$(CC) $(CFLAGS) -o test/find_param$(_EXT) stringlib.o test/find_param.c
 
 stringlib:
-	gcc $(CFLAGS) -o stringlib$(_EXT) stringlib.c
+	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 
 realpath:
-	gcc $(CFLAGS) -c realpath.c -o realpath.o
-	gcc $(CFLAGS) -o test/realpath_test$(_EXT) realpath.o test/realpath_test.c
+	$(CC) $(CFLAGS) -c realpath.c -o realpath.o
+	$(CC) $(CFLAGS) -o test/realpath_test$(_EXT) realpath.o test/realpath_test.c
 
 cleanpath:
-	gcc $(CFLAGS) -o test/cleanpath$(_EXT) test/cleanpath.c
+	$(CC) $(CFLAGS) -o test/cleanpath$(_EXT) test/cleanpath.c
 
 ini_dump:
-	gcc $(CFLAGS) -c ini.c
-	gcc $(CFLAGS) -o ini/ini_dump$(_EXT) ini.o ini/ini_dump.c
+	$(CC) $(CFLAGS) -c ini.c
+	$(CC) $(CFLAGS) -o ini/ini_dump$(_EXT) ini.o ini/ini_dump.c
 	
 ini_example:
-	gcc $(CFLAGS) -c ini.c
-	gcc $(CFLAGS) -o ini/ini_example$(_EXT) ini.o ini/ini_example.c
+	$(CC) $(CFLAGS) -c ini.c
+	$(CC) $(CFLAGS) -o ini/ini_example$(_EXT) ini.o ini/ini_example.c
 
 ini_test:
-	gcc $(CFLAGS) -c ini.c
-	gcc $(CFLAGS) -o test/ini_test$(_EXT) ini.o test/ini_test.c
+	$(CC) $(CFLAGS) -c ini.c
+	$(CC) $(CFLAGS) -o test/ini_test$(_EXT) ini.o test/ini_test.c
 
 nvlist:
-	gcc $(CFLAGS) -c stringlib.c
-	gcc $(CFLAGS) -D NVLIST_MAIN -o test/nvlist$(_EXT) stringlib.o test/nvlist.c
+	$(CC) $(CFLAGS) -c stringlib.c
+	$(CC) $(CFLAGS) -D NVLIST_MAIN -o test/nvlist$(_EXT) stringlib.o test/nvlist.c
 
 compare:
-	gcc $(CFLAGS) -o test/compare$(_EXT) test/compare.c
+	$(CC) $(CFLAGS) -o test/compare$(_EXT) test/compare.c
 
+uriparse: stringlib
+	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
+	$(CC) $(CFLAGS) -o lib/uriparse.exe lib/stringlib.o lib/uriparse.o
+	lib/uriparse.exe

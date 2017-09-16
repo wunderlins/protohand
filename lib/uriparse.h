@@ -9,6 +9,7 @@ extern "C" {
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "stringlib.h"
 
 // sohw debug output. 0=disabled, debug levels up to 4 are available
 #ifndef DEBUG
@@ -43,6 +44,22 @@ struct t_uri {
 	
 	int pos[NUM_URI_PARTS+1]; // -1 == unset
 };
+
+struct nvlist_pair {
+	char *key;
+	char* value;
+};
+
+struct nvlist_list {
+	struct nvlist_pair *items;
+	int length;
+	int max;
+};
+
+int nvlist_addpair(struct nvlist_list *rep, char* key, char* value);
+int nvlist_addstr(struct nvlist_list *rep, char* str, char delim);
+struct nvlist_list nvlist_create(int size);
+void nvlist_destroy(struct nvlist_list *rep);
 
 /**
  * Create empty t_uri struct
