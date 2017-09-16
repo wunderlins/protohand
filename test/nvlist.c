@@ -58,7 +58,7 @@ int nvlist_resize(struct nvlist_list* rep, int size) {
 	
 	//printf(" -> copy items (%d)\n", rep->length);
 	int i;
-	for(int i=0; i < rep->length; i++) {
+	for(i=0; i < rep->length; i++) {
 		//printf(" -> %d: \n", i);
 		tmp[i] = rep->items[i];
 	}

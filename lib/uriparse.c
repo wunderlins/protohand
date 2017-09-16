@@ -3,6 +3,10 @@
 // placeholder for an empty string
 char* empty = "";
 
+#define strmalloc(length) ( \
+	malloc(sizeof(char*) * (length+1)) \
+)
+
 struct t_uri uriparse_create(char* uri) {
 	struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	uri_parsed.nvquery = nvlist_create(0);
@@ -41,10 +45,49 @@ int parse_query(char* query, struct nvlist_list* nvquery) {
 	nvlist_resize(nvquery, parts.length);
 	
 	// loop over all parts and create name=value entries
+	int equal, ii = 0;
 	for (i=0; i<parts.length; i++) {
 		printf(" -> part [%d]: '%s'\n", i, parts.items[i]);
+		
+		// find '=' sign
+		int length = strlen(parts.items[i]);
+		equal = -1;
+		for(ii=0; ii<length; ii++) {
+			if (parts.items[i][ii] == '=') {
+				equal = ii;
+				break;
+			}
+		}
+		
+		// not found, copy the whole string to key
+		if (equal == -1) {
+			char* newkey = strmalloc(strlen(parts.items[i]));
+			strcpy(newkey, parts.items[i]);
+			nvquery->items[i].key = newkey;
+			
+			continue; // work on next pair
+		}
+		
+		/*
+		// we have a pair
+		char* key = strmalloc(equal);
+		char* value = strmalloc(length-equal+1);
+		
+		// copy key
+		strncpy(key, parts.items[i], equal);
+		key[equal] = '\0';
+		
+		// copy value
+		int len = strlen(parts.items[i])-equal;
+		strncpy(value, parts.items[i]+equal+1, len);
+		value[len] = '\0';
+		printf(" --> key: '%s', value: '%s'\n", key, value);
+		*/
+		
+		int a = nvlist_addstr(nvquery, parts.items[i], '=');
 	}
 	
+	free(tmp_query);
 	return 0;
 }
 
