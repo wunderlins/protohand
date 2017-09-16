@@ -32,18 +32,6 @@ extern "C" {
 // how many stages?
 #define NUM_URI_PARTS    6
 
-// struct holding an uri string representation, all elements as separate 
-// strings as well as parser positions
-struct t_uri {
-	char *uri;        // original uri
-	char *proto;      // protocol part
-	char *authority;  // 
-	char *path;       // 
-	char *query;      // 
-	char *fragment;   // 
-	
-	int pos[NUM_URI_PARTS+1]; // -1 == unset
-};
 
 struct nvlist_pair {
 	char *key;
@@ -56,8 +44,25 @@ struct nvlist_list {
 	int max;
 };
 
+// struct holding an uri string representation, all elements as separate 
+// strings as well as parser positions
+struct t_uri {
+	char *uri;        // original uri
+	char *proto;      // protocol part
+	char *authority;  // 
+	char *path;       // 
+	char *query;      // 
+	char *fragment;   // 
+	
+	int pos[NUM_URI_PARTS+1]; // -1 == unset
+
+	struct nvlist_list nvquery;
+};
+
+
 int nvlist_addpair(struct nvlist_list *rep, char* key, char* value);
 int nvlist_addstr(struct nvlist_list *rep, char* str, char delim);
+int nvlist_resize(struct nvlist_list* rep, int size);
 struct nvlist_list nvlist_create(int size);
 void nvlist_destroy(struct nvlist_list *rep);
 
