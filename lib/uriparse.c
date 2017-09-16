@@ -3,80 +3,49 @@
 // placeholder for an empty string
 char* empty = "";
 
-int nvlist_addpair(struct nvlist_list *rep, char* key, char* value) {
-	struct nvlist_pair p;
-	p.key = key;
-	p.value = value;
-	rep->items[rep->length++] = p;
-	return rep->length;
-}
-
-int nvlist_addstr(struct nvlist_list *rep, char* str, char delim) {
-	int i = 0;
-	int len = strlen(str);
-	for(i=0; i< len; i++) {
-		if (str[i] == delim) {
-			char *key = malloc(sizeof(char*) * (i+1));
-			char *val = malloc(sizeof(char*) * len);
-			strncpy(key, str, i);
-			key[i] = '\0';
-			strncpy(val, str+i+1, len);
-			
-			return nvlist_addpair(rep, key, val);
-		}
-	}
-	
-	return -1;
-}
-
-int nvlist_resize(struct nvlist_list* rep, int size) {
-	if (size <= rep->max)
-		return -2;
-	
-	struct nvlist_pair* tmp = realloc(rep->items, sizeof(struct nvlist_pair*) * size);
-	if (tmp)
-		rep->items = tmp;
-	else
-		return -1;
-	
-	rep->max = size;
-	return rep->max;
-}
-
-struct nvlist_list nvlist_create(int size) {
-	struct nvlist_list rep;
-	rep.items = malloc(sizeof(struct nvlist_pair*) * size);
-	rep.length = 0;
-	rep.max = size;
-	return rep;
-}
-
-void nvlist_destroy(struct nvlist_list *rep) {
-	int i;
-	for (i=0; i<rep->length; i++) {
-		//printf("%s=%s\n", rep.items[i].key, rep.items[i].value);
-		free(rep->items[i].key);
-		free(rep->items[i].value);
-	}
-	
-	free(rep->items);
-	free(rep);
-}
-
-int nvlist_find_parts(char* string, char search) {
-	int i, found = 0;
-	int len = strlen(string);
-	for(i=0; i<len; i++)
-		if (string[i] == search)
-			found++;
-	
-	return found;
-}
-
 struct t_uri uriparse_create(char* uri) {
 	struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	uri_parsed.nvquery = nvlist_create(0);
+	
+	uri_parsed.nvquery.items[0].key = "sdfsdfsd";
+	// printf("nvquery[0].key: '%p', authority: %p\n", uri_parsed.nvquery.items[0].key, uri_parsed.authority);
+	
 	return uri_parsed;
+}
+
+int parse_query(char* query, struct nvlist_list* nvquery) {
+	int i = 0;
+	/*
+	// debug code
+	struct nvlist_list list = nvlist_create(1);
+	nvlist_addpair(&list, "k1", "v1");
+	nvquery = &list;
+	
+	nvquery->items[0].key = "new";
+	printf("key[0]: %s ,length: %d, max: %d\n", nvquery->items[0].key, nvquery->length, nvquery->max);
+	nvlist_resize(nvquery, 3);
+	printf("key[0]: %s ,length: %d, max: %d\n", nvquery->items[0].key, nvquery->length, nvquery->max);
+	*/
+	
+	char* tmp_query = malloc(sizeof(char*) * (strlen(query)+1));
+	strcpy(tmp_query, query);
+	
+	struct str_array parts = str_array_split(tmp_query, "&");
+	printf("found %d parts in query, '%s'\n", parts.length, query);
+	
+	// nothing to do ?
+	if(parts.length < 1)
+		return 0;
+	
+	// resize the array
+	nvlist_resize(nvquery, parts.length);
+	
+	// loop over all parts and create name=value entries
+	for (i=0; i<parts.length; i++) {
+		printf(" -> part [%d]: '%s'\n", i, parts.items[i]);
+	}
+	
+	return 0;
 }
 
 int parse(char* uri, struct t_uri* uri_parsed) {
@@ -184,11 +153,6 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 	        uri_parsed->pos[FOUND_AUTHORITY]-uri_parsed->pos[FOUND_PROTO]-doubleslash-1);
 	uri_parsed->authority[uri_parsed->pos[FOUND_AUTHORITY]-uri_parsed->pos[FOUND_PROTO]-doubleslash-1] = '\0';
 	
-	#if DEBUG > 1
-	printf("proto:     %s\n", uri_parsed->proto);
-	printf("authority: %s\n", uri_parsed->authority);
-	#endif
-	
 	int len;
 	if (uri_parsed->pos[FOUND_PATH] != -1) {
 		
@@ -205,9 +169,6 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 				len);
 		uri_parsed->path[len-1] = '\0';
 	}
-	#if DEBUG > 1
-	printf("path:      %s\n", uri_parsed->path);
-	#endif
 	
 	if (uri_parsed->pos[FOUND_QUERY] != -1) {
 		
@@ -222,9 +183,6 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 				len);
 		uri_parsed->query[len-1] = '\0';
 	}
-	#if DEBUG > 1
-	printf("query:     %s\n", uri_parsed->query);
-	#endif
 	
 	if (uri_parsed->pos[FOUND_FRAGMENT] != -1) {
 		
@@ -236,10 +194,12 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 				len);
 		uri_parsed->fragment[len-1] = '\0';
 	}
-	#if DEBUG > 1
-	printf("fragment:  %s\n", uri_parsed->fragment);
-	#endif
+
 	
+	// parse uri
+	int ret_query = parse_query(uri_parsed->query, &uri_parsed->nvquery);
+	
+	/*
 	// parse query string
 	int qparts = nvlist_find_parts(uri_parsed->query, '&');
 	
@@ -254,7 +214,9 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 		strcpy(escaped, uri_parsed->query);
 		// FIXME: we somehow overwrite uri_parsed->proto instead of 
 		//        uri_parsed->nvquery.items[0].key
-		char *k = ((uri_parsed->nvquery).items[0]).key;
+		char *k = (uri_parsed->nvquery.items[0]).key;
+		printf("proto: %p, key: %p\n", uri_parsed->proto, k);
+		return 0;
 		printf("query: '%s'\n", k);
 		urldecode2(k, escaped);
 		printf("nvquery[0].key: '%s'\n", uri_parsed->nvquery.items[0].key);
@@ -266,6 +228,8 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 		;
 	}
 	
+	*/
+	
 	// debug output
 	#if DEBUG > 1
 	printf("Start      [%d]\n", uri_parsed->pos[FOUND_START]);
@@ -275,6 +239,13 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 	printf("Query      [%d]\n", uri_parsed->pos[FOUND_QUERY]);
 	printf("Fragment   [%d]\n", uri_parsed->pos[FOUND_FRAGMENT]);
 	printf("End        [%d]\n", uri_parsed->pos[FOUND_END]);
+
+	printf("proto:     %s\n", uri_parsed->proto);
+	printf("authority: %s\n", uri_parsed->authority);
+	printf("path:      %s\n", uri_parsed->path);
+	printf("query:     %s\n", uri_parsed->query);
+	printf("fragment:  %s\n", uri_parsed->fragment);
+
 	#endif
 
 	return 0;	
@@ -337,8 +308,8 @@ int main(int argc, char *argv[]) {
 	uriparse_test("proto:authority?q#f", "proto", "authority", empty, "q", "f");
 	uriparse_test("proto:authority/p#f", "proto", "authority", "p", empty, "f");
 	*/
-	uriparse_test("proto:authority/p?q+1", "proto", "authority", "p", "q+1", empty);
-	//uriparse_test("proto://authority/p?a=1&b=2&c=3#f", "proto", "authority", "p", "a=1&b=2&c=3", "f");
+	//uriparse_test("proto:authority/p?q+1", "proto", "authority", "p", "q+1", empty);
+	uriparse_test("proto://authority/p?a=1&b=2&c=3#f", "proto", "authority", "p", "a=1&b=2&c=3", "f");
 	
 }
 #endif

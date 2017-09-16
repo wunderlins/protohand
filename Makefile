@@ -172,6 +172,7 @@ compare:
 	$(CC) $(CFLAGS) -o test/compare$(_EXT) test/compare.c
 
 uriparse: stringlib
+	$(CC) $(CFLAGS) -c -o test/nvlist.o test/nvlist.c
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
-	$(CC) $(CFLAGS) -o lib/uriparse.exe lib/stringlib.o lib/uriparse.o
+	$(CC) $(CFLAGS) -o lib/uriparse.exe test/nvlist.o lib/stringlib.o lib/uriparse.o
 	lib/uriparse.exe

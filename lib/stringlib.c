@@ -233,7 +233,10 @@ struct str_array str_array_split(char* string, char* delim) {
 	if (result != NULL) {
 		ret.items = result;
 		ret.length = i;
-	} 
+	}
+	
+	// FIXME: dynamically allocate more memory if the array shall be 
+	//        longer than 512 elements
 	
 	return ret;
 }

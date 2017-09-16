@@ -10,6 +10,7 @@ extern "C" {
 #include <stdio.h>
 #include <string.h>
 #include "stringlib.h"
+#include "../test/nvlist.h"
 
 // sohw debug output. 0=disabled, debug levels up to 4 are available
 #ifndef DEBUG
@@ -33,17 +34,6 @@ extern "C" {
 #define NUM_URI_PARTS    6
 
 
-struct nvlist_pair {
-	char *key;
-	char* value;
-};
-
-struct nvlist_list {
-	struct nvlist_pair *items;
-	int length;
-	int max;
-};
-
 // struct holding an uri string representation, all elements as separate 
 // strings as well as parser positions
 struct t_uri {
@@ -59,12 +49,6 @@ struct t_uri {
 	struct nvlist_list nvquery;
 };
 
-
-int nvlist_addpair(struct nvlist_list *rep, char* key, char* value);
-int nvlist_addstr(struct nvlist_list *rep, char* str, char delim);
-int nvlist_resize(struct nvlist_list* rep, int size);
-struct nvlist_list nvlist_create(int size);
-void nvlist_destroy(struct nvlist_list *rep);
 
 /**
  * Create empty t_uri struct

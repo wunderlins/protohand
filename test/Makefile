@@ -1,7 +1,7 @@
 .PHONY: uriparse
 
 CC=gcc 
-CFLAGS=-Wall -DEBUG=1 -DURIPARSE_DEBUG=1
+CFLAGS=-Wall -DEBUG=1 -DURIPARSE_DEBUG=1 -DNVLIST_MAIN=1
 
 uriparse:
 	$(CC) $(CFLAGS) -c -o ../uriparse.o ../uriparse.c

@@ -1,18 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include "../stringlib.h"
-
-struct nvlist_pair {
-	char *key;
-	char* value;
-};
-
-struct nvlist_list {
-	struct nvlist_pair *items;
-	int length;
-	int max;
-};
+#include "nvlist.h"
 
 int nvlist_addpair(struct nvlist_list *rep, char* key, char* value) {
 	struct nvlist_pair p;
@@ -60,6 +46,39 @@ void nvlist_destroy(struct nvlist_list *rep) {
 	free(rep);
 }
 
+int nvlist_resize(struct nvlist_list* rep, int size) {
+	//printf(" -> size: %d, max: %d\n", size, rep->max);
+	if (size <= rep->max)
+		return -2;
+	
+	struct nvlist_pair* tmp = realloc(rep->items, sizeof(struct nvlist_pair*) * size);
+	//printf("realloc ret: %d\n", tmp);
+	if (!tmp)
+		return -1;
+	
+	//printf(" -> copy items (%d)\n", rep->length);
+	int i;
+	for(int i=0; i < rep->length; i++) {
+		//printf(" -> %d: \n", i);
+		tmp[i] = rep->items[i];
+	}
+	
+	rep->items = tmp;
+	
+	rep->max = size;
+	return rep->max;
+}
+
+int nvlist_find_parts(char* string, char search) {
+	
+	int i, found = 0;
+	int len = strlen(string);
+	for(i=0; i<len; i++)
+		if (string[i] == search)
+			found++;
+	
+	return found+1;
+}
 
 #ifdef NVLIST_MAIN
 int main(int argc, char** argv, char **envp) {
