@@ -54,7 +54,7 @@ int parse_query(char* query, struct nvlist_list* nvquery) {
 			char* newkey = strmalloc(strlen(parts.items[i]));
 			//strcpy(newkey, parts.items[i]);
 			urldecode2(newkey, parts.items[i]);
-			nvlist_addpair(nvquery, newkey, "");
+			nvlist_addpair(nvquery, newkey, empty);
 			printf("added\n");
 			continue; // work on next pair
 		}
