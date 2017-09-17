@@ -6,6 +6,10 @@
 extern "C" {
 #endif
 
+#ifndef DEBUG
+	#define DEBUG 0
+#endif
+
 // error codes
 #define OK 0
 #define NO_INPUT 1

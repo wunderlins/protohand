@@ -1,7 +1,5 @@
 #include "ph.h"
 
-#define DEBUG 1
-
 extern char **environ;
 
 // can hold one ini file entry
@@ -26,7 +24,7 @@ void usage(void) {
 
 int main(int argc, char** argv, char **envp) {
 	
-	// get our directory
+	// get the current working directory
 	char cwd[MAX_CWD_LENGTH];
 	if (getcwd(cwd, sizeof(cwd)) == NULL) {
 		perror("getcwd() error");
@@ -41,7 +39,7 @@ int main(int argc, char** argv, char **envp) {
 	char log_file[MAX_CWD_LENGTH];
 	strcpy(log_file, cwd);
 	strcat(log_file, "ph.log");
-	logfile = fopen(log_file, "wb+");
+	logfile = fopen(log_file, "ab+");
 	//printf("log_file: '%s'\n", log_file);
 	
 	// check if we have an ini file, if not, create it
@@ -75,7 +73,19 @@ int main(int argc, char** argv, char **envp) {
 	        tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, 
 			tm.tm_min, tm.tm_sec);
 	fprintf(logfile, ", URI: '%s'\n", argv[1]);
-
+	
+	// parse uri
+	int ret = 0;
+	int res;
+	//struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
+	struct t_uri uri_parsed = uriparse_create(argv[1]);
+	res = uriparse_parse(argv[1], &uri_parsed);
+	if (res != 0) {
+		ret = 127+res;
+		fprintf(logfile, "Parser Error %d, %s\n", res, argv[1]);
+		return ret;
+	}
+	
 	return OK;
 }
 

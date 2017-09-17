@@ -14,7 +14,7 @@ extern "C" {
 
 // sohw debug output. 0=disabled, debug levels up to 4 are available
 #ifndef DEBUG
-	#define DEBUG 1
+	#define DEBUG 0
 #endif
 
 // compile main and unit test methods if > 0

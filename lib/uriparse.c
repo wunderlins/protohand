@@ -80,7 +80,7 @@ int parse_query(char* query, struct nvlist_list* nvquery) {
 	return 0;
 }
 
-int parse(char* uri, struct t_uri* uri_parsed) {
+int uriparse_parse(char* uri, struct t_uri* uri_parsed) {
 	int doubleslash = 0;
 	int stage = 1;
 	int i = 0;
@@ -264,7 +264,7 @@ int uriparse_test(char* uri, char* proto, char* authority, char* path, char* que
 	int res;
 	//struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	struct t_uri uri_parsed = uriparse_create(uri);
-	res = parse(uri, &uri_parsed);
+	res = uriparse_parse(uri, &uri_parsed);
 	if (res != 0) {
 		ret = 127+res;
 		printf("Parser Error %d, %s\n", res, uri);
