@@ -24,7 +24,7 @@ int parse_query(char* query, struct nvlist_list* nvquery) {
 	strcpy(tmp_query, query);
 	
 	struct str_array parts = str_array_split(tmp_query, "&");
-	printf("found %d parts in query, '%s'\n", parts.length, query);
+	//printf("found %d parts in query, '%s'\n", parts.length, query);
 	
 	// nothing to do ?
 	if(parts.length < 1)
@@ -36,7 +36,7 @@ int parse_query(char* query, struct nvlist_list* nvquery) {
 	// loop over all parts and create name=value entries
 	int equal, ii = 0;
 	for (i=0; i<parts.length; i++) {
-		printf(" -> part [%d]: '%s'\n", i, parts.items[i]);
+		//printf(" -> part [%d]: '%s'\n", i, parts.items[i]);
 		
 		// find '=' sign
 		int length = strlen(parts.items[i]);
@@ -50,7 +50,7 @@ int parse_query(char* query, struct nvlist_list* nvquery) {
 		
 		// not found, copy the whole string to key
 		if (equal == -1) {
-			printf(" --> no n=v pair, '=' not found\n");
+			//printf(" --> no n=v pair, '=' not found\n");
 			char* newkey = strmalloc(strlen(parts.items[i]));
 			//strcpy(newkey, parts.items[i]);
 			urldecode2(newkey, parts.items[i]);
@@ -224,39 +224,8 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 	
 	// parse uri
 	int ret_query = parse_query(uri_parsed->query, &uri_parsed->nvquery);
-	printf("parsed\n");
-	printf("number of query parameters: %d\n", uri_parsed->nvquery.length);
-	
-	/*
-	// parse query string
-	int qparts = nvlist_find_parts(uri_parsed->query, '&');
-	
-	// we have a query string, but it is not '&' delimited.
-	// add one element, with the name as the query, urlescape it
-	if (qparts == 0 && uri_parsed->query != empty) {
-		int r = nvlist_resize(&(uri_parsed->nvquery), 1);
-		printf("nvlist length [%d], max [%d], key: '%s'\n", uri_parsed->nvquery.length, r, 
-		                                                    uri_parsed->nvquery.items[0].key);
-		
-		char* escaped = malloc(sizeof(char*) * (strlen(uri_parsed->query)+1));
-		strcpy(escaped, uri_parsed->query);
-		// FIXME: we somehow overwrite uri_parsed->proto instead of 
-		//        uri_parsed->nvquery.items[0].key
-		char *k = (uri_parsed->nvquery.items[0]).key;
-		printf("proto: %p, key: %p\n", uri_parsed->proto, k);
-		return 0;
-		printf("query: '%s'\n", k);
-		urldecode2(k, escaped);
-		printf("nvquery[0].key: '%s'\n", uri_parsed->nvquery.items[0].key);
-		
-	}
-	
-	// there are query parts, parse them into a nvlist
-	if (qparts > 0) {
-		;
-	}
-	
-	*/
+	if (ret_query < 0)
+			return ret_query;
 	
 	// debug output
 	#if DEBUG > 1
@@ -268,14 +237,14 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 	printf("Fragment   [%d]\n", uri_parsed->pos[FOUND_FRAGMENT]);
 	printf("End        [%d]\n", uri_parsed->pos[FOUND_END]);
 
-	printf("proto:     %s\n", uri_parsed->proto);
-	printf("authority: %s\n", uri_parsed->authority);
-	printf("path:      %s\n", uri_parsed->path);
-	printf("query:     %s\n", uri_parsed->query);
-	printf("fragment:  %s\n", uri_parsed->fragment);
+	printf("proto:     '%s'\n", uri_parsed->proto);
+	printf("authority: '%s'\n", uri_parsed->authority);
+	printf("path:      '%s'\n", uri_parsed->path);
+	printf("query:     '%s'\n", uri_parsed->query);
+	printf("fragment:  '%s'\n", uri_parsed->fragment);
 	
 	for(i=0; i<uri_parsed->nvquery.length; i++) {
-		printf("  [%d] '%s'='%s'\n ", i, uri_parsed->nvquery.items[i].key, uri_parsed->nvquery.items[i].value);
+		printf("  [%d] '%s'='%s'\n", i, uri_parsed->nvquery.items[i].key, uri_parsed->nvquery.items[i].value);
 	}
 	#endif
 
@@ -331,16 +300,14 @@ int uriparse_test(char* uri, char* proto, char* authority, char* path, char* que
 int main(int argc, char *argv[]) {
 	
 	// unit testing of the uri parser
-	/*
 	uriparse_test("proto:authority", "proto", "authority", empty, empty, empty);
 	uriparse_test("proto:authority/p", "proto", "authority", "p", empty, empty);
 	uriparse_test("proto:authority?q", "proto", "authority", empty, "q", empty);
 	uriparse_test("proto:authority#f", "proto", "authority", empty, empty, "f");
 	uriparse_test("proto:authority?q#f", "proto", "authority", empty, "q", "f");
 	uriparse_test("proto:authority/p#f", "proto", "authority", "p", empty, "f");
-	*/
 	uriparse_test("proto:authority/p?q+1", "proto", "authority", "p", "q+1", empty);
-	//uriparse_test("proto://authority/p?a=1&b=2&c=3#f", "proto", "authority", "p", "a=1&b=2&c=3", "f");
+	uriparse_test("proto://authority/p?a=1&b=2&c=3#f", "proto", "authority", "p", "a=1&b=2&c=3", "f");
 	
 }
 #endif

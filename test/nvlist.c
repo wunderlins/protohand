@@ -1,5 +1,9 @@
 #include "nvlist.h"
 
+#define strmalloc(length) ( \
+	malloc(sizeof(char*) * (length+1)) \
+)
+
 int nvlist_addpair(struct nvlist_list *rep, char* key, char* value) {
 	struct nvlist_pair p;
 	p.key = key;

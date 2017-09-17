@@ -29,7 +29,6 @@ struct nvlist_list nvlist_create(int size);
 void nvlist_destroy(struct nvlist_list *rep);
 int nvlist_find_parts(char* string, char search);
 
-
 #ifdef __cplusplus
 }
 #endif
