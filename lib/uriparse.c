@@ -62,9 +62,15 @@ int parse_query(char* query, struct nvlist_list* nvquery) {
 		// add new nvlist_pair to mvquery
 		char* newval = strmalloc(strlen(parts.items[i]));
 		//strcpy(newval, parts.items[i]);
+		// FIXME: the correct way would be to split by '=' and then urldecode 
+		//        both parts, this way we might run into problems if the name 
+		//        has an ecoded '=' (%3D) in it
 		urldecode2(newval, parts.items[i]);
 		int a = nvlist_addstr(nvquery, newval, '=');
-		if (a < 0) // we haven't foudn a delimiter, this should not happen because we have tested further up
+		
+		// we haven't foudn a delimiter, this should not happen because we 
+		// have tested further up
+		if (a < 0) 
 			return a;
 	}
 	
