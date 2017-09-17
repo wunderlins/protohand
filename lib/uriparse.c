@@ -19,17 +19,6 @@ struct t_uri uriparse_create(char* uri) {
 
 int parse_query(char* query, struct nvlist_list* nvquery) {
 	int i = 0;
-	/*
-	// debug code
-	struct nvlist_list list = nvlist_create(1);
-	nvlist_addpair(&list, "k1", "v1");
-	nvquery = &list;
-	
-	nvquery->items[0].key = "new";
-	printf("key[0]: %s ,length: %d, max: %d\n", nvquery->items[0].key, nvquery->length, nvquery->max);
-	nvlist_resize(nvquery, 3);
-	printf("key[0]: %s ,length: %d, max: %d\n", nvquery->items[0].key, nvquery->length, nvquery->max);
-	*/
 	
 	char* tmp_query = malloc(sizeof(char*) * (strlen(query)+1));
 	strcpy(tmp_query, query);
@@ -55,37 +44,31 @@ int parse_query(char* query, struct nvlist_list* nvquery) {
 		for(ii=0; ii<length; ii++) {
 			if (parts.items[i][ii] == '=') {
 				equal = ii;
-				break;
+				//break;
 			}
 		}
 		
 		// not found, copy the whole string to key
 		if (equal == -1) {
+			printf(" --> no n=v pair, '=' not found\n");
 			char* newkey = strmalloc(strlen(parts.items[i]));
-			strcpy(newkey, parts.items[i]);
-			nvquery->items[i].key = newkey;
-			
+			//strcpy(newkey, parts.items[i]);
+			urldecode2(newkey, parts.items[i]);
+			nvlist_addpair(nvquery, newkey, "");
+			printf("added\n");
 			continue; // work on next pair
 		}
 		
-		/*
-		// we have a pair
-		char* key = strmalloc(equal);
-		char* value = strmalloc(length-equal+1);
-		
-		// copy key
-		strncpy(key, parts.items[i], equal);
-		key[equal] = '\0';
-		
-		// copy value
-		int len = strlen(parts.items[i])-equal;
-		strncpy(value, parts.items[i]+equal+1, len);
-		value[len] = '\0';
-		printf(" --> key: '%s', value: '%s'\n", key, value);
-		*/
-		
-		int a = nvlist_addstr(nvquery, parts.items[i], '=');
+		// add new nvlist_pair to mvquery
+		char* newval = strmalloc(strlen(parts.items[i]));
+		//strcpy(newval, parts.items[i]);
+		urldecode2(newval, parts.items[i]);
+		int a = nvlist_addstr(nvquery, newval, '=');
+		if (a < 0) // we haven't foudn a delimiter, this should not happen because we have tested further up
+			return a;
 	}
+	
+	//printf(" --> number of query parameters: %s\n", nvquery->items[0].key);
 	
 	free(tmp_query);
 	return 0;
@@ -241,6 +224,8 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 	
 	// parse uri
 	int ret_query = parse_query(uri_parsed->query, &uri_parsed->nvquery);
+	printf("parsed\n");
+	printf("number of query parameters: %d\n", uri_parsed->nvquery.length);
 	
 	/*
 	// parse query string
@@ -288,7 +273,10 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 	printf("path:      %s\n", uri_parsed->path);
 	printf("query:     %s\n", uri_parsed->query);
 	printf("fragment:  %s\n", uri_parsed->fragment);
-
+	
+	for(i=0; i<uri_parsed->nvquery.length; i++) {
+		printf("  [%d] '%s'='%s'\n ", i, uri_parsed->nvquery.items[i].key, uri_parsed->nvquery.items[i].value);
+	}
 	#endif
 
 	return 0;	
@@ -351,8 +339,8 @@ int main(int argc, char *argv[]) {
 	uriparse_test("proto:authority?q#f", "proto", "authority", empty, "q", "f");
 	uriparse_test("proto:authority/p#f", "proto", "authority", "p", empty, "f");
 	*/
-	//uriparse_test("proto:authority/p?q+1", "proto", "authority", "p", "q+1", empty);
-	uriparse_test("proto://authority/p?a=1&b=2&c=3#f", "proto", "authority", "p", "a=1&b=2&c=3", "f");
+	uriparse_test("proto:authority/p?q+1", "proto", "authority", "p", "q+1", empty);
+	//uriparse_test("proto://authority/p?a=1&b=2&c=3#f", "proto", "authority", "p", "a=1&b=2&c=3", "f");
 	
 }
 #endif

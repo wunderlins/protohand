@@ -11,14 +11,16 @@ int nvlist_addpair(struct nvlist_list *rep, char* key, char* value) {
 int nvlist_addstr(struct nvlist_list *rep, char* str, char delim) {
 	int i = 0;
 	int len = strlen(str);
-	for(i=0; i< len; i++) {
+	//printf("len: %d\n", len);
+	for(i=0; i < len; i++) {
+		//printf("%c\n", str[i]);
 		if (str[i] == delim) {
 			char *key = malloc(sizeof(char*) * (i+1));
 			char *val = malloc(sizeof(char*) * len);
 			strncpy(key, str, i);
 			key[i] = '\0';
 			strncpy(val, str+i+1, len);
-			
+			//printf("k %s, v %s\n", key, val);
 			return nvlist_addpair(rep, key, val);
 		}
 	}
