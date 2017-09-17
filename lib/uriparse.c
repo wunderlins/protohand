@@ -225,7 +225,7 @@ int parse(char* uri, struct t_uri* uri_parsed) {
 	// parse uri
 	int ret_query = parse_query(uri_parsed->query, &uri_parsed->nvquery);
 	if (ret_query < 0)
-			return ret_query;
+		return FOUND_QUERY;
 	
 	// debug output
 	#if DEBUG > 1
