@@ -10,7 +10,7 @@ extern "C" {
 #include <stdio.h>
 #include <string.h>
 #include "stringlib.h"
-#include "../test/nvlist.h"
+#include "nvlist.h"
 
 // sohw debug output. 0=disabled, debug levels up to 4 are available
 #ifndef DEBUG

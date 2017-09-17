@@ -1,4 +1,4 @@
-.PHONY: stringlib ini usage test param_test release puh
+.PHONY: stringlib ini usage test param_test release puh ph
 
 # DUBUG=0 disables debugging, other levels from 1-3
 # LOG_TO_FILE=1 will send dbg output to stdout, else to protohand.log
@@ -14,6 +14,18 @@ include os.mk
 # create release name: OS_VERSION_TIMESTAMP
 timestamp=$(shell date "+%Y%m%d%H%M")
 rel = $(operating_system)_$(VERSION)_$(timestamp)
+
+PROGNAME = ph
+ph:
+	
+	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
+	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
+	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
+	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
+	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
+	#$(CC) $(CFLAGS) -c ph.c
+	$(CC) $(CFLAGS) -o $(PROGNAME)$(_EXT) lib/nvlist.o lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o ph.c
+	
 
 # build the programm
 all:
