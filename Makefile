@@ -4,9 +4,10 @@
 # LOG_TO_FILE=1 will send dbg output to stdout, else to protohand.log
 DEBUG=3
 LOG_TO_FILE=1
-VERSION=0.1.1
+VERSION=0.2.0
 # naming
 PROGNAME = protohand
+PROGNAME_SHORT = ph
 _EXT = .exe
 CC = gcc
 include os.mk
@@ -15,17 +16,17 @@ include os.mk
 timestamp=$(shell date "+%Y%m%d%H%M")
 rel = $(operating_system)_$(VERSION)_$(timestamp)
 
-PROGNAME = ph
 ph:
-	
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
 	#$(CC) $(CFLAGS) -c ph.c
-	$(CC) $(CFLAGS) -o $(PROGNAME)$(_EXT) lib/nvlist.o lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o ph.c
-	
+	$(CC) $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/nvlist.o lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o ph.c
+
+test_ph: ph
+	$(PROGNAME_SHORT)$(_EXT) 'proto:auth?query=value%201&param2&param3'
 
 # build the programm
 all:

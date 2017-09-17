@@ -57,7 +57,6 @@ int main(int argc, char** argv, char **envp) {
 	fprintf(logfile, "Current ini file:    %s\n", ini_file);
 	#endif
 
-	
 	// check input
 	if(argc != 2) {
 		perror("argument 1 with uri missing");
@@ -85,6 +84,38 @@ int main(int argc, char** argv, char **envp) {
 		fprintf(logfile, "Parser Error %d, %s\n", res, argv[1]);
 		return ret;
 	}
+	
+	// parse ini file
+	l = strlen(uri_parsed.proto) + strlen(uri_parsed.authority) + 2;
+	char *section = malloc(sizeof(char*) * l);
+	section[0] = 0;
+	strcat(section, uri_parsed.proto);
+	strcat(section, "/");
+	strcat(section, uri_parsed.authority);
+
+	#if DEBUG > 0
+	fprintf(logfile, "Reading ini section: %s\n", section);
+	#endif
+	
+	// initialize the config 
+	const char* empty = "";
+	configuration config;
+	config.section        = empty;
+	config.found          = 0;
+	config.default_path   = empty;
+	config.allowed_params = empty;
+	config.path_params    = empty;
+	config.exe            = empty;
+	config.params_append  = empty;
+	config.params_prepend = empty;
+	config.replace        = empty;
+	
+	config.section = section;
+	int retp = ini_parse(ini_file, ini_callback, &config);
+	
+	#if DEBUG > 1
+	fprintf(logfile, "ini_parse(): %d\n", retp);
+	#endif
 	
 	return OK;
 }
