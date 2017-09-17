@@ -26,7 +26,7 @@ ph:
 	$(CC) $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/nvlist.o lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o ph.c
 
 test_ph: ph
-	$(PROGNAME_SHORT)$(_EXT) 'proto:auth?query=value%201&param2&param3'
+	$(PROGNAME_SHORT)$(_EXT) 'proto:auth?query=value%201&param2&param3 '
 
 # build the programm
 all:

@@ -1,8 +1,10 @@
 #include "ph.h"
 
+//const char* empty = "";
 extern char **environ;
 
 // can hold one ini file entry
+#define DEFAULT_CONFIG { "", "", "", "", "", "", "", "", 0}
 typedef struct {
 	const char* section; // the section we are searchin for
 	const char* default_path;
@@ -98,18 +100,7 @@ int main(int argc, char** argv, char **envp) {
 	#endif
 	
 	// initialize the config 
-	const char* empty = "";
-	configuration config;
-	config.section        = empty;
-	config.found          = 0;
-	config.default_path   = empty;
-	config.allowed_params = empty;
-	config.path_params    = empty;
-	config.exe            = empty;
-	config.params_append  = empty;
-	config.params_prepend = empty;
-	config.replace        = empty;
-	
+	configuration config = DEFAULT_CONFIG;
 	config.section = section;
 	int retp = ini_parse(ini_file, ini_callback, &config);
 	
