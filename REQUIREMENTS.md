@@ -42,9 +42,10 @@ This directive only works together with `replace_regex`. This directive
 contains the file name on which the text needs to be replaced.
 
 ### replace_regex
-Defines a search and replace string as regular expression ([PCRE][2]). The 
+Defines a search and replace string as regular expression ([Regex][2]). The 
 Format is written as used from sed, vi, etc. Example:
 `/^(search)/replace \1/mi`.
+See [Overview of Regular Expression Syntax][3] for more information on Posix regular expressions.
 
 ## Actions
 - open documents
@@ -54,4 +55,5 @@ Format is written as used from sed, vi, etc. Example:
 - logging
 
 [1]: https://tools.ietf.org/html/rfc3986
-[2]: http://www.pcre.org/
+[2]: https://www.gnu.org/software/libc/manual/html_node/Regular-Expressions.html#Regular-Expressions
+[3]: https://www.gnu.org/software/sed/manual/html_node/Regular-Expressions.html
