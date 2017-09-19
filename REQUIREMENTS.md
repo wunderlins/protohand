@@ -53,6 +53,7 @@ See [Overview of Regular Expression Syntax][3] for more information on Posix reg
 - replace text in config files
 - sanitize and check paths
 - logging
+- checking if parameter passed username equals %USERNAME%
 
 [1]: https://tools.ietf.org/html/rfc3986
 [2]: https://www.gnu.org/software/libc/manual/html_node/Regular-Expressions.html#Regular-Expressions
