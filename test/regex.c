@@ -1,6 +1,6 @@
 #include <sys/types.h>
-#include <regex.h>
 #include <stdio.h>
+#include "../mingw-libgnurx-2.5.1/regex.h"
 
 int main(int argc, char **argv) {
   int r;
@@ -20,6 +20,6 @@ int main(int argc, char **argv) {
       continue;
     printf("matched: %s\n", *argv);
   }
-
+  
   return 0;
 }
