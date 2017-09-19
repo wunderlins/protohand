@@ -1,6 +1,6 @@
 #include <sys/types.h>
 #include <stdio.h>
-#include "../mingw-libgnurx-2.5.1/regex.h"
+#include "../lib/mingw-libgnurx-2.5.1/regex.h"
 
 int main(int argc, char **argv) {
   int r;

@@ -55,6 +55,8 @@ See [Overview of Regular Expression Syntax][3] for more information on Posix reg
 - logging
 - checking if parameter passed username equals %USERNAME%
 
+NOTE: possible PCRE solution for mingw: https://nuwen.net/mingw.html
+
 [1]: https://tools.ietf.org/html/rfc3986
 [2]: https://www.gnu.org/software/libc/manual/html_node/Regular-Expressions.html#Regular-Expressions
 [3]: https://www.gnu.org/software/sed/manual/html_node/Regular-Expressions.html

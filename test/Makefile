@@ -9,5 +9,6 @@ uriparse:
 	./uriparse.exe
 
 regex:
+	# cd ../lib/mingw-libgnurx-2.5.1 && ./configure && make
 	$(CC) $(CFLAGS) -c -o regex.o regex.c
-	$(CC) $(CFLAGS) -o regex.exe regex.o ../mingw-libgnurx-2.5.1/regex.o
+	$(CC) $(CFLAGS) -o regex.exe regex.o ../lib/mingw-libgnurx-2.5.1/regex.o
