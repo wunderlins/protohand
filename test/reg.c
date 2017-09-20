@@ -2,6 +2,6 @@
 #include "regcpp.h"
 
 int main() {
-	reg("csearch", "creplace");
+	reg("reg", "AAAAAAAA", "this is a regex text");
 	return 0;
 }

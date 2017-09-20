@@ -1,1 +1,1 @@
-extern "C" int reg(const char* areg, const char* areplace);
+extern "C" int reg(const char* areg, const char* areplace, const char* str);

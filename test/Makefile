@@ -18,5 +18,5 @@ regexcpp:
 	g++ regex.cpp -lpcrecpp -lpcre -DPCRE_STATIC
 
 reg:
-	g++ -c -o regcpp.o reg.cpp
+	g++ -lpcrecpp -lpcre -c -o regcpp.o reg.cpp
 	g++ -o reg.exe regcpp.o reg.c
