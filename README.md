@@ -18,10 +18,11 @@ LIMITATIONS
 
 
 ## environment
-- use mingw installer, the following modules are required
-	- mingw-developer-toolkit
-	- mingw32-base (gcc)
-	- msys-base (shell)
+- install mingw from https://nuwen.net/files/mingw/history/mingw-15.1.exe
+- edit `c:\<installdir>\open_distro_paths.bat` and add the following line after `doskey`: `start git\git-bash.exe && exit`
+- add the following line to `c:\<installdir>\git\etc\fstab`: `c:\<installdir> /mingw` 
+- start the build environment by running `open_distro_window.bat`
+- cd to your desired project directory and chout the source: `git clone git@github.com:wunderlins/protohand.git`
 
 ## build
 

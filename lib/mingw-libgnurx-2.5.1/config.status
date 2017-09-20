@@ -468,7 +468,7 @@ s,@CPPFLAGS@,,;t t
 s,@ac_ct_CC@,gcc,;t t
 s,@EXEEXT@,.exe,;t t
 s,@OBJEXT@,o,;t t
-s,@CC_QUALIFIED@,gcc -mthreads -mtune=pentium3,;t t
+s,@CC_QUALIFIED@,gcc -mthreads,;t t
 s,@DLLVERSION@,0,;t t
 s,@ZIPCMD@,tar czhf,;t t
 s,@ZIPEXT@,.tar.gz,;t t
