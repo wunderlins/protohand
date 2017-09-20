@@ -46,6 +46,7 @@ FIXME: The 0.1.0 Branch might have to be abandonend due to the lack of
 #include "README.h"
 #include "lib/stringlib.h"
 #include "lib/uriparse.h"
+#include "lib/nvlist.h"
 #if defined(_WIN32) || defined(WIN32) 
 #include "lib/realpath.h"
 #endif

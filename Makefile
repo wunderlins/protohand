@@ -34,7 +34,8 @@ all:
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
-	$(CC) $(CFLAGS) -o $(PROGNAME)$(_EXT) lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o protohand.c
+	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
+	$(CC) $(CFLAGS) -o $(PROGNAME)$(_EXT) lib/nvlist.o lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o protohand.c
 
 # auto-update documentation
 doc: usage ini
@@ -84,25 +85,25 @@ testcmd:
 
 # test url parser
 test:
-	$(PROGNAME)$(_EXT) "12345://67890" || true
-	$(PROGNAME)$(_EXT) "12345:///67890" || true
-	$(PROGNAME)$(_EXT)$(_EXT) "12345://?67890" || true
-	$(PROGNAME)$(_EXT) "12345://as/67890" || true
-	$(PROGNAME)$(_EXT) "12345://as?67890" || true
-	$(PROGNAME)$(_EXT) "12345://as/xy?67890" || true
-	$(PROGNAME)$(_EXT) "12345:67890" || true
-	$(PROGNAME)$(_EXT) "12345:/67890" || true
-	$(PROGNAME)$(_EXT) "12345:?67890" || true
-	$(PROGNAME)$(_EXT) "12345:as/67890" || true
-	$(PROGNAME)$(_EXT) "12345:as?67890" || true
-	$(PROGNAME)$(_EXT) "12345:as/xy?67890" || true
-	$(PROGNAME)$(_EXT) "usb://centricity?--auth=user&pass=ab%20de" || true
+	./$(PROGNAME)$(_EXT) "12345://67890" || true
+	./$(PROGNAME)$(_EXT) "12345:///67890" || true
+	./$(PROGNAME)$(_EXT)$(_EXT) "12345://?67890" || true
+	./$(PROGNAME)$(_EXT) "12345://as/67890" || true
+	./$(PROGNAME)$(_EXT) "12345://as?67890" || true
+	./$(PROGNAME)$(_EXT) "12345://as/xy?67890" || true
+	./$(PROGNAME)$(_EXT) "12345:67890" || true
+	./$(PROGNAME)$(_EXT) "12345:/67890" || true
+	./$(PROGNAME)$(_EXT) "12345:?67890" || true
+	./$(PROGNAME)$(_EXT) "12345:as/67890" || true
+	./$(PROGNAME)$(_EXT) "12345:as?67890" || true
+	./$(PROGNAME)$(_EXT) "12345:as/xy?67890" || true
+	./$(PROGNAME)$(_EXT) "usb://centricity?--auth=user&pass=ab%20de" || true
 
 # run parameter test
 param_test:
-	$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=C:\\windows\\CSUP.txt&a=b&%20&b=x&c=d&--help" || cat protohand.log
-	$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=%20C:\\windows\\CSUP.txt&--help" ||  cat protohand.log
-	$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=\\\\anacom03\\tegris\\c$$\\windows\\CSUP.txt&--help" || cat protohand.log
+	./$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=C:\\windows\\CSUP.txt&a=b&%20&b=x&c=d&--help" || cat protohand.log
+	./$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=%20C:\\windows\\CSUP.txt&--help" ||  cat protohand.log
+	./$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=\\\\anacom03\\tegris\\c$$\\windows\\CSUP.txt&--help" || cat protohand.log
 
 # cleanup
 clean:
