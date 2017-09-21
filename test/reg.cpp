@@ -2,6 +2,7 @@
 #include <string>
 #include <regex> // std::regex
 #include <pcrecpp.h> // pcrecpp::RE -- needs "-lpcrecpp -lpcre"
+#include <string.h>
 
 //#ifdef __cplusplus
 #define EXTERNC extern "C"
@@ -46,12 +47,72 @@ EXTERNC int reg(const char* areg, const char* areplace, const char* str) {
 	return 0;
 }
 
+/**
+ * regex replace
+ *
+ * param reg takes a perl compatible regex in the form of 
+ * /search/replace/modifiers, the delimiting character is always '/'.
+ * '/' within search and replace must be backslash escaped ('\/').
+ * 
+ * the result string will be allocated in this function because 
+ * the caller cannot know the required size for the result in advance.
+ * 
+ * returns 0 on success or an regcpp.h error code otherwise.
+ */
+EXTERNC int regreplace(const char* areg, const char* str, char* result) {
+	// parse the regex string
+	char *token;
+	int i, l, pos, len = 0;
+	len = strlen(areg);
+	
+	char* pre      = (char*) malloc(sizeof(char*) * (len+1));
+	char* reg      = (char*) malloc(sizeof(char*) * (len+1));
+	char* replace  = (char*) malloc(sizeof(char*) * (len+1));
+	char* modifier = (char*) malloc(sizeof(char*) * (len+1));
+	
+	pre[0]      = '\0'; // init empty string
+	reg[0]      = '\0'; // init empty string
+	replace[0]  = '\0'; // init empty string
+	modifier[0] = '\0'; // init empty string
+	
+	char* parts[5] = {pre, reg, replace, modifier, NULL};
+	
+	for (l=0, i=0; i<len; i++, l++) {
+		printf("%c, %d\n", areg[i], pos);
+		if(areg[i] == '/' && i == 0) { // slash at the beginning
+			pos = 1;
+			l = 0;
+			printf("first at %d\n", i);
+			continue;
+		}
+		parts[pos][l] = areg[i];
+		parts[pos][l+1] = '\0';
+		printf("pos: %d, l %d, i %d\n", pos, l, i);
+	}
+	//pre[0] = '1'; pre[1] = 0;
+	//parts[1][0] = '1'; parts[1][1] = 0;
+	printf("\n\
+pre:      %s\n\
+reg:      %s\n\
+replace:  %s\n\
+modifier: %s\n", pre, reg, replace, modifier);
+	
+}
+
 #ifdef CPPMAIN
 int main() {
+	/*
 	const char* regex   = "regex";
 	const char* replace = "replace";
 	const char* str = "asdf asdf asdf asdf regex sdf asdfasdf";
 	reg(regex, replace, str);
+	*/
+	
+	char* result;
+	const char* reg = "/search/\\/replace/m";
+	
+	int ret = regreplace(reg, "asb defg 100 sdfsdf", result);
+	
     return 0;
 }
 #endif

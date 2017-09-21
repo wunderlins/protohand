@@ -17,6 +17,10 @@ regexcpp:
 	# requires https://nuwen.net/mingw.html
 	g++ regex.cpp -lpcrecpp -lpcre -DPCRE_STATIC
 
+regcpp:
+	#g++ -o regcpp.exe reg.cpp -lpcrecpp -lpcre -DPCRE_STATIC -DCPPMAIN
+	g++ -o regcpp.exe reg.cpp -lpcrecpp -lpcre -DCPPMAIN
+
 reg:
 	g++ -lpcrecpp -lpcre -c -o regcpp.o reg.cpp
 	g++ -o reg.exe regcpp.o reg.c
