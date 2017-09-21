@@ -3,12 +3,7 @@
 #include <regex> // std::regex
 #include <pcrecpp.h> // pcrecpp::RE -- needs "-lpcrecpp -lpcre"
 #include <string.h>
-
-//#ifdef __cplusplus
-#define EXTERNC extern "C"
-//#else
-//#define EXTERNC
-//#endif
+#include "regcpp.h"
 
 using namespace std;
 
@@ -92,7 +87,7 @@ EXTERNC int regreplace(const char* areg, const char* str, char* result) {
 		}
 		
 		if(areg[i] == '\\' && areg[i+1] == '/') {
-			pos--;
+			//pos--;
 			continue;
 		}
 		
@@ -100,7 +95,7 @@ EXTERNC int regreplace(const char* areg, const char* str, char* result) {
 			continue;
 		}
 		
-		if(areg[i] == '/') {
+		if(areg[i] == '/' && areg[i-1] != '\\') {
 			pos++;
 			l = 0;
 			printf("%d at %d\n", pos, i);
