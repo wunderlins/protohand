@@ -23,6 +23,7 @@ LIMITATIONS
 - add the following line to `c:\<installdir>\git\etc\fstab`: `c:\<installdir> /mingw` 
 - start the build environment by running `open_distro_window.bat`
 - cd to your desired project directory and chout the source: `git clone git@github.com:wunderlins/protohand.git`
+- set proper crlf handling `git config --global core.autocrlf false`
 
 ## build
 
