@@ -77,26 +77,50 @@ EXTERNC int regreplace(const char* areg, const char* str, char* result) {
 	
 	char* parts[5] = {pre, reg, replace, modifier, NULL};
 	
-	for (l=0, i=0; i<len; i++, l++) {
-		printf("%c, %d\n", areg[i], pos);
+	for (l=0, i=0; i<len && pos < 5; i++) {
+		
+		if (pos > 4) {
+			printf("Too many parts\n");
+			break;			
+		}
+		
 		if(areg[i] == '/' && i == 0) { // slash at the beginning
-			pos = 1;
+			pos++;
 			l = 0;
 			printf("first at %d\n", i);
 			continue;
 		}
-		parts[pos][l] = areg[i];
-		parts[pos][l+1] = '\0';
-		printf("pos: %d, l %d, i %d\n", pos, l, i);
+		
+		if(areg[i] == '\\' && areg[i+1] == '/') {
+			pos--;
+			continue;
+		}
+		
+		if(areg[i] == '\\' && areg[i+1] == '\\') {
+			continue;
+		}
+		
+		if(areg[i] == '/') {
+			pos++;
+			l = 0;
+			printf("%d at %d\n", pos, i);
+			continue;
+		}
+		
+		printf("i %c, pos %d l: %d\n", areg[i], pos, l);
+		parts[pos][l++] = areg[i];
+		parts[pos][l] = '\0';
+		//printf("pos: %d, l %d, i %d\n", pos, l, i);
 	}
 	//pre[0] = '1'; pre[1] = 0;
 	//parts[1][0] = '1'; parts[1][1] = 0;
+	
 	printf("\n\
 pre:      %s\n\
 reg:      %s\n\
 replace:  %s\n\
 modifier: %s\n", pre, reg, replace, modifier);
-	
+
 }
 
 #ifdef CPPMAIN
@@ -109,7 +133,7 @@ int main() {
 	*/
 	
 	char* result;
-	const char* reg = "/search/\\/replace/m";
+	const char* reg = "/search/\\/repl\\\\ace/m";
 	
 	int ret = regreplace(reg, "asb defg 100 sdfsdf", result);
 	
