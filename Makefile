@@ -1,4 +1,4 @@
-.PHONY: stringlib ini usage test param_test release puh ph
+.PHONY: ini usage test param_test release puh ph
 
 # DUBUG=0 disables debugging, other levels from 1-3
 # LOG_TO_FILE=1 will send dbg output to stdout, else to protohand.log
