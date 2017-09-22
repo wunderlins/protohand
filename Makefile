@@ -73,6 +73,8 @@ release:
 	# windows line endings
 	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/README.txt
 	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/LICENSE.txt
+	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/ph.ini
+	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/ph.reg
 	
 	# create zip file
 	cd release/$(rel); ../../bin/zip.exe "../$(rel).zip" * 
