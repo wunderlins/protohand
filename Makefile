@@ -23,7 +23,7 @@ ph:
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
 	#$(CC) $(CFLAGS) -c ph.c
-	$(CC) $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/nvlist.o lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o ph.c
+	$(CC) $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/nvlist.o lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o ph.c ico/app.res
 
 test_ph: ph
 	$(PROGNAME_SHORT)$(_EXT) 'proto:auth?query=value%201&param2&param3 '
