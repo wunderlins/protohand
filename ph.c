@@ -89,7 +89,7 @@ int main(int argc, char** argv, char **envp) {
 	
 	// parse ini file
 	l = strlen(uri_parsed.proto) + strlen(uri_parsed.authority) + 2;
-	char *section = malloc(sizeof(char*) * l);
+	char *section = (char *) malloc(sizeof(char*) * l);
 	section[0] = 0;
 	strcat(section, uri_parsed.proto);
 	strcat(section, "/");

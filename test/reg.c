@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "regcpp.h"
+#include "../lib/regcpp.h"
 
 int main(int argc, char* argv[]) {
 	// reg(" +(reg)", "AAAAAAAA '$1' ", "this is a regex text");

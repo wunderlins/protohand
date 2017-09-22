@@ -33,6 +33,7 @@ extern "C" {
 #include "lib/uriparse.h"
 #include "example_ini.h"
 #include "README.h"
+#include "lib/regcpp.h"
 
 static int ini_callback(void* user, const char* section, const char* name, const char* value);
 int create_ini(char* ini_file);

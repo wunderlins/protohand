@@ -19,8 +19,8 @@ regexcpp:
 
 regcpp:
 	#g++ -o regcpp.exe reg.cpp -lpcrecpp -lpcre -DPCRE_STATIC -DCPPMAIN
-	g++ -o regcpp.exe reg.cpp -lpcrecpp -lpcre -DCPPMAIN
+	g++ -o regcpp.exe ../lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
 
 reg:
-	g++ -lpcrecpp -lpcre -c -o regcpp.o reg.cpp
-	g++ -o reg.exe regcpp.o reg.c
+	g++ -lpcrecpp -lpcre -c -o ../lib/regcpp.o ../lib/reg.cpp
+	gcc -o reg.exe ../lib/regcpp.o reg.c

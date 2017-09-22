@@ -25,7 +25,7 @@ using namespace std;
 // TODO: implement parser that takes a regex string like /re/replace/modifiers
 
 int reg_error_code = 0;
-EXTERNC int reg(const char* areg, const char* areplace, const char* str) {
+extern "C" int reg(const char* areg, const char* areplace, const char* str) {
 	string res = "";
 	string replace(areplace);
 	
@@ -54,9 +54,9 @@ EXTERNC int reg(const char* areg, const char* areplace, const char* str) {
  * 
  * returns 0 on success or an regcpp.h error code otherwise.
  */
-EXTERNC int regreplace(const char* areg, const char* str, char* result) {
+int regerrno = 0;
+extern "C" const char* regreplace(const char* areg, const char* str) {
 	// parse the regex string
-	char *token;
 	int i, l, pos, len = 0;
 	len = strlen(areg);
 	
@@ -75,14 +75,15 @@ EXTERNC int regreplace(const char* areg, const char* str, char* result) {
 	for (l=0, i=0; i<len && pos < 5; i++) {
 		
 		if (pos > 4) {
-			printf("Too many parts\n");
-			break;			
+			fprintf(stderr, "Too many parts in regex '%s'\n", areg);
+			regerrno = 1;
+			return NULL;
 		}
 		
 		if(areg[i] == '/' && i == 0) { // slash at the beginning
 			pos++;
 			l = 0;
-			printf("first at %d\n", i);
+			//printf("first at %d\n", i);
 			continue;
 		}
 		
@@ -98,11 +99,11 @@ EXTERNC int regreplace(const char* areg, const char* str, char* result) {
 		if(areg[i] == '/' && areg[i-1] != '\\') {
 			pos++;
 			l = 0;
-			printf("%d at %d\n", pos, i);
+			//printf("%d at %d\n", pos, i);
 			continue;
 		}
 		
-		printf("i %c, pos %d l: %d\n", areg[i], pos, l);
+		//printf("i %c, pos %d l: %d\n", areg[i], pos, l);
 		parts[pos][l++] = areg[i];
 		parts[pos][l] = '\0';
 		//printf("pos: %d, l %d, i %d\n", pos, l, i);
@@ -110,12 +111,31 @@ EXTERNC int regreplace(const char* areg, const char* str, char* result) {
 	//pre[0] = '1'; pre[1] = 0;
 	//parts[1][0] = '1'; parts[1][1] = 0;
 	
+	/*
 	printf("\n\
 pre:      %s\n\
 reg:      %s\n\
 replace:  %s\n\
 modifier: %s\n", pre, reg, replace, modifier);
-
+	*/
+	
+	// execute regex
+	string res;
+	try {
+		regex re(reg);
+		//cout << areg << " " << replace << endl;
+		res = regex_replace(str, re, replace);
+	} catch (regex_error e) {
+		regerrno = e.code();
+		return NULL;
+	}
+	
+	//cout << "Res: " << res << endl;
+	//char* ret = (char*) malloc(sizeof(char*) * (res.length()+1));
+	//strcpy(ret, res.c_str());
+	//*result = (char*) res.c_str();
+	
+	return res.c_str();
 }
 
 #ifdef CPPMAIN
@@ -127,10 +147,15 @@ int main() {
 	reg(regex, replace, str);
 	*/
 	
-	char* result;
-	const char* reg = "/search/\\/repl\\\\ace/m";
+	const char* result;
+	const char* reg = "pre/[0-9]+/NNNN/m";
 	
-	int ret = regreplace(reg, "asb defg 100 sdfsdf", result);
+	result = regreplace(reg, "asb defg 100 sdfsdf");
+	if (result != NULL) {
+		printf("result:\n%s\n", result);
+	} else {
+		printf("Regex error %d\n", regerrno);
+	}
 	
     return 0;
 }
