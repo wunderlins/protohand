@@ -58,15 +58,17 @@ release:
 	mkdir "release/$(rel)"
 	
 	# copy files to release directory
-	cp $(PROGNAME)$(_EXT) "release/$(rel)"
+	cp $(PROGNAME_SHORT)$(_EXT) "release/$(rel)"
+	strip "release/$(rel)/$(PROGNAME_SHORT)$(_EXT)"
 	cp README.txt "release/$(rel)/"
-	cp protohand.reg "release/$(rel)/"
+	cp protohand.reg "release/$(rel)/ph.reg"
+	cp ph.ini "release/$(rel)"
 	cp LICENSE.txt "release/$(rel)/"
 	
 	# subsitute all keywords in the README.txt file
-	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' release/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' release/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' release/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME_SHORT)/g' release/$(rel)/README.txt
+	#sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' release/$(rel)/README.txt
+	#sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' release/$(rel)/README.txt
 	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' release/$(rel)/README.txt
 	# windows line endings
 	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/README.txt
@@ -79,10 +81,10 @@ release:
 	rm -r "release/$(rel)"
 	
 	# add to git repo, tag release and push changes/tags
-	git add release/*.zip
-	git commit -am "Added release $(rel)"
-	git push
-	git tag $(rel) && git push --tags
+	#git add release/*.zip
+	#git commit -am "Added release $(rel)"
+	#git push
+	#git tag $(rel) && git push --tags
 	
 # generate a simple cmd utility that will print all parameters
 testcmd:
