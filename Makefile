@@ -32,7 +32,7 @@ icon:
 	$(MAKE) -C ico
 	
 # build the programm
-all: icon usage ini ph
+all: clean icon usage ini ph
 
 protohand:
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
