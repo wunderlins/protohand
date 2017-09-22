@@ -35,7 +35,7 @@ all:
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
-	$(CC) $(CFLAGS) -o $(PROGNAME)$(_EXT) lib/nvlist.o lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o protohand.c
+	$(CC) $(CFLAGS) -o $(PROGNAME)$(_EXT) lib/nvlist.o lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o protohand.c ico/app.res
 
 # auto-update documentation
 doc: usage ini
