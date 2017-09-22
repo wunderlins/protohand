@@ -16,7 +16,7 @@ include os.mk
 timestamp=$(shell date "+%Y%m%d%H%M")
 rel = $(operating_system)_$(VERSION)_$(timestamp)
 
-ph:
+ph: 
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
@@ -28,8 +28,13 @@ ph:
 test_ph: ph
 	$(PROGNAME_SHORT)$(_EXT) 'proto:auth?query=value%201&param2&param3 '
 
+icon:
+	$(MAKE) -C ico
+	
 # build the programm
-all:
+all: icon usage ini ph
+
+protohand:
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
@@ -127,7 +132,10 @@ usage:
 	echo "// 'make usage' to update this documentation!" >> README.h
 	echo "" >> README.h
 	echo "char* usage_str = \"\"" >> README.h
-	sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' README.txt >> README.h
+	#sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' README.txt >> README.h
+	#sed -i 's/"/\\"/g;' README.h
+	#sed -i 's/$$/\\n"/g' README.h
+	sed -f bin/replace.sed README.txt >> README.h
 	echo \""\";" >> README.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' README.h
 	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' README.h
@@ -140,7 +148,7 @@ ini:
 	echo "// 'make ini' to update this documentation!" >> example_ini.h
 	echo "" >> example_ini.h
 	echo "char* ini_str = \"\"" >> example_ini.h
-	sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' example.ini >> example_ini.h
+	sed -f bin/replace.sed example.ini >> example_ini.h
 	echo \""\";" >> example_ini.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' example_ini.h
 	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' example_ini.h
