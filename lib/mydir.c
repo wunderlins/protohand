@@ -36,8 +36,17 @@ int exedir(char *argv0, char *exedir) {
 		strcat(tmp, argv0);
 	}
 	
+	// remove the filename from tmp
+	for(i=l; i>0; i--) {
+		if (tmp[i] == '/') {
+			tmp[i+1] = '\0';
+			break;
+		}
+	}
+	
 	// clean the path, remove all . and ..
 	errno = 0;
+	printf("%s\n", tmp);
 	realpath(tmp, cleaned);
 	if (errno != 0) {
 		perror("realpath failed");
@@ -47,13 +56,6 @@ int exedir(char *argv0, char *exedir) {
 	// rewind from the end until the first '/' is found
 	fwdslash(cleaned);
 	l = strlen(cleaned);
-	
-	for(i=l; i>0; i--) {
-		if (cleaned[i] == '/') {
-			cleaned[i+1] = '\0';
-			break;
-		}
-	}
 	
 	strcpy(exedir, cleaned);
 	
