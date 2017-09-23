@@ -3,6 +3,13 @@
 CC=gcc 
 CFLAGS=-Wall -DEBUG=1 -DURIPARSE_DEBUG=1 -DNVLIST_MAIN=1
 
+# use our own realpath on windows
+ifeq ($(OS),Windows_NT)
+	REALPATH=../lib/realpath.o
+else
+	REALPATH=
+endif
+
 uriparse:
 	$(CC) $(CFLAGS) -c -o ../uriparse.o ../uriparse.c
 	$(CC) $(CFLAGS) -o uriparse.exe ../uriparse.o
@@ -24,3 +31,7 @@ regcpp:
 reg:
 	g++ -lpcrecpp -lpcre -c -o ../lib/regcpp.o ../lib/reg.cpp
 	gcc -o reg.exe ../lib/regcpp.o reg.c
+
+mydir:
+	$(CC) $(CFLAGS) -c ../lib/realpath.c -o ../lib/realpath.o
+	gcc -o mydir.exe $(REALPATH) ../lib/mydir.c

@@ -1,11 +1,6 @@
 #ifndef __PH_H__
 #define __PH_H__
 
-/* Make this header file easier to include in C++ code */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifndef DEBUG
 	#define DEBUG 0
 #endif
@@ -35,6 +30,11 @@ extern "C" {
 #include "README.h"
 #include "reg.h"
 #include "lib/regcpp.h"
+
+/* Make this header file easier to include in C++ code */
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static int ini_callback(void* user, const char* section, const char* name, const char* value);
 int create_ini(char* ini_file);
