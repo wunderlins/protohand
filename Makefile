@@ -69,6 +69,7 @@ release:
 	cp $(PROGNAME_SHORT)$(_EXT) "release/$(rel)"
 	strip "release/$(rel)/$(PROGNAME_SHORT)$(_EXT)"
 	cp README.txt "release/$(rel)/"
+	cp error.html "release/$(rel)/"
 	cp testcmd.exe "release/$(rel)/"
 	cp protohand.reg "release/$(rel)/ph.reg"
 	cp ph.ini "release/$(rel)"
