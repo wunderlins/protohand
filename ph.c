@@ -43,6 +43,8 @@ int main(int argc, char** argv, char **envp) {
 	strcat(log_file, "ph.log");
 	logfile = fopen(log_file, "ab+");
 	//printf("log_file: '%s'\n", log_file);
+	printf(argv[0]);
+	return 0;
 	
 	// check if we have an ini file, if not, create it
 	char ini_file[MAX_CWD_LENGTH];

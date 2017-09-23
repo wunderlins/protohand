@@ -32,7 +32,7 @@ icon:
 	$(MAKE) -C ico
 	
 # build the programm
-all: clean icon usage ini ph
+all: clean icon usage ini ph testcmd
 
 protohand:
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
@@ -61,6 +61,7 @@ release:
 	cp $(PROGNAME_SHORT)$(_EXT) "release/$(rel)"
 	strip "release/$(rel)/$(PROGNAME_SHORT)$(_EXT)"
 	cp README.txt "release/$(rel)/"
+	cp testcmd.exe "release/$(rel)/"
 	cp protohand.reg "release/$(rel)/ph.reg"
 	cp ph.ini "release/$(rel)"
 	cp LICENSE.txt "release/$(rel)/"
@@ -158,6 +159,13 @@ ini:
 	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' example_ini.h
 	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' example_ini.h
 	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' example_ini.h
+
+reg:
+	echo "char* reg_str = \"\"" > reg.h
+	sed -f bin/replace.sed example.reg >> reg.h
+	echo \""\";" >> reg.h
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' reg.h
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' reg.h
 
 # show todo list
 todo:
