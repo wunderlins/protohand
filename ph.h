@@ -14,7 +14,6 @@
 
 // limits
 #define INI_FILE_NAME "ph.ini"
-#define MAX_CWD_LENGTH 1024
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -30,6 +29,7 @@
 #include "README.h"
 #include "reg.h"
 #include "lib/regcpp.h"
+#include "lib/mydir.h"
 
 /* Make this header file easier to include in C++ code */
 #ifdef __cplusplus

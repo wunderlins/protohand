@@ -10,7 +10,7 @@ void fwdslash(char* path) {
 
 int exedir(char *argv0, char *exedir) {
 	int i;
-	char res[MAX_CWD_LENGTH] = "";
+	char tmp[MAX_CWD_LENGTH];
 	char cleaned[MAX_CWD_LENGTH] = "";
 	
 	// get the current working directory
@@ -29,7 +29,6 @@ int exedir(char *argv0, char *exedir) {
 	fwdslash(argv0);
 	
 	// concatenate cwd and argv0
-	char tmp[MAX_CWD_LENGTH];
 	if (argv0[1] == ':' || argv0[0] == '/') {
 		strcpy(tmp, argv0);
 	} else {
@@ -63,9 +62,11 @@ int exedir(char *argv0, char *exedir) {
 	return 0;
 }
 
+#ifdef MYDIR_MAIN
 int main(int argc, char* argv[]) {
 	char *dir = malloc(sizeof(char*) * (MAX_CWD_LENGTH+1));
 	int ret = exedir(argv[0], dir);
 	printf("exedir: %s\n", dir);
 	return ret;
 }
+#endif

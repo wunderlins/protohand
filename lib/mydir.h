@@ -9,7 +9,7 @@
 #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
     // Windows (x86 or x64)
 	#include <limits.h>
-	#include "../lib/realpath.h"
+	#include "realpath.h"
 #elif defined(__linux__)
     // Linux
     #include <linux/limits.h>
@@ -24,8 +24,8 @@
 #else
     #error Unknown environment!
 #endif
-#define MAX_CWD_LENGTH PATH_MAX
 
+#define MAX_CWD_LENGTH PATH_MAX
 
 /* Make this header file easier to include in C++ code */
 #ifdef __cplusplus

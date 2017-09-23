@@ -26,29 +26,25 @@ void usage(void) {
 
 int main(int argc, char** argv, char **envp) {
 	
-	// get the current working directory
-	char cwd[MAX_CWD_LENGTH];
-	if (getcwd(cwd, sizeof(cwd)) == NULL) {
-		perror("getcwd() error");
-		return NO_CURRENTDIR;
-	}
+	int i, l;
 	
-	int l = strlen(cwd);
-	cwd[l] = '/';
-	cwd[l+1] = '\0';
+	// fin the current directory of the executable
+	char *dir = malloc(sizeof(char*) * (MAX_CWD_LENGTH+1));
+	int r = exedir(argv[0], dir);
+	if (r != 0) {
+		fprintf(stderr, "Failed to find current directory, error: %d\n", r);
+		return 1;
+	}
 	
 	// open log file
 	char log_file[MAX_CWD_LENGTH];
-	strcpy(log_file, cwd);
+	strcpy(log_file, dir);
 	strcat(log_file, "ph.log");
 	logfile = fopen(log_file, "ab+");
-	//printf("log_file: '%s'\n", log_file);
-	printf(argv[0]);
-	return 0;
 	
 	// check if we have an ini file, if not, create it
 	char ini_file[MAX_CWD_LENGTH];
-	strcpy(ini_file, cwd);
+	strcpy(ini_file, dir);
 	strcat(ini_file, INI_FILE_NAME);
 	if( access(ini_file, F_OK) == -1 ) {
 		// file doesn't exist, create it
@@ -57,7 +53,7 @@ int main(int argc, char** argv, char **envp) {
 	}
 	
 	#if DEBUG > 0
-	fprintf(logfile, "Current working dir: %s\n", cwd);
+	fprintf(logfile, "Current working dir: %s\n", dir);
 	fprintf(logfile, "Current ini file:    %s\n", ini_file);
 	#endif
 

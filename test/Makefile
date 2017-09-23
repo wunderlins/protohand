@@ -34,4 +34,4 @@ reg:
 
 mydir:
 	$(CC) $(CFLAGS) -c ../lib/realpath.c -o ../lib/realpath.o
-	gcc -o mydir.exe $(REALPATH) ../lib/mydir.c
+	gcc -o mydir.exe $(REALPATH) -DMYDIR_MAIN ../lib/mydir.c
