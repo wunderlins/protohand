@@ -12,6 +12,7 @@
 #define INI_PERMISSION_DENIED 3
 #define INI_CREATION_FAILED 4
 #define INI_PARSE_ERR 5
+#define PROGRAM_IS_NOT_EXECUTABLE 6
 
 // limits
 #define INI_FILE_NAME "ph.ini"
@@ -22,6 +23,9 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <process.h> 
 #include "lib/ini.h"
 #include "lib/stringlib.h"
 #include "lib/nvlist.h"

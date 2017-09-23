@@ -1,5 +1,4 @@
 #include "ph.h"
-#include <process.h> 
 
 //const char* empty = "";
 extern char **environ;
@@ -143,8 +142,20 @@ int main(int argc, char** argv, char **envp) {
 	
 	//display_error(1);
 	
-	// check if the configuration defines an exe
-		// TODO: check that exe path is valid and executable
+	// check if the configuration defines an exe that is executable
+	struct stat sb;
+	if (stat(config.exe, &sb) == 0 && sb.st_mode & S_IXUSR) {
+		sprintf(logbuffer, "Program '%s' is executable\n", config.exe);
+		writelog(2, logbuffer);
+	} else {
+		#if DEBUG > 0
+		fprintf(logfile, "Program '%s' is not executable\n", config.exe);
+		#endif
+		fprintf(stderr, "Program '%s' is not executable\n", config.exe);
+		sprintf(logbuffer, "Program '%s' is not executable\n", config.exe);
+		writelog(1, logbuffer);
+		return display_error(PROGRAM_IS_NOT_EXECUTABLE);
+	}
 	
 	// TODO: do file content replacement
 	// TODO: check env parameters
