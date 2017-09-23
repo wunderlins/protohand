@@ -36,7 +36,7 @@ void writelog(int level, char* str) {
 	fprintf(logfile, "%s\r\n", str);
 }
 
-void display_error(int code) {
+int display_error(int code) {
 	char params[25] = "";
 	sprintf(params, "error.html?%d", code);
 	char *myargs[5] = {
@@ -50,7 +50,9 @@ void display_error(int code) {
 	strcat(exe, getenv("windir"));
 	strcat(exe, "\\System32\\cmd.exe");
 	int ret = spawnve(P_NOWAIT, exe, myargs, environ);
-	printf("spawnv %d\n", ret);
+	//printf("spawnv %d\n", ret);
+	
+	return code;
 }
 
 extern char **environ;
@@ -65,7 +67,7 @@ int main(int argc, char** argv, char **envp) {
 	int r = exedir(argv[0], dir);
 	if (r != 0) {
 		fprintf(stderr, "Failed to find current directory, error: %d\n", r);
-		return 1;
+		return display_error(CWD_ERR);
 	}
 	
 	// open log file
@@ -81,9 +83,8 @@ int main(int argc, char** argv, char **envp) {
 	if( access(ini_file, F_OK) == -1 ) {
 		// file doesn't exist, create it
 		int ret = create_ini(ini_file);
-		return ret;
+		return display_error(ret);
 	}
-	
 	
 	sprintf(logbuffer, "Current working dir: %s", dir);
 	writelog(1, logbuffer);
@@ -94,7 +95,7 @@ int main(int argc, char** argv, char **envp) {
 	if(argc != 2) {
 		perror("argument 1 with uri missing");
 		usage();
-		return NO_INPUT;
+		return display_error(NO_INPUT);
 	}
 
 	// logging uri
@@ -115,7 +116,7 @@ int main(int argc, char** argv, char **envp) {
 		ret = 127+res;
 		sprintf(logbuffer, "Parser Error %d, %s\n", res, argv[1]);
 		writelog(1, logbuffer);
-		return ret;
+		return display_error(ret);
 	}
 	
 	// parse ini file
@@ -137,7 +138,7 @@ int main(int argc, char** argv, char **envp) {
 	sprintf(logbuffer, "ini_parse(): %d\n", retp);
 	writelog(2, logbuffer);
 	
-	display_error(1);
+	//display_error(1);
 	
 	// check if the configuration defines an exe
 		// TODO: check that exe path is valid and executable
@@ -151,8 +152,6 @@ int main(int argc, char** argv, char **envp) {
 	// TODO: run command
 	
 	
-	// TODO: error handling. open default browser and display 
-	//       javascript error message
 	return OK;
 }
 
