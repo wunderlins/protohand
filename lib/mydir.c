@@ -46,7 +46,7 @@ int exedir(char *argv0, char *exedir) {
 	
 	// clean the path, remove all . and ..
 	errno = 0;
-	printf("%s\n", tmp);
+	//printf("%s\n", tmp);
 	realpath(tmp, cleaned);
 	if (errno != 0) {
 		perror("realpath failed");

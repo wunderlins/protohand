@@ -115,7 +115,7 @@ int main(int argc, char** argv, char **envp) {
 	int retp = ini_parse(ini_file, ini_callback, &config);
 	
 	sprintf(logbuffer, "ini_parse(): %d\n", retp);
-	writelog(1, logbuffer);
+	writelog(2, logbuffer);
 	
 	return OK;
 }
