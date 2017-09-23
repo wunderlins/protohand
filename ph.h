@@ -11,6 +11,7 @@
 #define NO_CURRENTDIR 2
 #define INI_PERMISSION_DENIED 3
 #define INI_CREATION_FAILED 4
+#define INI_PARSE_ERR 5
 
 // limits
 #define INI_FILE_NAME "ph.ini"

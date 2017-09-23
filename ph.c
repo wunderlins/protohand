@@ -49,7 +49,7 @@ int display_error(int code) {
 	char exe[4096] = "";
 	strcat(exe, getenv("windir"));
 	strcat(exe, "\\System32\\cmd.exe");
-	int ret = spawnve(P_NOWAIT, exe, myargs, environ);
+	spawnve(P_NOWAIT, exe, myargs, environ);
 	//printf("spawnv %d\n", ret);
 	
 	return code;
@@ -67,7 +67,7 @@ int main(int argc, char** argv, char **envp) {
 	int r = exedir(argv[0], dir);
 	if (r != 0) {
 		fprintf(stderr, "Failed to find current directory, error: %d\n", r);
-		return display_error(CWD_ERR);
+		return display_error(NO_CURRENTDIR);
 	}
 	
 	// open log file
@@ -137,6 +137,9 @@ int main(int argc, char** argv, char **envp) {
 	
 	sprintf(logbuffer, "ini_parse(): %d\n", retp);
 	writelog(2, logbuffer);
+	
+	if (retp != 0)
+		return display_error(INI_PARSE_ERR);
 	
 	//display_error(1);
 	

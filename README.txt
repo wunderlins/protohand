@@ -209,4 +209,4 @@ code for the full license text.
 (c) 2017, Simon Wunderlin
 
 Please send pull requests to https://github.com/wunderlins/protohand.git, any
-fix and etension is appreciated!
+fix and extension is appreciated!
