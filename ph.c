@@ -109,13 +109,21 @@ int main(int argc, char** argv, char **envp) {
 	sprintf(logbuffer, "Reading ini section: %s\n", section);
 	writelog(1, logbuffer);
 	
-	// initialize the config 
+	// read the config 
 	configuration config = DEFAULT_CONFIG;
 	config.section = section;
 	int retp = ini_parse(ini_file, ini_callback, &config);
 	
 	sprintf(logbuffer, "ini_parse(): %d\n", retp);
 	writelog(2, logbuffer);
+	
+	// TODO: do file content replacement
+	// TODO: check env parameters
+	// TODO: replace url parameter names with cmd args
+	// TODO: check if document is within default path
+	// TODO: check if values of path parameters are inside default path
+	// TODO: add prepend/append parameters
+	// TODO: run command
 	
 	return OK;
 }
