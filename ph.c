@@ -24,6 +24,9 @@ void usage(void) {
 	printf(usage_str);
 }
 
+/**
+ * Logging to ph.log
+ */
 int loglevel = 5; // 0 will disable logging
 char logbuffer[4096];
 void writelog(int level, char* str) {
@@ -77,11 +80,9 @@ int main(int argc, char** argv, char **envp) {
 	// logging uri
 	time_t t = time(NULL);
 	struct tm tm = *localtime(&t);
-	sprintf(logbuffer, "===> %d-%02d-%02d %02d:%02d:%02d", 
+	sprintf(logbuffer, "===> %d-%02d-%02d %02d:%02d:%02d, URI: '%s'", 
 	        tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, 
-			tm.tm_min, tm.tm_sec);
-	writelog(1, logbuffer);
-	sprintf(logbuffer, ", URI: '%s'\n", argv[1]);
+			tm.tm_min, tm.tm_sec,  argv[1]);
 	writelog(1, logbuffer);
 	
 	// parse uri
