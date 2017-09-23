@@ -100,7 +100,9 @@ release:
 	
 # generate a simple cmd utility that will print all parameters
 testcmd:
-	$(CC) $(CFLAGS) -o testcmd$(_EXT) testcmd.c
+	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
+	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
+	$(CC) $(CFLAGS) -o testcmd$(_EXT) $(REALPATH) lib/mydir.o testcmd.c
 
 # test url parser
 test:
