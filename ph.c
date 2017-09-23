@@ -24,9 +24,18 @@ void usage(void) {
 	printf(usage_str);
 }
 
+int loglevel = 5; // 0 will disable logging
+char logbuffer[4096];
+void writelog(int level, char* str) {
+	if (loglevel < level)
+		return;
+	fprintf(logfile, "%s\r\n", str);
+}
+
 int main(int argc, char** argv, char **envp) {
 	
-	int i, l;
+	//int i = 0;
+	int l = 0;
 	
 	// fin the current directory of the executable
 	char *dir = malloc(sizeof(char*) * (MAX_CWD_LENGTH+1));
@@ -52,10 +61,11 @@ int main(int argc, char** argv, char **envp) {
 		return ret;
 	}
 	
-	#if DEBUG > 0
-	fprintf(logfile, "Current working dir: %s\n", dir);
-	fprintf(logfile, "Current ini file:    %s\n", ini_file);
-	#endif
+	
+	sprintf(logbuffer, "Current working dir: %s", dir);
+	writelog(1, logbuffer);
+	sprintf(logbuffer, "Current ini file:    %s", ini_file);
+	writelog(1, logbuffer);
 
 	// check input
 	if(argc != 2) {
@@ -67,11 +77,12 @@ int main(int argc, char** argv, char **envp) {
 	// logging uri
 	time_t t = time(NULL);
 	struct tm tm = *localtime(&t);
-	fprintf(logfile, "==> ");
-	fprintf(logfile, "%d-%02d-%02d %02d:%02d:%02d", 
+	sprintf(logbuffer, "===> %d-%02d-%02d %02d:%02d:%02d", 
 	        tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, 
 			tm.tm_min, tm.tm_sec);
-	fprintf(logfile, ", URI: '%s'\n", argv[1]);
+	writelog(1, logbuffer);
+	sprintf(logbuffer, ", URI: '%s'\n", argv[1]);
+	writelog(1, logbuffer);
 	
 	// parse uri
 	int ret = 0;
@@ -81,7 +92,8 @@ int main(int argc, char** argv, char **envp) {
 	res = uriparse_parse(argv[1], &uri_parsed);
 	if (res != 0) {
 		ret = 127+res;
-		fprintf(logfile, "Parser Error %d, %s\n", res, argv[1]);
+		sprintf(logbuffer, "Parser Error %d, %s\n", res, argv[1]);
+		writelog(1, logbuffer);
 		return ret;
 	}
 	
@@ -93,18 +105,16 @@ int main(int argc, char** argv, char **envp) {
 	strcat(section, "/");
 	strcat(section, uri_parsed.authority);
 
-	#if DEBUG > 0
-	fprintf(logfile, "Reading ini section: %s\n", section);
-	#endif
+	sprintf(logbuffer, "Reading ini section: %s\n", section);
+	writelog(1, logbuffer);
 	
 	// initialize the config 
 	configuration config = DEFAULT_CONFIG;
 	config.section = section;
 	int retp = ini_parse(ini_file, ini_callback, &config);
 	
-	#if DEBUG > 1
-	fprintf(logfile, "ini_parse(): %d\n", retp);
-	#endif
+	sprintf(logbuffer, "ini_parse(): %d\n", retp);
+	writelog(1, logbuffer);
 	
 	return OK;
 }
