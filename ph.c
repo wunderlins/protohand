@@ -1,4 +1,5 @@
 #include "ph.h"
+#include <process.h> 
 
 //const char* empty = "";
 extern char **environ;
@@ -35,7 +36,26 @@ void writelog(int level, char* str) {
 	fprintf(logfile, "%s\r\n", str);
 }
 
+void display_error(int code) {
+	char params[25] = "";
+	sprintf(params, "error.html?%d", code);
+	char *myargs[5] = {
+		"/c"
+		"hh.exe",
+		"-800",
+		params,
+		NULL
+	};
+	char exe[4096] = "";
+	strcat(exe, getenv("windir"));
+	strcat(exe, "\\System32\\cmd.exe");
+	int ret = spawnve(P_NOWAIT, exe, myargs, environ);
+	printf("spawnv %d\n", ret);
+}
+
+extern char **environ;
 int main(int argc, char** argv, char **envp) {
+	environ = envp;
 	
 	//int i = 0;
 	int l = 0;
@@ -117,6 +137,11 @@ int main(int argc, char** argv, char **envp) {
 	sprintf(logbuffer, "ini_parse(): %d\n", retp);
 	writelog(2, logbuffer);
 	
+	display_error(1);
+	
+	// check if the configuration defines an exe
+		// TODO: check that exe path is valid and executable
+	
 	// TODO: do file content replacement
 	// TODO: check env parameters
 	// TODO: replace url parameter names with cmd args
@@ -125,6 +150,9 @@ int main(int argc, char** argv, char **envp) {
 	// TODO: add prepend/append parameters
 	// TODO: run command
 	
+	
+	// TODO: error handling. open default browser and display 
+	//       javascript error message
 	return OK;
 }
 

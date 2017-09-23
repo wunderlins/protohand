@@ -8,6 +8,10 @@ int nvlist_addpair(struct nvlist_list *rep, char* key, char* value) {
 	struct nvlist_pair p;
 	p.key = key;
 	p.value = value;
+	
+	if (rep->length+1 > rep->max)
+		nvlist_resize(rep, rep->max+rep->_step);
+	
 	rep->items[rep->length++] = p;
 	return rep->length;
 }
@@ -37,6 +41,7 @@ struct nvlist_list nvlist_create(int size) {
 	rep.items = malloc(sizeof(struct nvlist_pair *) * size);
 	rep.length = 0;
 	rep.max = size;
+	rep._step = size;
 	return rep;
 }
 

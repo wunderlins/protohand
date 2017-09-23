@@ -20,6 +20,7 @@ struct nvlist_list {
 	struct nvlist_pair *items;
 	int length;
 	int max;
+	int _step;
 };
 
 int nvlist_addpair(struct nvlist_list *rep, char* key, char* value);
