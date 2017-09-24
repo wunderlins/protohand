@@ -42,7 +42,7 @@ icon:
 	$(MAKE) -C ico
 	
 # build the programm
-all: clean icon usage ini ph testcmd
+all: clean icon usage ini dep ph testcmd
 
 protohand:
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o

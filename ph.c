@@ -273,7 +273,7 @@ int main(int argc, char** argv, char **envp) {
 			if (params_length>MAX_PARAMS) return display_error(TOO_MANY_CMD_ARGUMENTS);
 			
 			// name=value ?
-			if (strcmp(uri_parsed.nvquery.items[i].key, "") != 0 &&
+			if (strcmp(uri_parsed.nvquery.items[i].value, "") != 0 &&
 			    strcmp(uri_parsed.nvquery.items[i].value, "") != 0) {
 				char *tmp = malloc(sizeof(char*) * \
 					(strlen(uri_parsed.nvquery.items[i].key)+strlen(uri_parsed.nvquery.items[i].value)+2));
@@ -283,15 +283,34 @@ int main(int argc, char** argv, char **envp) {
 				
 				params[params_length++] = tmp;
 			} else { // only name or value
-				if (strcmp(uri_parsed.nvquery.items[i].key, "") != 0)
-					params[params_length++] = uri_parsed.nvquery.items[i].key;
-			
-				if (strcmp(uri_parsed.nvquery.items[i].value, "") != 0)
-					params[params_length++] = uri_parsed.nvquery.items[i].value;
+				// document link ?
+				if (uri_parsed.nvquery.length == 1 && 
+					strcmp(uri_parsed.nvquery.items[i].value, "") == 0 &&
+				    strcmp(config.default_path, "") != 0) {
+					
+					char tmp[MAX_CWD_LENGTH] = "";
+					strcpy(tmp, config.default_path);
+					l = strlen(config.default_path);
+					if (config.default_path[l-1] != '/' &&
+					    config.default_path[l-1] != '\\')
+						strcat(tmp, "/");
+					strcat(tmp, uri_parsed.nvquery.items[i].key);
+					
+					// FIXME: check if file exists, realpath(), jada jada
+					params[params_length++] = tmp;
+					
+				} else { // non document link
+					if (strcmp(uri_parsed.nvquery.items[i].key, "") != 0)
+						params[params_length++] = uri_parsed.nvquery.items[i].key;
+				
+					if (strcmp(uri_parsed.nvquery.items[i].value, "") != 0)
+						params[params_length++] = uri_parsed.nvquery.items[i].value;
+				}
 			}
 		}
 	}
 	
+	// add append parameters
 	if (params_append.length) {
 		sprintf(logbuffer, "Appending parameters: %s", config.params_append);
 		writelog(1, logbuffer);
@@ -305,23 +324,28 @@ int main(int argc, char** argv, char **envp) {
 	// NULL delimit list
 	params[params_length] = NULL;
 	
-	// debug, deplsay parameters
-	for(i=0; i<params_length; i++) {
-		printf("%s\n", params[i]);
-	}
+	// create params array
+	struct str_array aparams = str_array_make(params, params_length);
 	
-	#define NUMARGS (3)
-	char *myargs[NUMARGS] = {
-		"/c",
-		(char *) config.exe,
-		NULL
-	};
+	// #define NUMARGS (3)
+	int myargs_length = aparams.length+3;
+	char *myargs[myargs_length];
+	myargs[0] = "/c";
+	myargs[1] = (char *) config.exe;
+	
+	// debug, deplsay parameters
+	for(i=0; i<aparams.length; i++) {
+		printf("%s\n", aparams.items[i]);
+		myargs[i+2] = aparams.items[i];
+	}
+	myargs[aparams.length+2] = NULL;
+	
 	char exe[4096] = "";
 	strcat(exe, getenv("windir"));
 	strcat(exe, "\\System32\\cmd.exe");
 
 	sprintf(logbuffer, "running command: %s", exe);
-	for(i=0; i<NUMARGS-1; i++) {
+	for(i=0; i<myargs_length-1; i++) {
 		strcat(logbuffer, " ");
 		strcat(logbuffer, myargs[i]);
 	}
