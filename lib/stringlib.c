@@ -214,10 +214,10 @@ struct str_array str_array_split(char* string, char* delim) {
 	char** result = malloc(sizeof(char *) * 512);
 	struct str_array ret;
 
-	#if DEBUG > 1
-	fprintf(logfile, "delim:  %s\n", delim);
-	fprintf(logfile, "string: %s\n", string);
-	#endif
+	//#if DEBUG > 1
+	//fprintf(logfile, "delim:  %s\n", delim);
+	//fprintf(logfile, "string: %s\n", string);
+	//#endif
 	
 	//char buf[] =" abc / qwe / ccd ";
 	int i = 0;

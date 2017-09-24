@@ -5,18 +5,6 @@
 	#define DEBUG 0
 #endif
 
-// error codes
-#define OK 0
-#define NO_INPUT 1
-#define NO_CURRENTDIR 2
-#define INI_PERMISSION_DENIED 3
-#define INI_CREATION_FAILED 4
-#define INI_PARSE_ERR 5
-#define PROGRAM_IS_NOT_EXECUTABLE 6
-
-// limits
-#define INI_FILE_NAME "ph.ini"
-
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -35,6 +23,18 @@
 #include "reg.h"
 #include "lib/regcpp.h"
 #include "lib/mydir.h"
+
+// error codes
+#define OK 0
+#define NO_INPUT 1
+#define NO_CURRENTDIR 2
+#define INI_PERMISSION_DENIED 3
+#define INI_CREATION_FAILED 4
+#define INI_PARSE_ERR 5
+#define PROGRAM_IS_NOT_EXECUTABLE 6
+
+// limits
+#define INI_FILE_NAME "ph.ini"
 
 /* Make this header file easier to include in C++ code */
 #ifdef __cplusplus

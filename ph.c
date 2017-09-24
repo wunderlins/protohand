@@ -3,6 +3,8 @@
 //const char* empty = "";
 extern char **environ;
 
+char* errstr[255] = { NULL };
+
 // can hold one ini file entry
 #define DEFAULT_CONFIG { "", "", "", "", "", "", "", "", 0}
 typedef struct {
@@ -30,9 +32,17 @@ void usage(void) {
 int loglevel = 5; // 0 will disable logging
 char logbuffer[4096];
 void writelog(int level, char* str) {
+	
+	char prefix[20] = "";
+	int i = 1;
+	for(i=2; i<20; i++) {
+		if (i > level) break;
+		strcat(prefix, "\t");
+	}
+	
 	if (loglevel < level)
 		return;
-	fprintf(logfile, "%s\r\n", str);
+	fprintf(logfile, "%s%s\r\n", prefix, str);
 }
 
 int display_error(int code) {
@@ -51,6 +61,8 @@ int display_error(int code) {
 	spawnve(P_NOWAIT, exe, myargs, environ);
 	//printf("spawnv %d\n", ret);
 	
+	// TODO: return message to stderr
+	
 	return code;
 }
 
@@ -58,7 +70,21 @@ extern char **environ;
 int main(int argc, char** argv, char **envp) {
 	environ = envp;
 	
-	//int i = 0;
+	errstr[0] = "Ok";
+	errstr[1] = "Argument 1 missing.";
+	errstr[2] = "Failed to find current directory. getcwd() or realpath() failed to resolve the app directory.";
+	errstr[3] = "Failed to create ph.ini, permission denied.";
+	errstr[4] = "Failed to create ph.ini, unable to write to file.";
+	errstr[5] = "Failed to parse ini file.";
+	errstr[6] = "Wrong path or program is not executable.";
+
+	errstr[128] = "Failed to parse URI, protocol missing.";
+	errstr[129] = "Failed to parse URI, authority missing.";
+	errstr[130] = "Failed to parse URI, error in query string.";
+	errstr[131] = "Failed to parse URI, error in fragment.";
+	//errstr[] = "";
+	
+	int i = 0;
 	int l = 0;
 	
 	// fin the current directory of the executable
@@ -85,11 +111,6 @@ int main(int argc, char** argv, char **envp) {
 		return display_error(ret);
 	}
 	
-	sprintf(logbuffer, "Current working dir: %s", dir);
-	writelog(1, logbuffer);
-	sprintf(logbuffer, "Current ini file:    %s", ini_file);
-	writelog(1, logbuffer);
-
 	// check input
 	if(argc != 2) {
 		perror("argument 1 with uri missing");
@@ -100,10 +121,15 @@ int main(int argc, char** argv, char **envp) {
 	// logging uri
 	time_t t = time(NULL);
 	struct tm tm = *localtime(&t);
-	sprintf(logbuffer, "===> %d-%02d-%02d %02d:%02d:%02d, URI: '%s'", 
+	sprintf(logbuffer, "\r\n===> %d-%02d-%02d %02d:%02d:%02d, URI: '%s'", 
 	        tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, 
 			tm.tm_min, tm.tm_sec,  argv[1]);
 	writelog(1, logbuffer);
+
+	sprintf(logbuffer, "Current working dir: %s", dir);
+	writelog(2, logbuffer);
+	sprintf(logbuffer, "Current ini file:    %s", ini_file);
+	writelog(2, logbuffer);
 	
 	// parse uri
 	int ret = 0;
@@ -113,20 +139,37 @@ int main(int argc, char** argv, char **envp) {
 	res = uriparse_parse(argv[1], &uri_parsed);
 	if (res != 0) {
 		ret = 127+res;
-		sprintf(logbuffer, "Parser Error %d, %s\n", res, argv[1]);
+		sprintf(logbuffer, "URI Parser Error %d, %s", res, argv[1]);
 		writelog(1, logbuffer);
 		return display_error(ret);
 	}
 	
+	if (loglevel > 2) {
+		sprintf(logbuffer, "Start      [%d]", uri_parsed.pos[FOUND_START]); writelog(3, logbuffer);
+		sprintf(logbuffer, "Proto      [%d]", uri_parsed.pos[FOUND_PROTO]); writelog(3, logbuffer);
+		sprintf(logbuffer, "Authority  [%d]", uri_parsed.pos[FOUND_AUTHORITY]); writelog(3, logbuffer);
+		sprintf(logbuffer, "Path       [%d]", uri_parsed.pos[FOUND_PATH]); writelog(3, logbuffer);
+		sprintf(logbuffer, "Query      [%d]", uri_parsed.pos[FOUND_QUERY]); writelog(3, logbuffer);
+		sprintf(logbuffer, "Fragment   [%d]", uri_parsed.pos[FOUND_FRAGMENT]); writelog(3, logbuffer);
+		sprintf(logbuffer, "End        [%d]", uri_parsed.pos[FOUND_END]); writelog(3, logbuffer);
+
+		sprintf(logbuffer, "proto:     '%s'", uri_parsed.proto); writelog(3, logbuffer);
+		sprintf(logbuffer, "authority: '%s'", uri_parsed.authority); writelog(3, logbuffer);
+		sprintf(logbuffer, "path:      '%s'", uri_parsed.path); writelog(3, logbuffer);
+		sprintf(logbuffer, "query:     '%s'", uri_parsed.query); writelog(3, logbuffer);
+		sprintf(logbuffer, "fragment:  '%s'", uri_parsed.fragment); writelog(3, logbuffer);
+	}
+	
 	// parse ini file
-	l = strlen(uri_parsed.proto) + strlen(uri_parsed.authority) + 2;
+	l = strlen(uri_parsed.authority) + strlen(uri_parsed.path) + 2;
 	char *section = (char *) malloc(sizeof(char*) * l);
 	section[0] = 0;
-	strcat(section, uri_parsed.proto);
-	strcat(section, "/");
 	strcat(section, uri_parsed.authority);
+	strcat(section, "/");
+	strcat(section, uri_parsed.path);
 
-	sprintf(logbuffer, "Reading ini section: %s\n", section);
+	//printf("section: %s\n", section);
+	sprintf(logbuffer, "Reading ini section: %s", section);
 	writelog(1, logbuffer);
 	
 	// read the config 
@@ -134,15 +177,32 @@ int main(int argc, char** argv, char **envp) {
 	config.section = section;
 	int retp = ini_parse(ini_file, ini_callback, &config);
 	
-	sprintf(logbuffer, "ini_parse(): %d\n", retp);
+	sprintf(logbuffer, "ini_parse() return code: %d", retp);
 	writelog(2, logbuffer);
 	
-	if (retp != 0)
+	if (retp != 0) {
 		return display_error(INI_PARSE_ERR);
-	
-	//display_error(1);
+	}
+
+	if (loglevel > 2) {
+		sprintf(logbuffer, "section: %s", config.section); writelog(3, logbuffer);
+		sprintf(logbuffer, "default_path: %s", config.default_path); writelog(3, logbuffer);
+		sprintf(logbuffer, "allowed_params: %s", config.allowed_params); writelog(3, logbuffer);
+		sprintf(logbuffer, "path_params: %s", config.path_params); writelog(3, logbuffer);
+		sprintf(logbuffer, "params_prepend: %s", config.params_prepend); writelog(3, logbuffer);
+		sprintf(logbuffer, "params_append: %s", config.params_append); writelog(3, logbuffer);
+		sprintf(logbuffer, "replace: %s", config.replace); writelog(3, logbuffer);
+		sprintf(logbuffer, "exe: %s", config.exe); writelog(3, logbuffer);
+		sprintf(logbuffer, "found: %d", config.found); writelog(3, logbuffer);
+
+		for(i=0; i<uri_parsed.nvquery.length; i++) {
+			sprintf(logbuffer, "[%d] '%s'='%s'", i, uri_parsed.nvquery.items[i].key, uri_parsed.nvquery.items[i].value);
+			writelog(4, logbuffer);
+		}
+	}
 	
 	// check if the configuration defines an exe that is executable
+	//printf("exe: %s\n", config.exe);
 	struct stat sb;
 	if (stat(config.exe, &sb) == 0 && sb.st_mode & S_IXUSR) {
 		sprintf(logbuffer, "Program '%s' is executable", config.exe);
@@ -153,6 +213,7 @@ int main(int argc, char** argv, char **envp) {
 		fprintf(stderr, "%s\n", logbuffer);
 		return display_error(PROGRAM_IS_NOT_EXECUTABLE);
 	}
+	//return 0;
 	
 	// TODO: do file content replacement
 	// TODO: check env parameters
@@ -161,7 +222,35 @@ int main(int argc, char** argv, char **envp) {
 	// TODO: check if values of path parameters are inside default path
 	// TODO: add prepend/append parameters
 	// TODO: run command
-	
+
+	#define NUMARGS (3)
+	char *myargs[NUMARGS] = {
+		"/c",
+		(char *) config.exe,
+		NULL
+	};
+	char exe[4096] = "";
+	strcat(exe, getenv("windir"));
+	strcat(exe, "\\System32\\cmd.exe");
+
+	sprintf(logbuffer, "running command: %s", exe);
+	for(i=0; i<NUMARGS-1; i++) {
+		strcat(logbuffer, " ");
+		strcat(logbuffer, myargs[i]);
+	}
+	writelog(1, logbuffer);
+
+	// we run the application in a new process, without waiting for it to exit.
+	// this means we can't capture the exit code. Which might be helpful with 
+	// startup errors but in other situations this is a useless information
+	// because the application can ugracefully exit later on which has nothing 
+	// to do with us starting it.
+	ret = spawnve(P_NOWAIT, exe, myargs, environ);
+	if (ret < 0) {
+		sprintf(logbuffer, "spawnve() returned error: %d", ret);
+		writelog(1, logbuffer);
+		fprintf(stderr, "%s\n", logbuffer);
+	}
 	
 	return OK;
 }

@@ -47,23 +47,30 @@ Format is written as used from sed, vi, etc. Example:
 `/^(search)/replace \1/mi`.
 See [Overview of Regular Expression Syntax][3] for more information on Posix regular expressions.
 
-## Actions
+## Goals
 - [ ] open documents
-- [ ] run executables
+- [x] run executables
   - [ ] prepend parameters
   - [ ] append static parameters
 - [ ] map url parmeter names to cmd parameter names
 - [ ] replace text in config files
+  - [ ] implement regex modifiers
 - [ ] sanitize and check paths
 - [ ] logging (configurable)
 - [ ] checking if parameter passed username equals %USERNAME%
 - [ ] display error messages if something goes south
 - [ ] global config (log path, log level)
+  - [ ] logging
+  - [ ] global exe wrappers (ie. prefix `cmd /c ...` for windows)
+  - [ ] error display prefix (ie. `cmd /c hh.exe -800 ...`)
+  - [ ] make sure the logfile does not exceed a certain size
 - [ ] finalize documentation
+  - [ ] document program execution steps
   - [ ] example reg file
   - [ ] documented ini file
   - [ ] complete list of error messages
   - [ ] README.txt
+  - [ ] document limitations
 
 NOTE: possible PCRE solution for mingw: https://nuwen.net/mingw.html
 

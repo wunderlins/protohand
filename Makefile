@@ -221,3 +221,7 @@ uriparse: stringlib
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
 	$(CC) $(CFLAGS) -o lib/uriparse.exe test/nvlist.o lib/stringlib.o lib/uriparse.o
 	lib/uriparse.exe
+
+clearlog:
+	rm ph.log || true
+	rm testcmd.log || true

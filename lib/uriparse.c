@@ -11,7 +11,7 @@ struct t_uri uriparse_create(char* uri) {
 	struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	uri_parsed.nvquery = nvlist_create(0);
 	
-	uri_parsed.nvquery.items[0].key = "sdfsdfsd";
+	uri_parsed.nvquery.items[0].key = "";
 	// printf("nvquery[0].key: '%p', authority: %p\n", uri_parsed.nvquery.items[0].key, uri_parsed.authority);
 	
 	return uri_parsed;
@@ -234,6 +234,7 @@ int uriparse_parse(char* uri, struct t_uri* uri_parsed) {
 		return FOUND_QUERY;
 	
 	// debug output
+	/*
 	#if DEBUG > 1
 	printf("Start      [%d]\n", uri_parsed->pos[FOUND_START]);
 	printf("Proto      [%d]\n", uri_parsed->pos[FOUND_PROTO]);
@@ -253,7 +254,8 @@ int uriparse_parse(char* uri, struct t_uri* uri_parsed) {
 		printf("  [%d] '%s'='%s'\n", i, uri_parsed->nvquery.items[i].key, uri_parsed->nvquery.items[i].value);
 	}
 	#endif
-
+	*/ 
+	
 	return 0;	
 }
 
