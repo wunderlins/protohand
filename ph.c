@@ -333,6 +333,7 @@ int main(int argc, char** argv, char **envp) {
 	myargs[0] = "/c";
 	
 	// quote exe name
+	// FIXME: remember if param was quoted in config
 	char* tmpexe = malloc(sizeof(char*) * (strlen(config.exe)+3));
 	strcpy(tmpexe, "\"");
 	strcat(tmpexe, config.exe);
