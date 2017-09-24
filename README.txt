@@ -30,17 +30,37 @@ to PROGNAME.log.
 This a quick overview how url parts are mapped to an executable command line 
 string (see rfc3986, section 3 for details on URIs):
 
-  protohand://example/over/there?-a=1&-b=2#nose
+         ph://example/over/there?-a=1&-b=2#nose
         \_/   \______/\________/ \_______/ \__/
          |        |         |           |    |____
       scheme  authority     path        query   fragment
-         |     ___|______   ____|____    __|____    |_
-        / \   /          \ /         \  /       \     |
-    [protocol]  [profile]  example.exe  -a=1 -b=2    unused
+         |     ___|____________|____    __|____    |_
+        / \   /                     \  /       \     |
+    [protocol]      example.exe        -a=1 -b=2    unused
 
 For this URI handler to work, it needs to be mapped to a protocol (foo in 
 the above example URI). This is done trough registering the protocol name to 
 the executable with your shell (in the registry for windows users).
+
+
+PASSING PARAMETERS:
+
+The query part of the URI will be converted into command line arguments. First
+parameter names will be translated to their command line argument equivalents 
+if the ini file derictive contains the parameter 'params_transform'. Typically
+command line arguments can be just one value or a name=value pair. This is also
+true for query parameters. Command line arguments are sperated by whitespace while 
+query arguments are spearated by '&'. If you wish to pass parameters with 
+values, then use the following query string notation:
+    ?name1=value1&name2=value2
+This woud be translated on the command line to:
+    name1=value1 name2=value2
+
+If you wish to juts pass in values (without a name) then use the follwing URI 
+query syntax:
+    ?value1&value2
+which will translate on the command-line to the following parameters:
+    value1 value2
 
 
 CONFIGURATION:

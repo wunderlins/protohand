@@ -33,6 +33,7 @@
 #define INI_CREATION_FAILED 4
 #define INI_PARSE_ERR 5
 #define PROGRAM_IS_NOT_EXECUTABLE 6
+#define INI_NO_SECTION 7
 
 // limits
 #define INI_FILE_NAME "ph.ini"

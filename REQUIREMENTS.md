@@ -40,7 +40,7 @@ paths may not start with `..`. A path which does not start with `[^A-Z:]`,
 
 - Environment variable expansion: yes
 
-### mapping
+### params_transform
 Mapping query parameter names to command line parameters. Passing a query 
 string `?file=somefile.txt` might need to be converted into `/f somefile.txt`
 on the command line.
@@ -60,6 +60,7 @@ Format is written as used from sed, vi, etc. Example:
 See [Overview of Regular Expression Syntax][3] for more information on Posix regular expressions.
 
 - Environment variable expansion: no
+
 
 ## Goals
 - [ ] open documents

@@ -23,7 +23,7 @@ endif
 timestamp=$(shell date "+%Y%m%d%H%M")
 rel = $(operating_system)_$(VERSION)_$(timestamp)
 
-ph: 
+dep:
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
@@ -31,6 +31,8 @@ ph:
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
 	g++ $(CFLAGS) -c lib/reg.cpp -o lib/regcpp.o -lpcrecpp -lpcre -DPCRE_STATIC
+
+ph: 
 	$(CC) $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o ph.c ico/app.res
 
 test_ph: ph

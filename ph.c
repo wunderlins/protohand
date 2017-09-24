@@ -77,6 +77,7 @@ int main(int argc, char** argv, char **envp) {
 	errstr[4] = "Failed to create ph.ini, unable to write to file.";
 	errstr[5] = "Failed to parse ini file.";
 	errstr[6] = "Wrong path or program is not executable.";
+	errstr[7] = "No inisection found.";
 
 	errstr[128] = "Failed to parse URI, protocol missing.";
 	errstr[129] = "Failed to parse URI, authority missing.";
@@ -158,6 +159,13 @@ int main(int argc, char** argv, char **envp) {
 		sprintf(logbuffer, "path:      '%s'", uri_parsed.path); writelog(3, logbuffer);
 		sprintf(logbuffer, "query:     '%s'", uri_parsed.query); writelog(3, logbuffer);
 		sprintf(logbuffer, "fragment:  '%s'", uri_parsed.fragment); writelog(3, logbuffer);
+		
+		if (loglevel > 3) {
+			for(i=0; i<uri_parsed.nvquery.length; i++) {
+				sprintf(logbuffer, "[%d] '%s'='%s'", i, uri_parsed.nvquery.items[i].key, uri_parsed.nvquery.items[i].value);
+				writelog(4, logbuffer);
+			}
+		}
 	}
 	
 	// parse ini file
@@ -194,13 +202,10 @@ int main(int argc, char** argv, char **envp) {
 		sprintf(logbuffer, "replace: %s", config.replace); writelog(3, logbuffer);
 		sprintf(logbuffer, "exe: %s", config.exe); writelog(3, logbuffer);
 		sprintf(logbuffer, "found: %d", config.found); writelog(3, logbuffer);
-
-		if (loglevel > 2) {
-			for(i=0; i<uri_parsed.nvquery.length; i++) {
-				sprintf(logbuffer, "[%d] '%s'='%s'", i, uri_parsed.nvquery.items[i].key, uri_parsed.nvquery.items[i].value);
-				writelog(4, logbuffer);
-			}
-		}
+	}
+	
+	if (config.found == 0) {
+		return display_error(INI_NO_SECTION);
 	}
 	
 	// check if the configuration defines an exe that is executable
@@ -225,6 +230,44 @@ int main(int argc, char** argv, char **envp) {
 	// TODO: add prepend/append parameters
 	
 	// prepare the command line arguments
+	struct str_array params_prepend = str_array_split((char*) config.params_prepend, " ");
+	struct str_array params_append  = str_array_split((char*) config.params_append, " ");
+	
+	// create the arguments array
+	char **params = NULL;
+	int params_length = 0;
+	if (params_prepend.length) {
+		sprintf(logbuffer, "Prepending parameters: %s", config.params_prepend);
+		writelog(1, logbuffer);
+		
+		for(i=0; i<params_prepend.length; i++) {
+			params[params_length++] = params_prepend.items[i];
+		}
+	}
+	
+	// check if we have some command line parameters
+	if (uri_parsed.nvquery.length > 0) {
+		for(i=0; i<uri_parsed.nvquery.length; i++) {
+			
+			// FIXME, how to preserve '=' ?
+			if (strcmp(uri_parsed.nvquery.items[i].key, "") != 0)
+				params[params_length++] = uri_parsed.nvquery.items[i].key;
+		
+			if (strcmp(uri_parsed.nvquery.items[i].value, "") != 0)
+				params[params_length++] = uri_parsed.nvquery.items[i].value;
+		}
+	}
+	
+	if (params_append.length) {
+		sprintf(logbuffer, "Appending parameters: %s", config.params_append);
+		writelog(1, logbuffer);
+		
+		for(i=0; i<params_append.length; i++) {
+			params[params_length++] = params_append.items[i];
+		}
+	}
+	
+	
 	#define NUMARGS (3)
 	char *myargs[NUMARGS] = {
 		"/c",
