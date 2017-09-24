@@ -17,7 +17,7 @@ proto:[//]authority[/path][?query][#fragment].
 URI Parts are mapped to actions in a configuration file. The configuration file 
 is in the common `ini` format.
 
-The concatenated `authority` and `path`part make up the ini file section.
+The concatenated `authority` and `path` part make up the ini file section.
 For example, `proto:aaa/bbb` would be mapped to the section `[aaa/bbb]`
 in the ini file.
 
@@ -68,12 +68,16 @@ See [Overview of Regular Expression Syntax][3] for more information on Posix reg
   - [ ] prepend parameters
   - [ ] append static parameters
 - [ ] map url parmeter names to cmd parameter names
-- [ ] replace text in config files
+- [x] implement URI parser
+- [x] implement ini parser
+- [x] implement regex parser
+  - [ ] replace text in config files
   - [ ] implement regex modifiers
 - [ ] sanitize and check paths
-- [ ] logging (configurable)
+- [x] logging
+  - [ ] configuable in ph.ini
 - [ ] checking if parameter passed username equals ${USERNAME}
-- [ ] display error messages if something goes south
+- [x] display error messages if something goes south
 - [ ] global config (log path, log level)
   - [ ] logging
   - [ ] global exe wrappers (ie. prefix `cmd /c ...` for windows)
@@ -81,10 +85,11 @@ See [Overview of Regular Expression Syntax][3] for more information on Posix reg
   - [ ] make sure the logfile does not exceed a certain size
 - [ ] finalize documentation
   - [ ] document program execution steps
-  - [ ] example reg file
-  - [ ] documented ini file
-  - [ ] complete list of error messages
-  - [ ] README.txt
+  - [ ] update example reg file
+  - [ ] create documented ini file with example. compile it in
+  - [ ] complete list of error messages, update error.html. compile error.html in.
+  - [ ] update README.txt, this is the program manual
+  - [ ] update README.md, this is the build and programming manual
   - [ ] document limitations
 
 [1]: https://tools.ietf.org/html/rfc3986
