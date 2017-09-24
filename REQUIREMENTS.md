@@ -56,7 +56,7 @@ contains the file name on which the text needs to be replaced.
 ### replace_regex
 Defines a search and replace string as regular expression ([Regex][2]). The 
 Format is written as used from sed, vi, etc. Example:
-`/^(search)/replace \1/mi`.
+`/^(search)/replace $1/mi`.
 See [Overview of Regular Expression Syntax][3] for more information on Posix regular expressions.
 
 - Environment variable expansion: no
