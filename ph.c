@@ -195,9 +195,11 @@ int main(int argc, char** argv, char **envp) {
 		sprintf(logbuffer, "exe: %s", config.exe); writelog(3, logbuffer);
 		sprintf(logbuffer, "found: %d", config.found); writelog(3, logbuffer);
 
-		for(i=0; i<uri_parsed.nvquery.length; i++) {
-			sprintf(logbuffer, "[%d] '%s'='%s'", i, uri_parsed.nvquery.items[i].key, uri_parsed.nvquery.items[i].value);
-			writelog(4, logbuffer);
+		if (loglevel > 2) {
+			for(i=0; i<uri_parsed.nvquery.length; i++) {
+				sprintf(logbuffer, "[%d] '%s'='%s'", i, uri_parsed.nvquery.items[i].key, uri_parsed.nvquery.items[i].value);
+				writelog(4, logbuffer);
+			}
 		}
 	}
 	
