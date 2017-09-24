@@ -223,8 +223,8 @@ int main(int argc, char** argv, char **envp) {
 	// TODO: check if document is within default path
 	// TODO: check if values of path parameters are inside default path
 	// TODO: add prepend/append parameters
-	// TODO: run command
-
+	
+	// prepare the command line arguments
 	#define NUMARGS (3)
 	char *myargs[NUMARGS] = {
 		"/c",
