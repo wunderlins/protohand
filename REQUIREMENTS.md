@@ -32,7 +32,7 @@ in the form of `${windir}\System32`. Case of the variable name *does* matter.
 
 - Environment variable expansion: yes
 
-### base_path
+### default_path
 All paths passed in as parameter must be within this base path. If a relative 
 path is passed as parameter the base path will be treated as `cwd`. Relative 
 paths may not start with `..`. A path which does not start with `[^A-Z:]`, 
