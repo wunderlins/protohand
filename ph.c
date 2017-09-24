@@ -331,7 +331,13 @@ int main(int argc, char** argv, char **envp) {
 	int myargs_length = aparams.length+3;
 	char *myargs[myargs_length];
 	myargs[0] = "/c";
-	myargs[1] = (char *) config.exe;
+	
+	// quote exe name
+	char* tmpexe = malloc(sizeof(char*) * (strlen(config.exe)+3));
+	strcpy(tmpexe, "\"");
+	strcat(tmpexe, config.exe);
+	strcat(tmpexe, "\"");
+	myargs[1] = (char *) tmpexe;
 	
 	// debug, deplsay parameters
 	for(i=0; i<aparams.length; i++) {
