@@ -13,6 +13,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <stddef.h>
 #include <process.h> 
 #include "lib/ini.h"
 #include "lib/stringlib.h"
