@@ -73,6 +73,7 @@ See [Overview of Regular Expression Syntax][3] for more information on Posix reg
 - [x] implement regex parser
   - [ ] replace text in config files
   - [ ] implement regex modifiers
+  - [ ] document regex syntax, capabilities, limitations
 - [ ] sanitize and check paths
 - [x] logging
   - [ ] configuable in ph.ini
