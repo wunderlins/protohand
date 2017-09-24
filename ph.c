@@ -78,6 +78,7 @@ int main(int argc, char** argv, char **envp) {
 	errstr[5] = "Failed to parse ini file.";
 	errstr[6] = "Wrong path or program is not executable.";
 	errstr[7] = "No inisection found.";
+	errstr[8] = "While generating the commandline string, too many arguments were passed in via query and/or configuration. The limit is: MAX_PARAMS.";
 
 	errstr[128] = "Failed to parse URI, protocol missing.";
 	errstr[129] = "Failed to parse URI, authority missing.";
@@ -191,17 +192,26 @@ int main(int argc, char** argv, char **envp) {
 	if (retp != 0) {
 		return display_error(INI_PARSE_ERR);
 	}
-
+	
 	if (loglevel > 2) {
-		sprintf(logbuffer, "section: %s", config.section); writelog(3, logbuffer);
-		sprintf(logbuffer, "default_path: %s", config.default_path); writelog(3, logbuffer);
-		sprintf(logbuffer, "allowed_params: %s", config.allowed_params); writelog(3, logbuffer);
-		sprintf(logbuffer, "path_params: %s", config.path_params); writelog(3, logbuffer);
-		sprintf(logbuffer, "params_prepend: %s", config.params_prepend); writelog(3, logbuffer);
-		sprintf(logbuffer, "params_append: %s", config.params_append); writelog(3, logbuffer);
-		sprintf(logbuffer, "replace: %s", config.replace); writelog(3, logbuffer);
-		sprintf(logbuffer, "exe: %s", config.exe); writelog(3, logbuffer);
-		sprintf(logbuffer, "found: %d", config.found); writelog(3, logbuffer);
+		sprintf(logbuffer, "section: %s", config.section); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "default_path: %s", config.default_path); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "allowed_params: %s", config.allowed_params); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "path_params: %s", config.path_params); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "params_prepend: %s", config.params_prepend); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "params_append: %s", config.params_append); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "replace: %s", config.replace); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "exe: %s", config.exe); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "found: %d", config.found); 
+		writelog(3, logbuffer);
 	}
 	
 	if (config.found == 0) {
@@ -230,31 +240,55 @@ int main(int argc, char** argv, char **envp) {
 	// TODO: add prepend/append parameters
 	
 	// prepare the command line arguments
-	struct str_array params_prepend = str_array_split((char*) config.params_prepend, " ");
-	struct str_array params_append  = str_array_split((char*) config.params_append, " ");
+	struct str_array params_prepend = str_array_split((char*) 
+		config.params_prepend, " ");
+	struct str_array params_append  = str_array_split((char*) 
+		config.params_append, " ");
 	
 	// create the arguments array
-	char **params = NULL;
+	// TODO: Document limitation
+	char **params = malloc(sizeof(char*) * MAX_PARAMS);
 	int params_length = 0;
+	
+	//printf("End %d, %s\n", params_prepend.length, params_prepend.items[0]);
+	
+	// add prepend parameters to params
 	if (params_prepend.length) {
 		sprintf(logbuffer, "Prepending parameters: %s", config.params_prepend);
 		writelog(1, logbuffer);
 		
 		for(i=0; i<params_prepend.length; i++) {
+			if (params_length>MAX_PARAMS) return display_error(TOO_MANY_CMD_ARGUMENTS);
 			params[params_length++] = params_prepend.items[i];
 		}
+		//printf("End\n"); return 0;
 	}
 	
-	// check if we have some command line parameters
+	// TODO: command line parameter transformation, 'params_transform'
+	//       directive.
+	
+	// check if we have some query parameters
 	if (uri_parsed.nvquery.length > 0) {
 		for(i=0; i<uri_parsed.nvquery.length; i++) {
+			if (params_length>MAX_PARAMS) return display_error(TOO_MANY_CMD_ARGUMENTS);
 			
-			// FIXME, how to preserve '=' ?
-			if (strcmp(uri_parsed.nvquery.items[i].key, "") != 0)
-				params[params_length++] = uri_parsed.nvquery.items[i].key;
-		
-			if (strcmp(uri_parsed.nvquery.items[i].value, "") != 0)
-				params[params_length++] = uri_parsed.nvquery.items[i].value;
+			// name=value ?
+			if (strcmp(uri_parsed.nvquery.items[i].key, "") != 0 &&
+			    strcmp(uri_parsed.nvquery.items[i].value, "") != 0) {
+				char *tmp = malloc(sizeof(char*) * \
+					(strlen(uri_parsed.nvquery.items[i].key)+strlen(uri_parsed.nvquery.items[i].value)+2));
+				strcpy(tmp, uri_parsed.nvquery.items[i].key);
+				strcat(tmp, "=");
+				strcat(tmp, uri_parsed.nvquery.items[i].value);
+				
+				params[params_length++] = tmp;
+			} else { // only name or value
+				if (strcmp(uri_parsed.nvquery.items[i].key, "") != 0)
+					params[params_length++] = uri_parsed.nvquery.items[i].key;
+			
+				if (strcmp(uri_parsed.nvquery.items[i].value, "") != 0)
+					params[params_length++] = uri_parsed.nvquery.items[i].value;
+			}
 		}
 	}
 	
@@ -263,10 +297,18 @@ int main(int argc, char** argv, char **envp) {
 		writelog(1, logbuffer);
 		
 		for(i=0; i<params_append.length; i++) {
+			if (params_length>MAX_PARAMS) return display_error(TOO_MANY_CMD_ARGUMENTS);
 			params[params_length++] = params_append.items[i];
 		}
 	}
 	
+	// NULL delimit list
+	params[params_length] = NULL;
+	
+	// debug, deplsay parameters
+	for(i=0; i<params_length; i++) {
+		printf("%s\n", params[i]);
+	}
 	
 	#define NUMARGS (3)
 	char *myargs[NUMARGS] = {

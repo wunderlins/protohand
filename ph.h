@@ -5,6 +5,11 @@
 	#define DEBUG 0
 #endif
 
+// limits
+#define INI_FILE_NAME "ph.ini"
+#define MAX_PARAMS 512
+
+// includes
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -34,9 +39,8 @@
 #define INI_PARSE_ERR 5
 #define PROGRAM_IS_NOT_EXECUTABLE 6
 #define INI_NO_SECTION 7
+#define TOO_MANY_CMD_ARGUMENTS 8
 
-// limits
-#define INI_FILE_NAME "ph.ini"
 
 /* Make this header file easier to include in C++ code */
 #ifdef __cplusplus
