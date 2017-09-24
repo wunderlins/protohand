@@ -59,6 +59,11 @@ See [Overview of Regular Expression Syntax][3] for more information on Posix reg
 - [ ] checking if parameter passed username equals %USERNAME%
 - [ ] display error messages if something goes south
 - [ ] global config (log path, log level)
+- [ ] finalize documentation
+  - [ ] example reg file
+  - [ ] documented ini file
+  - [ ] complete list of error messages
+  - [ ] README.txt
 
 NOTE: possible PCRE solution for mingw: https://nuwen.net/mingw.html
 
