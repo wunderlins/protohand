@@ -26,26 +26,40 @@ has to be taken when pasing in path information.
 
 ## Ini file directives
 
+### exe
+Absolute path to the executable. The path might use environment variables 
+in the form of `${windir}\System32`. Case of the variable name *does* matter.
+
+- Environment variable expansion: yes
+
 ### base_path
 All paths passed in as parameter must be within this base path. If a relative 
 path is passed as parameter the base path will be treated as `cwd`. Relative 
 paths may not start with `..`. A path which does not start with `[^A-Z:]`, 
 `^/` and `^\.\.` is treated as relative path.
 
+- Environment variable expansion: yes
+
 ### mapping
 Mapping query parameter names to command line parameters. Passing a query 
 string `?file=somefile.txt` might need to be converted into `/f somefile.txt`
 on the command line.
 
+- Environment variable expansion: no
+
 ### replace_file
 This directive only works together with `replace_regex`. This directive
 contains the file name on which the text needs to be replaced.
+
+- Environment variable expansion: yes
 
 ### replace_regex
 Defines a search and replace string as regular expression ([Regex][2]). The 
 Format is written as used from sed, vi, etc. Example:
 `/^(search)/replace \1/mi`.
 See [Overview of Regular Expression Syntax][3] for more information on Posix regular expressions.
+
+- Environment variable expansion: no
 
 ## Goals
 - [ ] open documents
@@ -58,7 +72,7 @@ See [Overview of Regular Expression Syntax][3] for more information on Posix reg
   - [ ] implement regex modifiers
 - [ ] sanitize and check paths
 - [ ] logging (configurable)
-- [ ] checking if parameter passed username equals %USERNAME%
+- [ ] checking if parameter passed username equals ${USERNAME}
 - [ ] display error messages if something goes south
 - [ ] global config (log path, log level)
   - [ ] logging
