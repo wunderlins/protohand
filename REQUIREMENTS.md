@@ -48,12 +48,17 @@ Format is written as used from sed, vi, etc. Example:
 See [Overview of Regular Expression Syntax][3] for more information on Posix regular expressions.
 
 ## Actions
-- open documents
-- run executables
-- replace text in config files
-- sanitize and check paths
-- logging
-- checking if parameter passed username equals %USERNAME%
+- [ ] open documents
+- [ ] run executables
+  - [ ] prepend parameters
+  - [ ] append static parameters
+- [ ] map url parmeter names to cmd parameter names
+- [ ] replace text in config files
+- [ ] sanitize and check paths
+- [ ] logging (configurable)
+- [ ] checking if parameter passed username equals %USERNAME%
+- [ ] display error messages if something goes south
+- [ ] global config (log path, log level)
 
 NOTE: possible PCRE solution for mingw: https://nuwen.net/mingw.html
 
