@@ -35,3 +35,6 @@ reg:
 mydir:
 	$(CC) $(CFLAGS) -c ../lib/realpath.c -o ../lib/realpath.o
 	gcc -o mydir.exe $(REALPATH) -DMYDIR_MAIN ../lib/mydir.c
+
+quote:
+	gcc -o quote.exe quote.c -DQUOTE_MAIN
