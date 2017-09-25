@@ -326,6 +326,87 @@ void hex_dump(char *desc, void *addr, int len)  {
     printf("  %s\n", buff);
 }
 
+/**
+ * check for quote char at the beginning and end of string
+ *
+ * if at the beginning or end of a string is " ', then the function returns 
+ * the corresponding character, else 0; If there is no matching pair at the 
+ * beginning and end, 0 is returned.
+ */
+char isquoted(char* str) {
+	if (str[0] == '"') {
+		if (str[strlen(str)-1] == '"')
+			return '"';
+		return 0;
+	}
+	
+	if (str[0] == '\'') {
+		if (str[strlen(str)-1] == '\'')
+			return '\'';
+		return 0;
+	}
+	return 0;
+}
+
+/**
+ * Quote a string to be used on cmd.exe
+ *
+ * will add " at the beginning and end. Will escape ll " in the string with "".
+ *
+ * returns 0 on succes, and a positive integer on failure.
+ */
+int cmdquote(char** str) {
+	char quote = '"';
+	
+	if (isquoted(*str) == '"')
+		return 0;
+	
+	int l = strlen(*str);
+	int i = 0;
+	int p = 1;
+	int add = 0;
+	char *result = malloc(sizeof(char*) * (l+3));
+	
+	result[0] = quote;
+	for(i=0; i<l; i++) {
+		if (str[0][i] == quote) {
+			result[p++] = quote;
+			add++;
+			result = realloc(result, 5 * sizeof(char*) * (l+3+add));
+			if (result == NULL)
+				return 1;
+		}
+		result[p++] = str[0][i];
+	}
+	result[p] = quote;
+	result[p+1] = '\0';
+	
+	//printf("%s\n", result);
+	*str = result;
+	
+	return 0;
+}
+
+/**
+ * unqiote a cmd.exe string
+ *
+ * This function will remove leading and trailing ". 
+ */
+int cmdunquote(char** str) {
+	//printf("quote: %d\n", isquoted(str[0]));
+	if (isquoted(*str) != '"')
+		return 0;
+	
+	int l = strlen(*str);
+	int i = 0;
+	for(i=0;i<l-1; i++) {
+		str[0][i] = str[0][i+1];
+	}
+	str[0][l-2] = '\0';
+	//printf("%s\n", *str);
+	return 0;
+}
+
 /*
 int main () {
 	char buf[] ="abc/qwe/ccd";

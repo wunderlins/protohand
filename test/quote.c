@@ -17,7 +17,8 @@ char isquoted(char* str) {
 	return 0;
 }
 
-int quote(char** str, char quote) {
+int cmdquote(char** str) {
+	char quote = '"';
 	int l = strlen(*str);
 	int i = 0;
 	int p = 1;
@@ -30,14 +31,28 @@ int quote(char** str, char quote) {
 			result[p++] = quote;
 			add++;
 			result = realloc(result, 5 * sizeof(char*) * (l+3+add));
+			if (result == NULL)
+				return 1;
 		}
 		result[p++] = str[0][i];
 	}
 	result[p] = quote;
 	result[p+1] = '\0';
 	
-	printf("%s\n", result);
+	//printf("%s\n", result);
 	*str = result;
+	
+	return 0;
+}
+
+int cmdunquote(char** str) {
+	int l = strlen(*str);
+	int i = 0;
+	for(i=0;i<l-1; i++) {
+		str[0][i] = str[0][i+1];
+	}
+	str[0][l-2] = '\0';
+	return 0;
 }
 
 #ifdef QUOTE_MAIN
@@ -55,9 +70,11 @@ int main(int argc, char* argv[]) {
 	printf("%d, %s\n", isquoted(quoted3), quoted3);
 	printf("%d, %s\n", isquoted(quoted4), quoted4);
 	
-	quote(&quoted5, '"');
+	cmdquote(&quoted5);
 	printf("%s\n", quoted5);
-	quote(&quoted6, '\'');
+	cmdquote(&quoted6);
+	printf("%s\n", quoted6);
+	cmdunquote(&quoted6);
 	printf("%s\n", quoted6);
 	
 	return 0;

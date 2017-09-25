@@ -33,6 +33,11 @@ void urldecode2(char*, const char*);
 
 void hex_dump(char *desc, void *addr, int len);
 
+char isquoted(char* str);
+int cmdquote(char** str);
+int cmdunquote(char** str);
+
+
 #ifdef __cplusplus
 }
 #endif

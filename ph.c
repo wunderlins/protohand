@@ -214,6 +214,24 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 	}
 	
+	struct {
+		int exe;
+		int default_path;
+	} quoted = {0, 0};
+	
+	if (isquoted((char*) config.exe) == '"') {
+		//char *newexe = malloc(sizeof(char*) * (strlen(config.exe)+1));
+		//strcpy(newexe, config.exe);
+		//config.exe = newexe;
+		cmdunquote((char**) &config.exe);
+		quoted.exe = 1;
+	}
+	
+	if (isquoted((char*) config.default_path) == '"') {
+		cmdunquote((char**) &config.default_path);
+		quoted.default_path = 1;
+	}
+	
 	if (config.found == 0) {
 		return display_error(INI_NO_SECTION);
 	}
@@ -230,6 +248,7 @@ int main(int argc, char** argv, char **envp) {
 		fprintf(stderr, "%s\n", logbuffer);
 		return display_error(PROGRAM_IS_NOT_EXECUTABLE);
 	}
+	//printf("-> exe: %s\n", config.exe);
 	//return 0;
 	
 	// TODO: do file content replacement
@@ -363,6 +382,10 @@ int main(int argc, char** argv, char **envp) {
 	// startup errors but in other situations this is a useless information
 	// because the application can ugracefully exit later on which has nothing 
 	// to do with us starting it.
+	
+	// FIXME: executables with spaces in name do not run when not quoted, 
+	//        exe without space in path do not run when quoted! w00t? can be 
+	//        reproduced on the cmd.
 	ret = spawnve(P_NOWAIT, exe, myargs, environ);
 	if (ret < 0) {
 		sprintf(logbuffer, "spawnve() returned error: %d", ret);
