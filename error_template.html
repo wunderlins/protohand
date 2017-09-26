@@ -1,0 +1,35 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>ph Error</title>
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<style>
+		body {font-family: arial, helvetica, sans;}
+		h1 {border-bottom: 1px solid gray;}
+		.detail {display: none;}
+	</style>
+</head>
+
+<body>
+	<h1>Error: <span id="code"></span></h1>
+	<p id="description"></p>
+	
+	<div>
+ERROR_MESSAGES
+	</div>
+	<br/>
+	<hr size="1"/>
+	<em><small>Check the error log for more information.</small></em>
+	
+</body>
+<script type="text/javascript">
+var code = window.location.search.slice(1);
+document.getElementById("code").innerHTML = code;
+try {
+	document.getElementById("err"+code).style.display = "block";
+} catch (e) {;}
+</script>
+</html>

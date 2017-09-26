@@ -24,12 +24,15 @@
 #include "lib/stringlib.h"
 #include "lib/nvlist.h"
 #include "lib/uriparse.h"
+
 #include "example_ini.h"
 #include "README.h"
 #include "reg.h"
 #include "error.h"
+
 #include "lib/regcpp.h"
 #include "lib/mydir.h"
+#include "lib/errstr.h"
 
 // error codes
 #define OK 0
@@ -50,6 +53,10 @@ extern "C" {
 
 static int ini_callback(void* user, const char* section, const char* name, const char* value);
 int create_ini(char* ini_file);
+void define_error_messages();
+void writelog(int level, char* str);
+int display_error(int code);
+static int ini_callback(void* user, const char* section, const char* name, const char* value);
 
 #ifdef __cplusplus
 }

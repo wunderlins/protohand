@@ -42,7 +42,7 @@ rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 export
 
-dep: max_path
+dep: 
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
@@ -51,9 +51,16 @@ dep: max_path
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
 	g++ $(CFLAGS) -c lib/reg.cpp -o lib/regcpp.o -lpcrecpp -lpcre -DPCRE_STATIC
 
-ph: 
-	$(CC) $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o ph.c ico/app.res
+ph: doc
+	$(CC) $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/errstr.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o ph.c ico/app.res
 
+errstr:
+	$(CC) $(CFLAGS) -c lib/errstr.c -o lib/errstr.o
+	
+create_error: errstr
+	$(CC) $(CFLAGS) -o create_error.exe lib/errstr.o create_error.c
+	./create_error.exe
+	
 max_path:
 	$(CC) $(CFLAGS) -o MAX_CWD_LENGTH.exe MAX_CWD_LENGTH.c
 	$(eval MAX_CWD_LENGTH := $(shell sh -c './MAX_CWD_LENGTH.exe'))
@@ -65,7 +72,7 @@ icon:
 	$(MAKE) -C ico
 	
 # build the programm
-all: clean max_path icon usage ini error dep ph testcmd
+all: clean max_path doc icon usage ini error dep ph testcmd
 
 protohand:
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
@@ -76,7 +83,7 @@ protohand:
 	$(CC) $(CFLAGS) -o $(PROGNAME)$(_EXT) lib/nvlist.o lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o protohand.c ico/app.res
 
 # auto-update documentation
-doc: usage ini
+doc: usage ini errstr create_error
 	
 # create a release
 release:
