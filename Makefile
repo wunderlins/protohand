@@ -136,7 +136,7 @@ release:
 testcmd:
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
-	$(CC) $(CFLAGS) -o testcmd$(_EXT) $(REALPATH) lib/mydir.o testcmd.c
+	$(CC) $(CFLAGS) -o testcmd$(_EXT) $(REALPATH) lib/mydir.o testcmd.c ico/testcmd_generated.res
 
 # test url parser
 test:
@@ -163,6 +163,9 @@ param_test:
 # cleanup
 clean:
 	rm -r $(PROGNAME)$(_EXT) || true
+	rm -r $(PROGNAME_SHORT)$(_EXT) || true
+	rm -r testcmd$(_EXT) || true
+	rm -r create_error.exe || true
 	rm -r stringlib$(_EXT) || true
 	rm -r test/realpath_test$(_EXT) || true
 	rm -r test/find_param$(_EXT) || true
@@ -171,6 +174,7 @@ clean:
 	rm -r ini/ini_example$(_EXT) || true
 	rm -r test/ini_test$(_EXT) || true
 	rm -r test/compare$(_EXT) || true
+	#find ./ -iname "*.exe" -exec rm {} \; || true
 	rm -r *.o || true
 	rm -r lib/*.o || true
 	rm -r test/*.o || true
