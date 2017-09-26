@@ -19,7 +19,7 @@ endif
 
 # limits
 STDIN_MAX = 1024
-MAX_CWD_LENGTH = $(shell sh -c './MAX_CWD_LENGTH.exe')
+MAX_CWD_LENGTH = $(shell sh -c './bin/MAX_CWD_LENGTH.exe')
 
 # cflags, strip if debuggign is disabled
 CFLAGS = -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) # -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
@@ -62,8 +62,8 @@ create_error: errstr
 	./create_error.exe
 	
 max_path:
-	$(CC) $(CFLAGS) -o MAX_CWD_LENGTH.exe MAX_CWD_LENGTH.c
-	$(eval MAX_CWD_LENGTH := $(shell sh -c './MAX_CWD_LENGTH.exe'))
+	$(CC) $(CFLAGS) -o bin/MAX_CWD_LENGTH.exe bin/MAX_CWD_LENGTH.c
+	$(eval MAX_CWD_LENGTH := $(shell sh -c './bin/MAX_CWD_LENGTH.exe'))
 
 test_ph: ph
 	$(PROGNAME_SHORT)$(_EXT) 'proto:auth?query=value%201&param2&param3 '
@@ -101,7 +101,7 @@ release:
 	cp $(PROGNAME_SHORT)$(_EXT) "release/$(rel)"
 	strip "release/$(rel)/$(PROGNAME_SHORT)$(_EXT)"
 	cp README.txt "release/$(rel)/"
-	cp error.html "release/$(rel)/"
+	cp generated/error.html "release/$(rel)/"
 	cp testcmd.exe "release/$(rel)/"
 	cp protohand.reg "release/$(rel)/ph.reg"
 	cp ph.ini "release/$(rel)"
@@ -174,53 +174,53 @@ clean:
 	rm -r test/*.o || true
 	rm *.bak || true
 
-# create usage README.h header file from README.txt
+# create usage generated/README.h header file from README.txt
 usage:
-	echo "// Automatically generated file. Edit README.txt and run " > README.h
-	echo "// 'make usage' to update this documentation!" >> README.h
-	echo "" >> README.h
-	echo "char* usage_str = \"\"" >> README.h
-	#sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' README.txt >> README.h
-	#sed -i 's/"/\\"/g;' README.h
-	#sed -i 's/$$/\\n"/g' README.h
-	sed -f bin/replace.sed README.txt >> README.h
-	echo \""\";" >> README.h
-	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' README.h
-	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' README.h
-	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' README.h
-	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' README.h
+	echo "// Automatically generated file. Edit README.txt and run " > generated/README.h
+	echo "// 'make usage' to update this documentation!" >> generated/README.h
+	echo "" >> generated/README.h
+	echo "char* usage_str = \"\"" >> generated/README.h
+	#sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' README.txt >> generated/README.h
+	#sed -i 's/"/\\"/g;' generated/README.h
+	#sed -i 's/$$/\\n"/g' generated/README.h
+	sed -f bin/replace.sed README.txt >> generated/README.h
+	echo \""\";" >> generated/README.h
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/README.h
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' generated/README.h
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' generated/README.h
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' generated/README.h
 
-# create example ini content header file example_ini.h from example.ini
+# create example ini content header file generated/example_ini.h from example.ini
 ini:
-	echo "// Automatically generated file. Edit example.ini and run " > example_ini.h
-	echo "// 'make ini' to update this documentation!" >> example_ini.h
-	echo "" >> example_ini.h
-	echo "char* ini_str = \"\"" >> example_ini.h
-	sed -f bin/replace.sed example.ini >> example_ini.h
-	echo \""\";" >> example_ini.h
-	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' example_ini.h
-	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' example_ini.h
-	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' example_ini.h
-	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' example_ini.h
+	echo "// Automatically generated file. Edit example.ini and run " > generated/example_ini.h
+	echo "// 'make ini' to update this documentation!" >> generated/example_ini.h
+	echo "" >> generated/example_ini.h
+	echo "char* ini_str = \"\"" >> generated/example_ini.h
+	sed -f bin/replace.sed example.ini >> generated/example_ini.h
+	echo \""\";" >> generated/example_ini.h
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/example_ini.h
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' generated/example_ini.h
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' generated/example_ini.h
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' generated/example_ini.h
 
 error:
-	echo "// Automatically generated file. Edit error.html and run " > error.h
-	echo "// 'make ini' to update this documentation!" >> error.h
-	echo "" >> error.h
-	echo "char* error_str = \"\"" >> error.h
-	sed -f bin/replace.sed error.html >> error.h
-	echo \""\";" >> error.h
-	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' error.h
-	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' error.h
-	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' error.h
-	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' error.h
+	echo "// Automatically generated file. Edit generated/error.html and run " > generated/error.h
+	echo "// 'make ini' to update this documentation!" >> generated/error.h
+	echo "" >> generated/error.h
+	echo "char* error_str = \"\"" >> generated/error.h
+	sed -f bin/replace.sed error.html >> generated/error.h
+	echo \""\";" >> generated/error.h
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/error.h
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' generated/error.h
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' generated/error.h
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' generated/error.h
 
 reg:
-	echo "char* reg_str = \"\"" > reg.h
-	sed -f bin/replace.sed example.reg >> reg.h
-	echo \""\";" >> reg.h
-	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' reg.h
-	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' reg.h
+	echo "char* reg_str = \"\"" > generated/reg.h
+	sed -f bin/replace.sed example.reg >> generated/reg.h
+	echo \""\";" >> generated/reg.h
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/reg.h
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' generated/reg.h
 
 # show todo list
 todo:

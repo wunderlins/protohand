@@ -25,10 +25,10 @@
 #include "lib/nvlist.h"
 #include "lib/uriparse.h"
 
-#include "example_ini.h"
-#include "README.h"
-#include "reg.h"
-#include "error.h"
+#include "generated/example_ini.h"
+#include "generated/README.h"
+#include "generated/reg.h"
+#include "generated/error.h"
 
 #include "lib/regcpp.h"
 #include "lib/mydir.h"

@@ -1,4 +1,4 @@
-// Automatically generated file. Edit error.html and run 
+// Automatically generated file. Edit generated/error.html and run 
 // 'make ini' to update this documentation!
 
 char* error_str = ""
