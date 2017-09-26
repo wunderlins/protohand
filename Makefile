@@ -42,7 +42,7 @@ icon:
 	$(MAKE) -C ico
 	
 # build the programm
-all: clean icon usage ini dep ph testcmd
+all: clean icon usage ini error dep ph testcmd
 
 protohand:
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
@@ -172,6 +172,18 @@ ini:
 	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' example_ini.h
 	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' example_ini.h
 	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' example_ini.h
+
+error:
+	echo "// Automatically generated file. Edit error.html and run " > error.h
+	echo "// 'make ini' to update this documentation!" >> error.h
+	echo "" >> error.h
+	echo "char* error_str = \"\"" >> error.h
+	sed -f bin/replace.sed error.html >> error.h
+	echo \""\";" >> error.h
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' error.h
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' error.h
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' error.h
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' error.h
 
 reg:
 	echo "char* reg_str = \"\"" > reg.h

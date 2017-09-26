@@ -456,18 +456,18 @@ int create_ini(char* ini_file) {
 	if (fpinifile == NULL) {
 		if (errno == EACCES) {
 			fprintf(stderr, "Permission denied!\n");
-			#if DEBUG > 0
-			fprintf(logfile, "Failed to created ini file '%s'. "
-							 "Permission denied.\n", ini_file);
-			#endif
+			sprintf(logbuffer, "Failed to created ini file '%s'. "
+							   "Permission denied.", ini_file);
+			writelog(1, logbuffer);
+
 			return INI_PERMISSION_DENIED;
 		}
 		
-		#if DEBUG > 0
-		fprintf(logfile, "Failed to created ini file '%s'. "
-						 "Error: %d: %s.\n", ini_file, errno, 
+		sprintf(logbuffer, "Failed to created ini file '%s'. "
+						 "Error: %d: %s.", ini_file, errno, 
 						 strerror(errno));
-		#endif
+		writelog(1, logbuffer);
+		
 		perror("Failed to create ini file.");
 		return INI_CREATION_FAILED;
 	}
@@ -476,6 +476,22 @@ int create_ini(char* ini_file) {
 	//printf("length: %d\n", sizeof(ini_str));
 	fwrite(ini_str , sizeof(char), strlen(ini_str), fpinifile);
 	fclose(fpinifile);
+	
+	FILE* fpreadme;
+	fpreadme = fopen("README.txt", "wb+");
+	fwrite(usage_str , sizeof(char), strlen(usage_str), fpreadme);
+	fclose(fpreadme);
+
+	FILE* fpreg;
+	fpreg = fopen("ph.reg", "wb+");
+	fwrite(reg_str , sizeof(char), strlen(reg_str), fpreg);
+	fclose(fpreg);
+	
+	FILE* fperror;
+	fperror = fopen("error.html", "wb+");
+	fwrite(error_str , sizeof(char), strlen(error_str), fperror);
+	fclose(fperror);
+
 	
 	// show user that the ini file was created and quit
 	printf("Example ini file has been created. You should review and "

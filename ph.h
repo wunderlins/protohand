@@ -27,6 +27,7 @@
 #include "example_ini.h"
 #include "README.h"
 #include "reg.h"
+#include "error.h"
 #include "lib/regcpp.h"
 #include "lib/mydir.h"
 
