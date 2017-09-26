@@ -40,9 +40,7 @@ endif
 timestamp=$(shell date "+%Y%m%d%H%M")
 rel = $(operating_system)_$(VERSION)_$(timestamp)
 
-max_path:
-	$(CC) $(CFLAGS) -o MAX_CWD_LENGTH.exe MAX_CWD_LENGTH.c
-	$(eval MAX_CWD_LENGTH := $(shell sh -c './MAX_CWD_LENGTH.exe'))
+export
 
 dep: max_path
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
@@ -55,6 +53,10 @@ dep: max_path
 
 ph: 
 	$(CC) $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o ph.c ico/app.res
+
+max_path:
+	$(CC) $(CFLAGS) -o MAX_CWD_LENGTH.exe MAX_CWD_LENGTH.c
+	$(eval MAX_CWD_LENGTH := $(shell sh -c './MAX_CWD_LENGTH.exe'))
 
 test_ph: ph
 	$(PROGNAME_SHORT)$(_EXT) 'proto:auth?query=value%201&param2&param3 '
@@ -100,8 +102,8 @@ release:
 	
 	# subsitute all keywords in the README.txt file
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME_SHORT)/g' release/$(rel)/README.txt
-	#sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' release/$(rel)/README.txt
-	#sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' release/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' release/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' release/$(rel)/README.txt
 	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' release/$(rel)/README.txt
 	# windows line endings
 	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/README.txt

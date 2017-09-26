@@ -1,6 +1,7 @@
 # http://www.imagemagick.org/Usage/thumbnails/#favicon
 
 icon:
+	@echo $(VERSION)
 	./convert.exe 256.png \
 	    \( -clone 0 -resize 16x16 -extent 16x16 \) \
 	    \( -clone 0 -resize 32x32 -extent 32x32 \) \
@@ -11,4 +12,7 @@ icon:
 		\( -clone 0 -resize 256x256 -extent 256x256 \) \
 	    -delete 0 -alpha on -colors 256 app.ico
 	./convert 256.png -define icon:auto-resize=256,128,64,48,32,16 app.ico
-	windres app.rc -O coff -o app.res
+	cat app.rc > app_generated.rc
+	sed -e 's/1,0,0/$(VERSION)/g; s/\([0-9]\+\)\./\1,/g' version.rc > version_generated.rc
+	sed -e 's/VERSION_SHORT/$(VERSION)/g' version_generated.rc >> app_generated.rc
+	windres app_generated.rc -O coff -o app.res
