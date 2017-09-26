@@ -66,7 +66,7 @@ int display_error(int code) {
 	return code;
 }
 
-extern char **environ;
+char **environ;
 int main(int argc, char** argv, char **envp) {
 	environ = envp;
 	
