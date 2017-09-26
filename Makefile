@@ -10,6 +10,23 @@ PROGNAME = protohand
 PROGNAME_SHORT = ph
 _EXT = .exe
 CC = gcc
+
+detected_OS := $(shell sh -c 'uname -s 2>/dev/null || echo not')
+SEDI_EXT=
+ifeq ($(detected_OS),Darwin)  # Mac OS X
+	SEDI_EXT = .bak 
+endif
+
+# limits
+STDIN_MAX = 1024
+MAX_CWD_LENGTH = $(shell sh -c './MAX_CWD_LENGTH.exe')
+
+# cflags, strip if debuggign is disabled
+CFLAGS = -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) # -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
+ifeq ($(DEBUG),0) 
+	CFLAGS += -s
+endif
+
 include os.mk
 
 # use our own realpath on windows
@@ -23,7 +40,11 @@ endif
 timestamp=$(shell date "+%Y%m%d%H%M")
 rel = $(operating_system)_$(VERSION)_$(timestamp)
 
-dep:
+max_path:
+	$(CC) $(CFLAGS) -o MAX_CWD_LENGTH.exe MAX_CWD_LENGTH.c
+	$(eval MAX_CWD_LENGTH := $(shell sh -c './MAX_CWD_LENGTH.exe'))
+
+dep: max_path
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
@@ -42,7 +63,7 @@ icon:
 	$(MAKE) -C ico
 	
 # build the programm
-all: clean icon usage ini error dep ph testcmd
+all: clean max_path icon usage ini error dep ph testcmd
 
 protohand:
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
