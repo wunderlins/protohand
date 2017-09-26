@@ -352,12 +352,15 @@ int main(int argc, char** argv, char **envp) {
 	myargs[0] = "/c";
 	
 	// quote exe name
-	// FIXME: remember if param was quoted in config
-	char* tmpexe = malloc(sizeof(char*) * (strlen(config.exe)+3));
-	strcpy(tmpexe, "\"");
-	strcat(tmpexe, config.exe);
-	strcat(tmpexe, "\"");
-	myargs[1] = (char *) tmpexe;
+	// FIXME: also check for quoted default_path
+	if (quoted.exe) {
+		char* tmpexe = malloc(sizeof(char*) * (strlen(config.exe)+3));
+		strcpy(tmpexe, "\"");
+		strcat(tmpexe, config.exe);
+		strcat(tmpexe, "\"");
+		config.exe = tmpexe;
+	}
+	myargs[1] = (char *) config.exe;
 	
 	// debug, deplsay parameters
 	for(i=0; i<aparams.length; i++) {
