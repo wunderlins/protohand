@@ -116,7 +116,9 @@ release:
 	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/README.txt
 	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/LICENSE.txt
 	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/ph.ini
+	sed -i $(SEDI_EXT) 's/protohand\.exe/$(PROGNAME_SHORT)$(_EXT)/g' release/$(rel)/ph.reg
 	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/ph.reg
+	
 	
 	# create zip file
 	cd release/$(rel); ../../bin/zip.exe "../$(rel).zip" * 
@@ -208,7 +210,7 @@ error:
 	echo "// 'make ini' to update this documentation!" >> generated/error.h
 	echo "" >> generated/error.h
 	echo "char* error_str = \"\"" >> generated/error.h
-	sed -f bin/replace.sed error.html >> generated/error.h
+	sed -f bin/replace.sed generated/error.html >> generated/error.h
 	echo \""\";" >> generated/error.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/error.h
 	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' generated/error.h

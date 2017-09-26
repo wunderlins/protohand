@@ -54,7 +54,7 @@ int main() {
 	//printf("%s\n", buffer);
 	
 	// save buffer to error.html
-	fp = fopen("error.html", "wb");
+	fp = fopen("generated/error.html", "wb");
 	fwrite(buffer , sizeof(char), strlen(buffer), fp);
 	fclose(fp);
 	
