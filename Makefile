@@ -127,10 +127,10 @@ release:
 	rm -r "release/$(rel)"
 	
 	# add to git repo, tag release and push changes/tags
-	git add release/*.zip
-	git commit -am "Added release $(rel)"
-	git push
-	git tag $(rel) && git push --tags
+	#git add release/*.zip
+	#git commit -am "Added release $(rel)"
+	#git push
+	#git tag $(rel) && git push --tags
 	
 # generate a simple cmd utility that will print all parameters
 testcmd:
