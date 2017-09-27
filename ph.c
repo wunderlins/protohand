@@ -65,7 +65,7 @@ int display_error(int code) {
 }
 
 #ifndef PH_NO_MAIN
-char **environ;
+//char **environ;
 int main(int argc, char** argv, char **envp) {
 	environ = envp;
 	
