@@ -127,10 +127,10 @@ release:
 	rm -r "release/$(rel)"
 	
 	# add to git repo, tag release and push changes/tags
-	#git add release/*.zip
-	#git commit -am "Added release $(rel)"
-	#git push
-	#git tag $(rel) && git push --tags
+	git add release/*.zip
+	git commit -am "Added release $(rel)"
+	git push
+	git tag $(rel) && git push --tags
 	
 # generate a simple cmd utility that will print all parameters
 testcmd:
@@ -166,6 +166,7 @@ clean:
 	rm -r $(PROGNAME_SHORT)$(_EXT) || true
 	rm -r testcmd$(_EXT) || true
 	rm -r create_error.exe || true
+	rm -r testcmd.exe || true
 	rm -r stringlib$(_EXT) || true
 	rm -r test/realpath_test$(_EXT) || true
 	rm -r test/find_param$(_EXT) || true
