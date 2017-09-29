@@ -29,8 +29,11 @@ regcpp:
 	g++ -o regcpp.exe ../lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
 
 reg:
-	g++ -lpcrecpp -lpcre -c -o ../lib/regcpp.o ../lib/reg.cpp
-	gcc -o reg.exe ../lib/regcpp.o reg.c
+	g++ -lpcrecpp -lpcre -c -o ../lib/regcpp.o ../lib/reg.cpp -DPCRE_STATIC
+	g++ -o reg.exe ../lib/regcpp.o reg.c -DPCRE_STATIC -I../../mingw-15/MinGW/include \
+		../../mingw-15/MinGW/lib/libpcre.a \
+		../../mingw-15/MinGW/lib/libpcrecpp.a \
+		../../mingw-15/MinGW/lib/libpcreposix.a
 
 mydir:
 	$(CC) $(CFLAGS) -c ../lib/realpath.c -o ../lib/realpath.o
