@@ -54,6 +54,9 @@ dep:
 ph: doc
 	$(CC) $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/errstr.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o ph.c ico/app.res
 
+testregex:
+	$(CC) $(CFLAGS) -o testregex$(_EXT) $(REALPATH) testregex.c ico/testregex_generated.res
+
 errstr:
 	$(CC) $(CFLAGS) -c lib/errstr.c -o lib/errstr.o
 	

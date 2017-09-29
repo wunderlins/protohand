@@ -9,12 +9,12 @@ BEGIN
     BEGIN
       VALUE "CompanyName", "Simon Wunderlin"
       VALUE "FileDescription", "General Protocol Handler"
-      VALUE "FileVersion", "VERSION_SHORT"
+      VALUE "FileVersion", "0.2.1"
       VALUE "InternalName", "protohand"
       VALUE "LegalCopyright", "Simon Wunderlin"
-      VALUE "OriginalFilename", "ph.exe"
+      VALUE "OriginalFilename", "testregex.exe"
       VALUE "ProductName", "Protohand"
-      VALUE "ProductVersion", "VERSION_SHORT"
+      VALUE "ProductVersion", "0.2.1"
     END
   END
   BLOCK "VarFileInfo"
