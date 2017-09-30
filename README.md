@@ -24,6 +24,7 @@ LIMITATIONS
 - start the build environment by running `open_distro_window.bat`
 - cd to your desired project directory and chout the source: `git clone git@github.com:wunderlins/protohand.git`
 - set proper crlf handling `git config --global core.autocrlf false`
+- checkout this repo next to mingw. you should have two folders in the base directroy called `mingw-15` and `prtohand`
 
 ## build
 
