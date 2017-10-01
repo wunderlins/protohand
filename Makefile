@@ -49,10 +49,16 @@ dep:
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
-	g++ $(CFLAGS) -lpcrecpp -lpcre -c -o lib/regcpp.o lib/reg.cpp -DPCRE_STATIC
+	g++ $(CFLAGS) -lpcrecpp -lpcre -c -o lib/regcpp.o lib/reg.cpp -DPCRE_STATIC -I../mingw-15/MinGW/include \
+		../mingw-15/MinGW/lib/libpcre.a \
+		../mingw-15/MinGW/lib/libpcrecpp.a \
+		../mingw-15/MinGW/lib/libpcreposix.a
 	
 ph: doc
-	$(CC) $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/errstr.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o ph.c ico/app.res
+	$(CC) $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/errstr.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o ph.c ico/app.res -DPCRE_STATIC -I../mingw-15/MinGW/include \
+		../mingw-15/MinGW/lib/libpcre.a \
+		../mingw-15/MinGW/lib/libpcrecpp.a \
+		../mingw-15/MinGW/lib/libpcreposix.a
 
 testregex:
 	g++ $(CFLAGS) -o testregex$(_EXT) $(REALPATH) lib/regcpp.o testregex.c ico/testregex_generated.res -DPCRE_STATIC -I../mingw-15/MinGW/include \
@@ -108,10 +114,13 @@ release:
 	strip "release/$(rel)/$(PROGNAME_SHORT)$(_EXT)"
 	cp README.txt "release/$(rel)/"
 	cp generated/error.html "release/$(rel)/"
-	cp testcmd.exe "release/$(rel)/"
+	cp testcmd$(_EXT) "release/$(rel)/"
+	cp testregex$(_EXT) "release/$(rel)/"
 	cp protohand.reg "release/$(rel)/ph.reg"
 	cp ph.ini "release/$(rel)"
 	cp LICENSE.txt "release/$(rel)/"
+	strip "release/$(rel)/testcmd$(_EXT)"
+	strip "release/$(rel)/testregex$(_EXT)"
 	
 	# subsitute all keywords in the README.txt file
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME_SHORT)/g' release/$(rel)/README.txt
