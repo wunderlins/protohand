@@ -4,8 +4,15 @@
 #include "lib/regcpp.h"
 
 void usage() {
-	printf("testregex.exe /search/replce/ file\n");
-	
+	printf("testregex.exe </search/replce/> <file>\n");
+	printf("\nThis program can be used to test the regex search and replace functionality.\n");
+	printf(" - argument 1: a pcre compatible regex and replace pattern. Use $1 for \n");
+	printf("               backreferences, make sure to propperly escape special characters\n");
+	printf("               of your shell.\n");
+	printf(" - argument 2: path to the file to work on\n\n");
+	printf("The result will be printed to stdout. If you want it to be in a file\n");
+	printf("use the output redirection of your shell, normally\n");
+	printf("'testregex.exe /search/replace/ file > outputfile'.\n");
 }
 
 int main(int argc, char **argv) {
