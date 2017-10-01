@@ -4,7 +4,7 @@
 # LOG_TO_FILE=1 will send dbg output to stdout, else to protohand.log
 DEBUG=3
 LOG_TO_FILE=1
-VERSION=0.2.1
+VERSION=0.2.2
 # naming
 PROGNAME = protohand
 PROGNAME_SHORT = ph
@@ -84,7 +84,7 @@ icon:
 	$(MAKE) -C ico
 	
 # build the programm
-all: clean max_path doc icon usage ini error dep ph testcmd
+all: clean max_path doc icon usage ini error dep ph testcmd testregex
 
 protohand:
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
