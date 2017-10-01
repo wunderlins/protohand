@@ -72,7 +72,10 @@ extern "C" const char* regreplace(const char* areg, const char* str) {
 	
 	char* parts[5] = {pre, reg, replace, modifier, NULL};
 	
-	for (l=0, i=0; i<len && pos < 5; i++) {
+	//printf("regex: %s\n", areg);
+	for (l=0, i=0, pos=0; i<len && pos < 5; i++) {
+		
+		printf("i %d, c : %c\n", i, areg[i]);
 		
 		if (pos > 4) {
 			fprintf(stderr, "Too many parts in regex '%s'\n", areg);
@@ -123,7 +126,7 @@ modifier: %s\n", pre, reg, replace, modifier);
 	string res;
 	try {
 		regex re(reg);
-		//cout << areg << " " << replace << endl;
+		cout << "reg : "<< reg << ", replace: " << replace << endl;
 		res = regex_replace(str, re, replace);
 	} catch (regex_error e) {
 		regerrno = e.code();
