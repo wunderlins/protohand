@@ -42,13 +42,15 @@ rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 export
 
-dep: 
+dep: regexcpp
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
+
+regexcpp:
 	g++ $(CFLAGS) -lpcrecpp -lpcre -c -o lib/regcpp.o lib/reg.cpp -DPCRE_STATIC -I../mingw-15/MinGW/include \
 		../mingw-15/MinGW/lib/libpcre.a \
 		../mingw-15/MinGW/lib/libpcrecpp.a \

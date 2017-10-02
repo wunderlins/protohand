@@ -19,6 +19,8 @@ void define_error_messages() {
 
 	errstr[9] = "Failed to open file for replacement.";
 	errstr[10] = "Failed to parse regular expression.";
+	errstr[11] = "Could not allocate enough memmory to read the file into RAM for replacement.";
+	errstr[12] = "replace?fiel set but replace?regex emptz or missing.";
 	
 	errstr[128] = "Failed to parse URI, protocol missing.";
 	errstr[129] = "Failed to parse URI, authority missing.";

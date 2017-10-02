@@ -48,6 +48,8 @@
 
 #define FAILED_TO_OPEN_REPLACE_FILE 9
 #define FAILED_TO_PARSE_REGEX 10
+#define FAILED_TO_ALLOC_MEM_FOR_FILE 11
+#define MISSING_REGEX 12
 
 
 /* Make this header file easier to include in C++ code */

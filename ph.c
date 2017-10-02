@@ -65,12 +65,12 @@ int display_error(int code) {
 	return code;
 }
 
-int replace(char* file, char* regex) {
+int replace(const char* file, const char* regex) {
 	
 	// open file
 	FILE *f = fopen(file, "rb");
 	if (f == NULL) {
-		fprintf(stderr, "Failed to open file %s forer replacements.\n", file);
+		fprintf(stderr, "Failed to open file %s for replacements.\n", file);
 		return FAILED_TO_OPEN_REPLACE_FILE;
 	}
 	
@@ -79,6 +79,10 @@ int replace(char* file, char* regex) {
 	fseek(f, 0, SEEK_SET);  //same as rewind(f);
 
 	char *string = (char*) malloc(fsize + 1);
+	
+	if (string == NULL)
+		return FAILED_TO_ALLOC_MEM_FOR_FILE;
+	
 	fread(string, fsize, 1, f);
 	fclose(f);
 
@@ -87,7 +91,7 @@ int replace(char* file, char* regex) {
 	const char* result;
 	//const char* reg = "pre/[0-9]+/NNNN/m";
 	
-	printf("regex: %s\n", regex);
+	//printf("regex: %s\n", regex);
 	result = regreplace(regex, string);
 	
 	if (result == NULL) {
@@ -95,7 +99,13 @@ int replace(char* file, char* regex) {
 		return FAILED_TO_PARSE_REGEX;
 	}
 	
-	printf("%s\n", result);
+	//printf("%s\n", result);
+	
+	// write result
+	f = fopen(file, "wb");
+	fwrite(result, 1, strlen(result), f);
+	fclose(f);
+	
 	return OK;
 }
 
@@ -108,8 +118,9 @@ int main(int argc, char** argv, char **envp) {
 	
 	int i = 0;
 	int l = 0;
+	int ret = 0;
 	
-	// fin the current directory of the executable
+	// find the current directory of the executable
 	char *dir = (char*) malloc(sizeof(char*) * (MAX_CWD_LENGTH+1));
 	int r = exedir(argv[0], dir);
 	if (r != 0) {
@@ -154,7 +165,6 @@ int main(int argc, char** argv, char **envp) {
 	writelog(2, logbuffer);
 	
 	// parse uri
-	int ret = 0;
 	int res;
 	//struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	struct t_uri uri_parsed = uriparse_create(argv[1]);
@@ -274,6 +284,16 @@ int main(int argc, char** argv, char **envp) {
 	//return 0;
 	
 	// TODO: do file content replacement
+	if (strcmp(config.replace_file, "") != 0) {
+		if (strcmp(config.replace_regex, "") == 0)
+			return MISSING_REGEX;
+		
+		ret = replace(config.replace_file, config.replace_regex);
+		
+		if (ret != 0)
+			return ret;
+	}
+	
 	// TODO: check env parameters
 	// TODO: replace url parameter names with cmd args
 	// TODO: check if document is within default path
