@@ -291,8 +291,13 @@ int main(int argc, char** argv, char **envp) {
 		cmdunquote((char**) &config.replace_file);
 		ret = replace(config.replace_file, config.replace_regex);
 		
-		if (ret != 0)
+		if (ret != 0) {
+			sprintf(logbuffer, "Error regex replacing %s in %s.", 
+			        config.replace_file, config.replace_regex);
+			writelog(1, logbuffer);
+			fprintf(stderr, "%s\n", logbuffer);
 			return ret;
+		}
 	}
 	
 	// TODO: check env parameters
