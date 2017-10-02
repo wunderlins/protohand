@@ -283,11 +283,12 @@ int main(int argc, char** argv, char **envp) {
 	//printf("-> exe: %s\n", config.exe);
 	//return 0;
 	
-	// TODO: do file content replacement
+	// do file content replacement
 	if (strcmp(config.replace_file, "") != 0) {
 		if (strcmp(config.replace_regex, "") == 0)
 			return MISSING_REGEX;
 		
+		cmdunquote((char**) &config.replace_file);
 		ret = replace(config.replace_file, config.replace_regex);
 		
 		if (ret != 0)
