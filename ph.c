@@ -285,8 +285,12 @@ int main(int argc, char** argv, char **envp) {
 	
 	// do file content replacement
 	if (strcmp(config.replace_file, "") != 0) {
-		if (strcmp(config.replace_regex, "") == 0)
+		if (strcmp(config.replace_regex, "") == 0) {
+			sprintf(logbuffer, "Missing regex.");
+			writelog(1, logbuffer);
+			fprintf(stderr, "%s\n", logbuffer);
 			return MISSING_REGEX;
+		}
 		
 		cmdunquote((char**) &config.replace_file);
 		ret = replace(config.replace_file, config.replace_regex);
