@@ -1,4 +1,4 @@
-char* reg_str = ""
+const char* reg_str = ""
 "Windows Registry Editor Version 5.00\n"
 ";; Register a protocol handler\n"
 ";;\n"

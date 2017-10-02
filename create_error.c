@@ -9,9 +9,9 @@ int main() {
 	define_error_messages();
 	int i = 0;
 	
-	int pos = 0;
+	//int pos = 0;
 	char* buffer = malloc(sizeof(char*) * BLOCK_SIZE);
-	int buffer_s = BLOCK_SIZE;
+	//int buffer_s = BLOCK_SIZE;
 	char *linebuffer = malloc(sizeof(char*) * BLOCK_SIZE);
 	char *template = malloc(sizeof(char*) * BLOCK_SIZE);
 	template[0] = 0;

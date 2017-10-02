@@ -1,7 +1,7 @@
 // Automatically generated file. Edit README.txt and run 
 // 'make usage' to update this documentation!
 
-char* usage_str = ""
+const char* usage_str = ""
 "Usage: protohand.exe <url>\n"
 "\n"
 "SYNOPSYS:\n"

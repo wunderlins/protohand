@@ -1,7 +1,7 @@
 // Automatically generated file. Edit generated/error.html and run 
 // 'make ini' to update this documentation!
 
-char* error_str = ""
+const char* error_str = ""
 "<!doctype html>\n"
 "\n"
 "<html lang=\"en\">\n"

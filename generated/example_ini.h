@@ -1,7 +1,7 @@
 // Automatically generated file. Edit example.ini and run 
 // 'make ini' to update this documentation!
 
-char* ini_str = ""
+const char* ini_str = ""
 ";; NOTE: do not quote values\n"
 "\n"
 "[exe/testcmd]\n"
