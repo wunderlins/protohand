@@ -42,7 +42,7 @@ rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 export
 
-dep: regexcpp
+dep: regexcpp 
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
@@ -86,7 +86,7 @@ icon:
 	$(MAKE) -C ico
 	
 # build the programm
-all: clean max_path doc icon usage ini error dep ph testcmd testregex
+all: clean create_error max_path doc icon dep ph testcmd testregex
 
 protohand:
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
