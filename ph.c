@@ -12,7 +12,8 @@ typedef struct {
 	const char* path_params;
 	const char* params_prepend;
 	const char* params_append;
-	const char* replace;
+	const char* replace_file;
+	const char* replace_regex;
 	const char* exe;
 	int found; // 1 if the section was found. initialize it to 0 otherwise
 } configuration;
@@ -225,7 +226,9 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "params_append: %s", config.params_append); 
 		writelog(3, logbuffer);
-		sprintf(logbuffer, "replace: %s", config.replace); 
+		sprintf(logbuffer, "replace_file: %s", config.replace_file); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "replace_regex: %s", config.replace_regex); 
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "exe: %s", config.exe); 
 		writelog(3, logbuffer);
@@ -451,8 +454,11 @@ static int ini_callback(void* user, const char* section, const char* name,
 		} else if (MATCH(section, "exe")) {
 			pconfig->exe = strdup(value);
 			pconfig->found = 1;
-		} else if (MATCH(section, "replace")) {
-			pconfig->replace = strdup(value);
+		} else if (MATCH(section, "replace_file")) {
+			pconfig->replace_file = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "replace_regex")) {
+			pconfig->replace_regex = strdup(value);
 			pconfig->found = 1;
 		} else {
 			return 0;
