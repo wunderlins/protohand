@@ -52,6 +52,7 @@
 #define MISSING_REGEX 12
 
 #define NO_INI_SECTION_FOUND 13
+#define FAILED_TO_EXPAND_ENV 14
 
 
 /* Make this header file easier to include in C++ code */

@@ -65,7 +65,7 @@ See [Overview of Regular Expression Syntax][3] for more information on Posix reg
 ## Goals
 - [x] open documents
 - [x] run executables
-  - [ ] expand environment variables
+  - [x] expand environment variables
   - [x] prepend parameters
   - [x] append static parameters
 - [ ] map url parmeter names to cmd parameter names

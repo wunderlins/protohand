@@ -41,3 +41,6 @@ mydir:
 
 quote:
 	gcc -o quote.exe quote.c -DQUOTE_MAIN
+
+expenv:
+	g++ -o expenv.exe expenv.c -DEXPENV_MAIN

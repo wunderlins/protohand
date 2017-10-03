@@ -23,6 +23,7 @@ void define_error_messages() {
 	errstr[12] = "replace_file set but replace_regex empty or missing.";
 	
 	errstr[13] = "Failed to find ini Section.";
+	errstr[14] = "Failed to expand environment variable.";
 	
 	errstr[128] = "Failed to parse URI, protocol missing.";
 	errstr[129] = "Failed to parse URI, authority missing.";
