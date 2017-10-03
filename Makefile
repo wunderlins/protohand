@@ -42,6 +42,9 @@ rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 export
 
+# build the programm
+all: clean create_error max_path doc icon dep ph testcmd testregex
+
 dep: regexcpp 
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
@@ -76,16 +79,13 @@ test_ph: ph
 icon:
 	$(MAKE) -C ico
 	
-# build the programm
-all: clean create_error max_path doc icon dep ph testcmd testregex
-
-protohand:
-	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
-	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
-	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
-	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
-	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
-	$(CC) $(CFLAGS) -o $(PROGNAME)$(_EXT) lib/nvlist.o lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o protohand.c ico/app.res
+#protohand:
+#	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
+#	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
+#	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
+#	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
+#	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
+#	$(CC) $(CFLAGS) -o $(PROGNAME)$(_EXT) lib/nvlist.o lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o protohand.c ico/app.res
 
 # auto-update documentation
 doc: usage ini errstr create_error reg error
