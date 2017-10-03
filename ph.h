@@ -51,6 +51,8 @@
 #define FAILED_TO_ALLOC_MEM_FOR_FILE 11
 #define MISSING_REGEX 12
 
+#define NO_INI_SECTION_FOUND 13
+
 
 /* Make this header file easier to include in C++ code */
 #ifdef __cplusplus

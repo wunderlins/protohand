@@ -51,22 +51,13 @@ dep: regexcpp
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
 
 regexcpp:
-	g++ $(CFLAGS) -lpcrecpp -lpcre -c -o lib/regcpp.o lib/reg.cpp -DPCRE_STATIC -I../mingw-15/MinGW/include \
-		../mingw-15/MinGW/lib/libpcre.a \
-		../mingw-15/MinGW/lib/libpcrecpp.a \
-		../mingw-15/MinGW/lib/libpcreposix.a
+	g++ $(CFLAGS) -lpcrecpp -lpcre -c -o lib/regcpp.o lib/reg.cpp
 	
-ph: doc
-	g++ $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/regcpp.o lib/errstr.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o ph.c ico/app.res -DPCRE_STATIC -I../mingw-15/MinGW/include \
-		../mingw-15/MinGW/lib/libpcre.a \
-		../mingw-15/MinGW/lib/libpcrecpp.a \
-		../mingw-15/MinGW/lib/libpcreposix.a
+ph:
+	g++ $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/regcpp.o lib/errstr.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o ph.c ico/app.res -lpcrecpp -lpcre -DPCRE_STATIC 
 
 testregex:
-	g++ $(CFLAGS) -o testregex$(_EXT) $(REALPATH) lib/regcpp.o testregex.c ico/testregex_generated.res -DPCRE_STATIC -I../mingw-15/MinGW/include \
-		../mingw-15/MinGW/lib/libpcre.a \
-		../mingw-15/MinGW/lib/libpcrecpp.a \
-		../mingw-15/MinGW/lib/libpcreposix.a
+	g++ $(CFLAGS) -o testregex$(_EXT) $(REALPATH) lib/regcpp.o testregex.c ico/testregex_generated.res -lpcrecpp -lpcre -DPCRE_STATIC 
 
 errstr:
 	$(CC) $(CFLAGS) -c lib/errstr.c -o lib/errstr.o
@@ -157,19 +148,19 @@ testcmd:
 
 # test url parser
 test:
-	./$(PROGNAME)$(_EXT) "12345://67890" || true
-	./$(PROGNAME)$(_EXT) "12345:///67890" || true
-	./$(PROGNAME)$(_EXT)$(_EXT) "12345://?67890" || true
-	./$(PROGNAME)$(_EXT) "12345://as/67890" || true
-	./$(PROGNAME)$(_EXT) "12345://as?67890" || true
-	./$(PROGNAME)$(_EXT) "12345://as/xy?67890" || true
-	./$(PROGNAME)$(_EXT) "12345:67890" || true
-	./$(PROGNAME)$(_EXT) "12345:/67890" || true
-	./$(PROGNAME)$(_EXT) "12345:?67890" || true
-	./$(PROGNAME)$(_EXT) "12345:as/67890" || true
-	./$(PROGNAME)$(_EXT) "12345:as?67890" || true
-	./$(PROGNAME)$(_EXT) "12345:as/xy?67890" || true
-	./$(PROGNAME)$(_EXT) "usb://centricity?--auth=user&pass=ab%20de" || true
+	./$(PROGNAME_SHORT)$(_EXT) "12345://67890" || true
+	./$(PROGNAME_SHORT)$(_EXT) "12345:///67890" || true
+	./$(PROGNAME_SHORT)$(_EXT)$(_EXT) "12345://?67890" || true
+	./$(PROGNAME_SHORT)$(_EXT) "12345://as/67890" || true
+	./$(PROGNAME_SHORT)$(_EXT) "12345://as?67890" || true
+	./$(PROGNAME_SHORT)$(_EXT) "12345://as/xy?67890" || true
+	./$(PROGNAME_SHORT)$(_EXT) "12345:67890" || true
+	./$(PROGNAME_SHORT)$(_EXT) "12345:/67890" || true
+	./$(PROGNAME_SHORT)$(_EXT) "12345:?67890" || true
+	./$(PROGNAME_SHORT)$(_EXT) "12345:as/67890" || true
+	./$(PROGNAME_SHORT)$(_EXT) "12345:as?67890" || true
+	./$(PROGNAME_SHORT)$(_EXT) "12345:as/xy?67890" || true
+	./$(PROGNAME_SHORT)$(_EXT) "usb://centricity?--auth=user&pass=ab%20de" || true
 
 # run parameter test
 param_test:

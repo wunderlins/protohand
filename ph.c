@@ -246,6 +246,13 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 	}
 	
+	if (config.found == 0) {
+		sprintf(logbuffer, "Ini section '%s' not found ", section);
+		writelog(1, logbuffer);
+		fprintf(stderr, "%s\n", logbuffer);
+		return display_error(NO_INI_SECTION_FOUND);
+	}
+	
 	struct {
 		int exe;
 		int default_path;
@@ -401,7 +408,7 @@ int main(int argc, char** argv, char **envp) {
 	// #define NUMARGS (3)
 	int myargs_length = aparams.length+3;
 	char *myargs[myargs_length];
-	myargs[0] = "/c";
+	myargs[0] = (char*) "/c";
 	
 	// quote exe name
 	// FIXME: also check for quoted default_path
