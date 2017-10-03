@@ -4,7 +4,7 @@
 # LOG_TO_FILE=1 will send dbg output to stdout, else to protohand.log
 DEBUG=3
 LOG_TO_FILE=1
-VERSION=0.2.2
+VERSION=0.3.0
 # naming
 PROGNAME = protohand
 PROGNAME_SHORT = ph
@@ -42,20 +42,22 @@ rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 export
 
-dep: 
+dep: regexcpp 
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
+
+regexcpp:
 	g++ $(CFLAGS) -lpcrecpp -lpcre -c -o lib/regcpp.o lib/reg.cpp -DPCRE_STATIC -I../mingw-15/MinGW/include \
 		../mingw-15/MinGW/lib/libpcre.a \
 		../mingw-15/MinGW/lib/libpcrecpp.a \
 		../mingw-15/MinGW/lib/libpcreposix.a
 	
 ph: doc
-	$(CC) $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/errstr.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o ph.c ico/app.res -DPCRE_STATIC -I../mingw-15/MinGW/include \
+	g++ $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/regcpp.o lib/errstr.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o ph.c ico/app.res -DPCRE_STATIC -I../mingw-15/MinGW/include \
 		../mingw-15/MinGW/lib/libpcre.a \
 		../mingw-15/MinGW/lib/libpcrecpp.a \
 		../mingw-15/MinGW/lib/libpcreposix.a
@@ -84,7 +86,7 @@ icon:
 	$(MAKE) -C ico
 	
 # build the programm
-all: clean max_path doc icon usage ini error dep ph testcmd testregex
+all: clean create_error max_path doc icon dep ph testcmd testregex
 
 protohand:
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
@@ -95,7 +97,7 @@ protohand:
 	$(CC) $(CFLAGS) -o $(PROGNAME)$(_EXT) lib/nvlist.o lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o protohand.c ico/app.res
 
 # auto-update documentation
-doc: usage ini errstr create_error
+doc: usage ini errstr create_error reg error
 	
 # create a release
 release:
@@ -201,7 +203,7 @@ usage:
 	echo "// Automatically generated file. Edit README.txt and run " > generated/README.h
 	echo "// 'make usage' to update this documentation!" >> generated/README.h
 	echo "" >> generated/README.h
-	echo "char* usage_str = \"\"" >> generated/README.h
+	echo "const char* usage_str = \"\"" >> generated/README.h
 	#sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' README.txt >> generated/README.h
 	#sed -i 's/"/\\"/g;' generated/README.h
 	#sed -i 's/$$/\\n"/g' generated/README.h
@@ -217,7 +219,7 @@ ini:
 	echo "// Automatically generated file. Edit example.ini and run " > generated/example_ini.h
 	echo "// 'make ini' to update this documentation!" >> generated/example_ini.h
 	echo "" >> generated/example_ini.h
-	echo "char* ini_str = \"\"" >> generated/example_ini.h
+	echo "const char* ini_str = \"\"" >> generated/example_ini.h
 	sed -f bin/replace.sed example.ini >> generated/example_ini.h
 	echo \""\";" >> generated/example_ini.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/example_ini.h
@@ -229,7 +231,7 @@ error:
 	echo "// Automatically generated file. Edit generated/error.html and run " > generated/error.h
 	echo "// 'make ini' to update this documentation!" >> generated/error.h
 	echo "" >> generated/error.h
-	echo "char* error_str = \"\"" >> generated/error.h
+	echo "const char* error_str = \"\"" >> generated/error.h
 	sed -f bin/replace.sed generated/error.html >> generated/error.h
 	echo \""\";" >> generated/error.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/error.h
@@ -238,7 +240,7 @@ error:
 	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' generated/error.h
 
 reg:
-	echo "char* reg_str = \"\"" > generated/reg.h
+	echo "const char* reg_str = \"\"" > generated/reg.h
 	sed -f bin/replace.sed example.reg >> generated/reg.h
 	echo \""\";" >> generated/reg.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/reg.h

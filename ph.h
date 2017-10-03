@@ -24,6 +24,7 @@
 #include "lib/stringlib.h"
 #include "lib/nvlist.h"
 #include "lib/uriparse.h"
+#include "lib/regcpp.h"
 
 #include "generated/example_ini.h"
 #include "generated/README.h"
@@ -45,6 +46,11 @@
 #define INI_NO_SECTION 7
 #define TOO_MANY_CMD_ARGUMENTS 8
 
+#define FAILED_TO_OPEN_REPLACE_FILE 9
+#define FAILED_TO_PARSE_REGEX 10
+#define FAILED_TO_ALLOC_MEM_FOR_FILE 11
+#define MISSING_REGEX 12
+
 
 /* Make this header file easier to include in C++ code */
 #ifdef __cplusplus
@@ -53,7 +59,7 @@ extern "C" {
 
 static int ini_callback(void* user, const char* section, const char* name, const char* value);
 int create_ini(char* ini_file);
-void define_error_messages();
+//void define_error_messages();
 void writelog(int level, char* str);
 int display_error(int code);
 static int ini_callback(void* user, const char* section, const char* name, const char* value);

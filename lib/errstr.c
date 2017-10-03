@@ -1,6 +1,11 @@
 #include "errstr.h"
 char* errstr[255] = { NULL };
 
+/* Make this header file easier to include in C++ code */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void define_error_messages() {
 	errstr[0] = "Ok";
 	errstr[1] = "Argument 1 missing.";
@@ -12,9 +17,18 @@ void define_error_messages() {
 	errstr[7] = "No inisection found.";
 	errstr[8] = "While generating the commandline string, too many arguments were passed in via query and/or configuration. The limit is: MAX_PARAMS.";
 
+	errstr[9] = "Failed to open file for replacement.";
+	errstr[10] = "Failed to parse regular expression.";
+	errstr[11] = "Could not allocate enough memmory to read the file into RAM for replacement.";
+	errstr[12] = "replace?fiel set but replace?regex emptz or missing.";
+	
 	errstr[128] = "Failed to parse URI, protocol missing.";
 	errstr[129] = "Failed to parse URI, authority missing.";
 	errstr[130] = "Failed to parse URI, error in query string.";
 	errstr[131] = "Failed to parse URI, error in fragment.";
 	//errstr[] = "";
 }
+
+#ifdef __cplusplus
+}
+#endif

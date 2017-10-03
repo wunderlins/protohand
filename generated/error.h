@@ -1,7 +1,7 @@
 // Automatically generated file. Edit generated/error.html and run 
 // 'make ini' to update this documentation!
 
-char* error_str = ""
+const char* error_str = ""
 "<!doctype html>\n"
 "\n"
 "<html lang=\"en\">\n"
@@ -31,6 +31,10 @@ char* error_str = ""
 "		<div class=\"detail\" id=\"err6\">Wrong path or program is not executable.</div>\n"
 "		<div class=\"detail\" id=\"err7\">No inisection found.</div>\n"
 "		<div class=\"detail\" id=\"err8\">While generating the commandline string, too many arguments were passed in via query and/or configuration. The limit is: MAX_PARAMS.</div>\n"
+"		<div class=\"detail\" id=\"err9\">Failed to open file for replacement.</div>\n"
+"		<div class=\"detail\" id=\"err10\">Failed to parse regular expression.</div>\n"
+"		<div class=\"detail\" id=\"err11\">Could not allocate enough memmory to read the file into RAM for replacement.</div>\n"
+"		<div class=\"detail\" id=\"err12\">replace?fiel set but replace?regex emptz or missing.</div>\n"
 "		<div class=\"detail\" id=\"err128\">Failed to parse URI, protocol missing.</div>\n"
 "		<div class=\"detail\" id=\"err129\">Failed to parse URI, authority missing.</div>\n"
 "		<div class=\"detail\" id=\"err130\">Failed to parse URI, error in query string.</div>\n"

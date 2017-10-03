@@ -57,6 +57,7 @@ int main(int argc, char **argv) {
 	
 	if (result == NULL) {
 		printf("Failed to execute regex: %d\n", regerrno);
+		return 3;
 	}
 	
 	printf("%s\n", result);

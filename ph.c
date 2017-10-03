@@ -12,7 +12,8 @@ typedef struct {
 	const char* path_params;
 	const char* params_prepend;
 	const char* params_append;
-	const char* replace;
+	const char* replace_file;
+	const char* replace_regex;
 	const char* exe;
 	int found; // 1 if the section was found. initialize it to 0 otherwise
 } configuration;
@@ -46,7 +47,7 @@ void writelog(int level, char* str) {
 int display_error(int code) {
 	char params[25] = "";
 	sprintf(params, "error.html?%d", code);
-	char *myargs[5] = {
+	const char* myargs[5] = {
 		"/c"
 		"hh.exe",
 		"-800",
@@ -56,12 +57,56 @@ int display_error(int code) {
 	char exe[4096] = "";
 	strcat(exe, getenv("windir"));
 	strcat(exe, "\\System32\\cmd.exe");
-	spawnve(P_NOWAIT, exe, myargs, environ);
+	spawnve(P_NOWAIT, exe, (char* const*) myargs, (char* const*) environ);
 	//printf("spawnv %d\n", ret);
 	
 	// TODO: return message to stderr
 	
 	return code;
+}
+
+int replace(const char* file, const char* regex) {
+	
+	// open file
+	FILE *f = fopen(file, "rb");
+	if (f == NULL) {
+		fprintf(stderr, "Failed to open file %s for replacements.\n", file);
+		return FAILED_TO_OPEN_REPLACE_FILE;
+	}
+	
+	fseek(f, 0, SEEK_END);
+	long fsize = ftell(f);
+	fseek(f, 0, SEEK_SET);  //same as rewind(f);
+
+	char *string = (char*) malloc(fsize + 1);
+	
+	if (string == NULL)
+		return FAILED_TO_ALLOC_MEM_FOR_FILE;
+	
+	fread(string, fsize, 1, f);
+	fclose(f);
+
+	string[fsize] = 0;
+	
+	const char* result;
+	//const char* reg = "pre/[0-9]+/NNNN/m";
+	
+	//printf("regex: %s\n", regex);
+	result = regreplace(regex, string);
+	
+	if (result == NULL) {
+		printf("Failed to execute regex: %d\n", regerrno);
+		return FAILED_TO_PARSE_REGEX;
+	}
+	
+	//printf("%s\n", result);
+	
+	// write result
+	f = fopen(file, "wb");
+	fwrite(result, 1, strlen(result), f);
+	fclose(f);
+	
+	return OK;
 }
 
 #ifndef PH_NO_MAIN
@@ -73,9 +118,10 @@ int main(int argc, char** argv, char **envp) {
 	
 	int i = 0;
 	int l = 0;
+	int ret = 0;
 	
-	// fin the current directory of the executable
-	char *dir = malloc(sizeof(char*) * (MAX_CWD_LENGTH+1));
+	// find the current directory of the executable
+	char *dir = (char*) malloc(sizeof(char*) * (MAX_CWD_LENGTH+1));
 	int r = exedir(argv[0], dir);
 	if (r != 0) {
 		fprintf(stderr, "Failed to find current directory, error: %d\n", r);
@@ -119,7 +165,6 @@ int main(int argc, char** argv, char **envp) {
 	writelog(2, logbuffer);
 	
 	// parse uri
-	int ret = 0;
 	int res;
 	//struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	struct t_uri uri_parsed = uriparse_create(argv[1]);
@@ -191,7 +236,9 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "params_append: %s", config.params_append); 
 		writelog(3, logbuffer);
-		sprintf(logbuffer, "replace: %s", config.replace); 
+		sprintf(logbuffer, "replace_file: %s", config.replace_file); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "replace_regex: %s", config.replace_regex); 
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "exe: %s", config.exe); 
 		writelog(3, logbuffer);
@@ -205,7 +252,7 @@ int main(int argc, char** argv, char **envp) {
 	} quoted = {0, 0};
 	
 	if (isquoted((char*) config.exe) == '"') {
-		//char *newexe = malloc(sizeof(char*) * (strlen(config.exe)+1));
+		//char *newexe = (char*) malloc(sizeof(char*) * (strlen(config.exe)+1));
 		//strcpy(newexe, config.exe);
 		//config.exe = newexe;
 		cmdunquote((char**) &config.exe);
@@ -236,22 +283,42 @@ int main(int argc, char** argv, char **envp) {
 	//printf("-> exe: %s\n", config.exe);
 	//return 0;
 	
-	// TODO: do file content replacement
+	// do file content replacement
+	if (strcmp(config.replace_file, "") != 0) {
+		if (strcmp(config.replace_regex, "") == 0) {
+			sprintf(logbuffer, "Missing regex.");
+			writelog(1, logbuffer);
+			fprintf(stderr, "%s\n", logbuffer);
+			return MISSING_REGEX;
+		}
+		
+		cmdunquote((char**) &config.replace_file);
+		ret = replace(config.replace_file, config.replace_regex);
+		
+		if (ret != 0) {
+			sprintf(logbuffer, "Error regex replacing %s in %s.", 
+			        config.replace_file, config.replace_regex);
+			writelog(1, logbuffer);
+			fprintf(stderr, "%s\n", logbuffer);
+			return ret;
+		}
+	}
+	
 	// TODO: check env parameters
 	// TODO: replace url parameter names with cmd args
 	// TODO: check if document is within default path
 	// TODO: check if values of path parameters are inside default path
-	// TODO: add prepend/append parameters
 	
 	// prepare the command line arguments
+	char space[2] = " ";
 	struct str_array params_prepend = str_array_split((char*) 
-		config.params_prepend, " ");
+		config.params_prepend, space);
 	struct str_array params_append  = str_array_split((char*) 
-		config.params_append, " ");
+		config.params_append, space);
 	
 	// create the arguments array
 	// TODO: Document limitation
-	char **params = malloc(sizeof(char*) * MAX_PARAMS);
+	char **params = (char**) malloc(sizeof(char*) * MAX_PARAMS);
 	int params_length = 0;
 	
 	//printf("End %d, %s\n", params_prepend.length, params_prepend.items[0]);
@@ -279,7 +346,7 @@ int main(int argc, char** argv, char **envp) {
 			// name=value ?
 			if (strcmp(uri_parsed.nvquery.items[i].value, "") != 0 &&
 			    strcmp(uri_parsed.nvquery.items[i].value, "") != 0) {
-				char *tmp = malloc(sizeof(char*) * \
+				char *tmp = (char*) malloc(sizeof(char*) * \
 					(strlen(uri_parsed.nvquery.items[i].key)+strlen(uri_parsed.nvquery.items[i].value)+2));
 				strcpy(tmp, uri_parsed.nvquery.items[i].key);
 				strcat(tmp, "=");
@@ -339,7 +406,7 @@ int main(int argc, char** argv, char **envp) {
 	// quote exe name
 	// FIXME: also check for quoted default_path
 	if (quoted.exe) {
-		char* tmpexe = malloc(sizeof(char*) * (strlen(config.exe)+3));
+		char* tmpexe = (char*) malloc(sizeof(char*) * (strlen(config.exe)+3));
 		strcpy(tmpexe, "\"");
 		strcat(tmpexe, config.exe);
 		strcat(tmpexe, "\"");
@@ -417,8 +484,11 @@ static int ini_callback(void* user, const char* section, const char* name,
 		} else if (MATCH(section, "exe")) {
 			pconfig->exe = strdup(value);
 			pconfig->found = 1;
-		} else if (MATCH(section, "replace")) {
-			pconfig->replace = strdup(value);
+		} else if (MATCH(section, "replace_file")) {
+			pconfig->replace_file = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "replace_regex")) {
+			pconfig->replace_regex = strdup(value);
 			pconfig->found = 1;
 		} else {
 			return 0;

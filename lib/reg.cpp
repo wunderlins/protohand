@@ -31,14 +31,14 @@ extern "C" int reg(const char* areg, const char* areplace, const char* str) {
 	
 	try {
 		regex re(areg);
-		cout << areg << " " << areplace << endl;
+		//cout << areg << " " << areplace << endl;
 		res = regex_replace(str, re, areplace);
 	} catch (regex_error e) {
 		reg_error_code = e.code();
 		return reg_error_code;
 	}
 	
-	cout << "Result: " << res << endl;
+	//cout << "Result: " << res << endl;
 	return 0;
 }
 
@@ -75,7 +75,7 @@ extern "C" const char* regreplace(const char* areg, const char* str) {
 	//printf("regex: %s\n", areg);
 	for (l=0, i=0, pos=0; i<len && pos < 5; i++) {
 		
-		printf("i %d, c : %c\n", i, areg[i]);
+		//printf("i %d, c : %c\n", i, areg[i]);
 		
 		if (pos > 4) {
 			fprintf(stderr, "Too many parts in regex '%s'\n", areg);
@@ -126,7 +126,7 @@ modifier: %s\n", pre, reg, replace, modifier);
 	string res;
 	try {
 		regex re(reg);
-		cout << "reg : "<< reg << ", replace: " << replace << endl;
+		//cout << "reg : "<< reg << ", replace: " << replace << endl;
 		res = regex_replace(str, re, replace);
 	} catch (regex_error e) {
 		regerrno = e.code();
