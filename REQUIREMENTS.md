@@ -61,6 +61,11 @@ See [Overview of Regular Expression Syntax][3] for more information on Posix reg
 
 - Environment variable expansion: no
 
+### params_prepend
+Add additional parameters to the command line before the parameters that are passed in via query.
+
+### params_append
+Add additional parameters to the command line after the parameters that are passed in via query.
 
 ## Goals
 - [x] open documents
