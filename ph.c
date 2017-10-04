@@ -231,7 +231,21 @@ int main(int argc, char** argv, char **envp) {
 	res = uriparse_parse(argv[1], &uri_parsed);
 	if (res != 0) {
 		ret = 127+res;
-		sprintf(logbuffer, "URI Parser Error %d, %s", res, argv[1]);
+		const char *err;
+		if (ret == FOUND_PROTO)
+			err = "Failed to find protocol delimiter ':'";
+		else if (ret == FOUND_AUTHORITY)
+			err = "Failed to extract authority";
+		else if (ret == FOUND_PATH)
+			err = "Failed to find the path";
+		else if (ret == FOUND_QUERY)
+			err = "Failed to parse the query";
+		else if (ret == FOUND_FRAGMENT)
+			err = "Failed to parse the fragment";
+		else if (ret == FOUND_END)
+			err = "Failed to find the end";
+
+		sprintf(logbuffer, "URI Parser Error %d, %s, %s", res, err, argv[1]);
 		writelog(1, logbuffer);
 		return display_error(ret);
 	}
