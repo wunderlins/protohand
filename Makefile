@@ -121,11 +121,11 @@ release:
 	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' release/$(rel)/README.txt
 	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' release/$(rel)/README.txt
 	# windows line endings
-	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/LICENSE.txt
-	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/ph.ini
+	sed -i $(SEDI_EXT) 's/$$/\r/' release/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/$$/\r/' release/$(rel)/LICENSE.txt
+	sed -i $(SEDI_EXT) 's/$$/\r/' release/$(rel)/ph.ini
 	sed -i $(SEDI_EXT) 's/protohand\.exe/$(PROGNAME_SHORT)$(_EXT)/g' release/$(rel)/ph.reg
-	sed -i $(SEDI_EXT) 's/$$/\r\n/' release/$(rel)/ph.reg
+	sed -i $(SEDI_EXT) 's/$$/\r/' release/$(rel)/ph.reg
 	
 	
 	# create zip file
