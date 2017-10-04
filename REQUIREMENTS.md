@@ -77,7 +77,7 @@ Add additional parameters to the command line after the parameters that are pass
   - [x] expand environment variables
   - [x] prepend parameters
   - [x] append static parameters
-- [ ] map url parmeter names to cmd parameter names
+- [x] map url parmeter names to cmd parameter names
 - [x] implement URI parser
 - [x] implement ini parser
 - [x] implement regex parser
