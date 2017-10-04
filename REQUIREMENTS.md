@@ -21,7 +21,7 @@ The concatenated `authority` and `path` part make up the ini file section.
 For example, `proto:aaa/bbb` would be mapped to the section `[aaa/bbb]`
 in the ini file.
 
-The `query`part is used to pass parameters to the executable. Special care
+The `query` part is used to pass parameters to the executable. Special care
 has to be taken when pasing in path information. 
 
 ## Ini file directives
@@ -43,7 +43,11 @@ paths may not start with `..`. A path which does not start with `[^A-Z:]`,
 ### params_transform
 Mapping query parameter names to command line parameters. Passing a query 
 string `?file=somefile.txt` might need to be converted into `/f somefile.txt`
-on the command line.
+on the command line. The syntax used in this directive is:
+
+    urlparamname=cmdarg_name[ urlparamname=cmdarg_name [urlparamname=cmdarg_name]]
+
+name value pairs are euqal seperated, pairs are space seperated.
 
 - Environment variable expansion: no
 

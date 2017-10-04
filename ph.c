@@ -14,6 +14,7 @@ typedef struct {
 	const char* params_append;
 	const char* replace_file;
 	const char* replace_regex;
+	const char* params_transform;
 	const char* exe;
 	int found; // 1 if the section was found. initialize it to 0 otherwise
 } configuration;
@@ -177,6 +178,7 @@ int main(int argc, char** argv, char **envp) {
 	define_error_messages();
 	
 	int i = 0;
+	int ii = 0;
 	int l = 0;
 	int ret = 0;
 	
@@ -401,13 +403,47 @@ int main(int argc, char** argv, char **envp) {
 		}
 	}
 	
+	char space[2] = " ";
 	// TODO: check env parameters
-	// TODO: replace url parameter names with cmd args
+	
+	// replace url parameter names with cmd args
+	if (strcmp(config.params_transform, "") != 0) {
+		struct str_array pairs = str_array_split((char*) config.params_transform, space);
+		struct nvlist_list repl = nvlist_create(10);
+		for (i=0; i<pairs.length; i++) {
+			nvlist_addstr(&repl, pairs.items[i], '=');
+			//printf("pair: %s\n", pairs.items[i]);
+		}
+		
+		for(i=0; i<uri_parsed.nvquery.length; i++) {
+			printf("key: %s\n", uri_parsed.nvquery.items[i].key);
+			if (strcmp(uri_parsed.nvquery.items[i].key, "") != 0) {
+				//printf("query key: %s\n", uri_parsed.nvquery.items[i].key);
+				//printf("repl  key: %s\n", repl.items[ii].key);
+				for(ii=0; ii<pairs.length; ii++) {
+					if (strcmp(repl.items[ii].key, uri_parsed.nvquery.items[i].key) == 0) {
+						
+						if (loglevel > 2) {
+							sprintf(logbuffer, "replacing param '%s' with '%s'", 
+							        uri_parsed.nvquery.items[i].key,
+									repl.items[ii].value); 
+							writelog(3, logbuffer);
+						}
+
+						uri_parsed.nvquery.items[i].key = repl.items[ii].value;
+						break;
+					}
+				}
+				
+			}
+		}
+
+	}
+	
 	// TODO: check if document is within default path
 	// TODO: check if values of path parameters are inside default path
 	
 	// prepare the command line arguments
-	char space[2] = " ";
 	struct str_array params_prepend = str_array_split((char*) 
 		config.params_prepend, space);
 	struct str_array params_append  = str_array_split((char*) 
@@ -588,9 +624,13 @@ static int ini_callback(void* user, const char* section, const char* name,
 		} else if (MATCH(section, "replace_regex")) {
 			pconfig->replace_regex = strdup(value);
 			pconfig->found = 1;
+		} else if (MATCH(section, "params_transform")) {
+			pconfig->params_transform = strdup(value);
+			pconfig->found = 1;
 		} else {
 			return 0;
 		}
+		
 	}
 	// printf("search section: %s\n", (const char *) pconfig->section);
 
