@@ -427,8 +427,9 @@ int main(int argc, char** argv, char **envp) {
 			if (params_length>MAX_PARAMS) return display_error(TOO_MANY_CMD_ARGUMENTS);
 			
 			// name=value ?
-			if (strcmp(uri_parsed.nvquery.items[i].value, "") != 0 &&
+			if (strcmp(uri_parsed.nvquery.items[i].key, "") != 0 &&
 			    strcmp(uri_parsed.nvquery.items[i].value, "") != 0) {
+				//printf("ya\n");
 				char *tmp = (char*) malloc(sizeof(char*) * \
 					(strlen(uri_parsed.nvquery.items[i].key)+strlen(uri_parsed.nvquery.items[i].value)+2));
 				strcpy(tmp, uri_parsed.nvquery.items[i].key);
