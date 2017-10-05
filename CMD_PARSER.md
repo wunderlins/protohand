@@ -4,6 +4,7 @@ The parser shoud replace the exe directive in the ini file. The difference is
 that the cmd will hold program an parameter for the command to run. The
 parameters will be denoted as variable üplaceholder like ${variable} and 
 be replaced by 3 actions:
+
     - url parameter expansion, syntax: ${paramname}. Paramname will be passed in as query parameter like ?paramname=value
 	- environment variable expansion, syntax ${env.varname}, where varname might be any environment variable
 	- conditional expansion. insert a value into the command if a passed invariable matches an environment variable like ${env.USERNAME!=user:/u generic}
