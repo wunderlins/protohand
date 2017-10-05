@@ -44,3 +44,8 @@ quote:
 
 expenv:
 	g++ -o expenv.exe expenv.c -DEXPENV_MAIN
+
+pcrelocal:
+	g++ -o regcpp ../lib/reg.cpp -I ../pcre-8.41 -L \
+		../pcre-8.41/pcre-build/lib -lpcre -lpcrecpp -DCPPMAIN
+
