@@ -2,6 +2,7 @@
 
 CC=gcc 
 CFLAGS=-Wall -DEBUG=1 -DURIPARSE_DEBUG=1 -DNVLIST_MAIN=1
+CFLAGS=-Wall -DEBUG=1 -DURIPARSE_DEBUG=0 
 
 # use our own realpath on windows
 ifeq ($(OS),Windows_NT)
@@ -44,3 +45,9 @@ quote:
 
 expenv:
 	g++ -o expenv.exe expenv.c -DEXPENV_MAIN
+
+cmd_parser:
+	$(CC) $(CFLAGS) -c -o ../lib/stringlib.o ../lib/stringlib.c
+	$(CC) $(CFLAGS) -c -o ../lib/nvlist.o ../lib/stringlib.o ../lib/nvlist.c
+	$(CC) $(CFLAGS) -c -o ../lib/uriparse.o ../lib/uriparse.c
+	g++ -DCMD_PARSER_MAIN -o cmd_parser.exe ../lib/stringlib.o ../lib/nvlist.o ../lib/uriparse.o cmd_parser.c 
