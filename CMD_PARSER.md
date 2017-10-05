@@ -14,10 +14,13 @@ Example:
 
 
 cmd directive:
+
     cmd = ${env.windir}\notepad.exe /A "${file}" ${env.USERNAME!=user:--debug}
 	
 result (if the windows user equals to "abc"):
+
 	c:\windows\notepad.exe /A "file.txt"
 	
 result (if the windows user does not equal to "abc"):
+
 	c:\windows\notepad.exe /A "file.txt" --debug
