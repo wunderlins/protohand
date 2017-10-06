@@ -5,9 +5,37 @@
 #include "../lib/nvlist.h"
 #include "../lib/uriparse.h"
 
-int find_var_value(char* name, struct nvlist_list* query, char** result) {
-	
-	return 0;
+int find_var_value(char* varname, struct nvlist_list* query, char** result) {
+    int ii;
+    
+    // environment variables
+    if (varname[0] == 'e' && varname[1] == 'n' &&
+        varname[2] == 'v' && varname[3] == '.' ) {
+        char* envarname = (char *) malloc(sizeof(char*) * (strlen(varname)+1));
+        strcpy(envarname, varname+4);
+        //printf("envarname: '%s'\n", envarname);
+        char* value;
+        //printf("getenv: '%s'\n", getenv(envarname));
+        value = getenv(envarname);
+        //printf("value   : %s\n", value);
+        if (value == NULL)
+            return 1;
+        
+        //printf("value:   %s\n", value);
+        *result = value;
+        return 0;
+    }
+    
+    // query variables
+    for (ii=0; ii<query->length; ii++) {
+        //printf("--> key: %s\n", query->items[ii].key);
+        if(strcmp(query->items[ii].key, varname) == 0) {
+            *result = query->items[ii].value;
+            return 0;
+        }
+    }
+    
+	return 1;
 }
 
 int expand_vars(char** str, struct nvlist_list* query) {
@@ -25,7 +53,7 @@ int expand_vars(char** str, struct nvlist_list* query) {
 	
 	for (i=0; i<l; i++) {
 		if (i > 0 && str[0][i] == '{' && str[0][i-1] == '$') {
-			//printf("Begin: %d\n", i);
+			printf("Begin: %d\n", i);
 			open = 1;
 			o--;
 			start = i;
@@ -33,7 +61,7 @@ int expand_vars(char** str, struct nvlist_list* query) {
 		}
 		
 		if (str[0][i] == '}') {
-			//printf("End:   %d\n", i);
+			printf("End:   %d\n", i);
 			open = 0;
 			
 			int len = (i-start-1);
@@ -46,7 +74,7 @@ int expand_vars(char** str, struct nvlist_list* query) {
 			strncpy(varname, *(str)+start+1, len);
 			varname[len] = 0;
 			
-			//printf("varname: %s\n", varname);
+			printf("varname: %s\n", varname);
 			
 			// type
 			if (has_colon && has_equal) {
@@ -114,6 +142,7 @@ int expand_vars(char** str, struct nvlist_list* query) {
 				while(replace[ii] == ' ') replace++;
 				printf("replace: '%s'\n", replace);
 				
+                /*
 				int lll = strlen(var1);
 				char* value1;
 				char* value2;
@@ -128,43 +157,34 @@ int expand_vars(char** str, struct nvlist_list* query) {
 				} else {
 					;
 				}
+                */
 				
 				
 			} else if (varname[0] == 'e' && varname[1] == 'n' && 
 			    varname[2] == 'v' && varname[3] == '.' ) {
-				char* envarname = (char *) malloc(sizeof(char*) * (len+1));
-				strcpy(envarname, varname+4);
-				char* value = getenv(envarname);
-				
-				if (value == NULL)
-					return 1;
-				
-				//printf("env name: '%s'='%s'\n", envarname, value);
-				
+                
+                char* value;
+                int ret = find_var_value(varname, query, &value);
+                
+                if (ret != 0)
+                    return 1;
+                
 				out = (char *) realloc(out, o+strlen(value)+1);
 				out[o] = 0;
 				strcat(out, value);
 				o+= strlen(value);
+
 			} else {
 				//printf("regular var: %s, %d\n", varname, query->length);
 				
-				int found = 0;
-				for (ii=0; ii<query->length; ii++) {
-					//printf("--> key: %s\n", query->items[ii].key);
-					if(strcmp(query->items[ii].key, varname) == 0) {
-						
-						out = (char *) realloc(out, o+strlen(query->items[ii].value)+1);
-						out[o] = 0;
-						strcat(out, query->items[ii].value);
-						o+= strlen(query->items[ii].value);
-						found = 1;
-						break;
-					}
-				}
-				
-				if (!found) {
-					return 3;
-				}
+                char* value;
+                int ret = find_var_value(varname, query, &value);
+                if (ret != 0)
+                    return 1;
+                out = (char *) realloc(out, o+strlen(value)+1);
+                out[o] = 0;
+                strcat(out, value);
+                o+= strlen(value);
 			}
 			
 			has_colon = 0;
@@ -198,7 +218,7 @@ int main(int argc, char*argv[]) {
 	int res;
 	
 	char* uri = (char*) "proto:auth/path?name1=value1&name2=value+2";
-	char* cmd = (char*) "${env.WINDIR}\\notepad.exe /A \"${name1}\" ${ env.USERNAME != name2 : --debug }";
+	char* cmd = (char*) "${env.HOME}\\notepad.exe /A \"${name1}\" ${ env.USERNAME != name2 : --debug }";
 	
 	struct t_uri uri_parsed = uriparse_create(uri);
 	res = uriparse_parse(uri, &uri_parsed);
