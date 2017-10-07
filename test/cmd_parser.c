@@ -38,6 +38,102 @@ int find_var_value(char* varname, struct nvlist_list* query, char** result) {
 	return 1;
 }
 
+typedef struct {
+	char* var1;
+	char* var2;
+	int sign;
+	char* replace;
+	int match;
+} t_conditional;
+
+#define EXP_ERR_NO_EQUAL 1 
+#define EXP_ERR_NO_COLON 2
+#define EXP_ERR_MALLOC 3 
+#define EXP_ERR_ENVVAR_NOT_FOUND 4 
+#define EXP_ERR_QUERYNVVAR_NOT_FOUND 5 
+#define EXP_ERR_REALLOC 6 
+
+/**
+ * parse the conditional
+ * schema: var[ \t]*[!]=[ \t]*var[ \t]*:[ \t]*value[ \t]*
+ */
+int parse_conditional(char* varname, t_conditional* cond) {
+	
+	int ii = 0;
+	int pos = -1;
+	int ll = strlen(varname);
+	
+	// var name 1
+	for(ii=0; ii<ll; ii++) {
+		if (varname[ii] == '=') {
+			if (varname[ii-1] == '!')
+				cond->sign = -1;
+			else
+				cond->sign = 1;
+			if (varname[ii+1] == '=')
+				ii++; // skip second equal
+			pos = ii;
+			break;
+		}
+	}
+	
+	//printf("varname %s, ii %d, pos %d\n", varname, ii, pos);
+	
+	if(pos == -1)
+		return EXP_ERR_NO_EQUAL;
+	
+	cond->var1 = (char*) malloc(sizeof(char*) * (pos + 1));
+	int v1l = pos;
+	if (cond->sign < 0)
+		v1l--;
+	strncpy(cond->var1, varname, v1l);
+	cond->var1[v1l] = 0;
+	trim(cond->var1);
+	ii=0;
+	while(cond->var1[ii] == ' ') cond->var1++;
+	//printf("var1: '%s'\n", cond->var1);
+	
+	//return 0;
+	
+	// var name 2
+	int var2start = pos+1;
+	int var2end = -1;
+	for(ii=var2start; ii<ll; ii++) {
+		if (varname[ii] == ':') {
+			var2end = ii;
+			break;
+		}
+	}
+	
+	if (var2end == -1)
+		return EXP_ERR_NO_COLON;
+	
+	//printf("va2s: %d, var2e: %d\n", var2start, var2end);
+	cond->var2 = (char*) malloc(sizeof(char*) * (var2end - var2start + 1));
+	strncpy(cond->var2, varname+var2start, var2end - var2start);
+	trim(cond->var2);
+	ii=0;
+	while(cond->var2[ii] == ' ') cond->var2++;
+	
+	//printf("var2: '%s'\n", cond->var2);
+	
+	// result
+	cond->replace = (char*) malloc(sizeof(char*) * (ll + var2end + 1));
+	strcpy(cond->replace, varname+var2end+1);
+	trim(cond->replace);
+	ii=0;
+	while(cond->replace[ii] == ' ') cond->replace++;
+	//printf("replace: '%s'\n", cond->replace);	
+	
+	if (cond->sign == 1 && strcmp(cond->var1, cond->var2) == 0)
+		cond->match = 1;
+	
+	if (cond->sign == -1 && strcmp(cond->var1, cond->var2) != 0)
+		cond->match = 1;
+	
+	return 0;
+}
+
 int expand_vars(char** str, struct nvlist_list* query) {
 	int i, o, open, start;
 	int l = strlen(str[0]);
@@ -48,7 +144,7 @@ int expand_vars(char** str, struct nvlist_list* query) {
 	
 	char* out = (char*) malloc(sizeof(char*) * 1);
 	if (out == NULL)
-		return 2;
+		return EXP_ERR_MALLOC;
 	out[0] = 0;
 	
 	for (i=0; i<l; i++) {
@@ -69,7 +165,7 @@ int expand_vars(char** str, struct nvlist_list* query) {
 			//printf("len: %d\n", len);
 			char* varname = (char *) malloc(sizeof(char*) * (len+1));
 			if (varname == NULL)
-				return 2;
+				return EXP_ERR_MALLOC;
 			
 			strncpy(varname, *(str)+start+1, len);
 			varname[len] = 0;
@@ -80,84 +176,18 @@ int expand_vars(char** str, struct nvlist_list* query) {
 			if (has_colon && has_equal) {
 				printf("conditional: %s\n", varname);
 				
-				// parse the conditional
-				// schema: var[ \t]*[!]=[ \t]*var[ \t]*:[ \t]*value[ \t]*
-				char* var1;
-				char* var2;
-				char* replace;
-				int sign = 0;
-				int pos = -1;
-				int ll = strlen(varname);
+				t_conditional cond = {(char*) "", (char*) "", 0, (char*) "", -1};
+				int ret = parse_conditional(varname, &cond);
 				
-				// var name 1
-				for(ii=0; ii<ll; ii++) {
-					if (varname[ii] == '=') {
-						if (varname[ii-1] == '!')
-							sign = -1;
-						else
-							sign = 1;
-						pos = ii;
-						break;
-					}
+				printf("var1: '%s', var2 '%s', replace: '%s'\n",
+				       cond.var1, cond.var2, cond.replace);
+				
+				out[o] = 0;
+				if (cond.match == 1) {
+					out = (char *) realloc(out, o+strlen(cond.replace)+3);
+					strcat(out, cond.replace);
+					o+= strlen(cond.replace);
 				}
-				
-				if(pos == -1)
-					return 5;
-				
-				var1 = (char*) malloc(sizeof(char*) * (pos + 1));
-				int v1l = pos;
-				if (sign < 0)
-					v1l--;
-				strncpy(var1, varname, v1l);
-				var1[v1l] = 0;
-				trim(var1);
-				ii=0;
-				while(var1[ii] == ' ') var1++;
-				printf("var1: '%s'\n", var1);
-				
-				// var name 2
-				int var2start = pos+1;
-				int var2end = -1;
-				for(ii=var2start; ii<ll; ii++) {
-					if (varname[ii] == ':') {
-						var2end = ii;
-						break;
-					}
-				}
-				
-				printf("va2s: %d, var2e: %d\n", var2start, var2end);
-				var2 = (char*) malloc(sizeof(char*) * (var2end - var2start + 1));
-				strncpy(var2, varname+var2start, var2end - var2start);
-				trim(var2);
-				ii=0;
-				while(var2[ii] == ' ') var2++;
-				
-				printf("var2: '%s'\n", var2);
-				
-				// result
-				replace = (char*) malloc(sizeof(char*) * (ll + var2end + 1));
-				strcpy(replace, varname+var2end+1);
-				trim(replace);
-				ii=0;
-				while(replace[ii] == ' ') replace++;
-				printf("replace: '%s'\n", replace);
-				
-                /*
-				int lll = strlen(var1);
-				char* value1;
-				char* value2;
-				if (var1[0] == 'e' && var1[1] == 'n' && 
-					var1[2] == 'v' && var1[3] == '.' ) {
-					char* envarname = (char *) malloc(sizeof(char*) * (lll+1));
-					strcpy(envarname, var1+4);
-					char* value1 = getenv(envarname);
-					if (value1 == NULL)
-						return 1;
-					printf("value1: '%s'\n", value1);
-				} else {
-					;
-				}
-                */
 				
 				
 			} else if (varname[0] == 'e' && varname[1] == 'n' && 
@@ -167,12 +197,19 @@ int expand_vars(char** str, struct nvlist_list* query) {
                 int ret = find_var_value(varname, query, &value);
                 
                 if (ret != 0)
-                    return 1;
-                
-				out = (char *) realloc(out, o+strlen(value)+1);
+                    return EXP_ERR_ENVVAR_NOT_FOUND;
+				
+				int lll = strlen(value);
+				int s = o+lll+1;
+				//printf("%s, o: %d, lll: %d, '%s'='%s', s: %d\n", out, o, lll, varname, value, s);
+				out = (char *) realloc(out, s);
+				if (out == NULL)
+					return EXP_ERR_REALLOC;
 				out[o] = 0;
-				strcat(out, value);
-				o+= strlen(value);
+				
+				strncat(out, value, lll);
+				o += lll;
+				
 
 			} else {
 				//printf("regular var: %s, %d\n", varname, query->length);
@@ -180,11 +217,17 @@ int expand_vars(char** str, struct nvlist_list* query) {
                 char* value;
                 int ret = find_var_value(varname, query, &value);
                 if (ret != 0)
-                    return 1;
-                out = (char *) realloc(out, o+strlen(value)+1);
+                    return EXP_ERR_QUERYNVVAR_NOT_FOUND;
+				
+				int lll = strlen(value);
+				printf("%s, %d, %d, %s\n", out, o, lll, varname);
+                out = (char *) realloc(out, o+lll*+3);
+				if (out == NULL)
+					return EXP_ERR_REALLOC;
                 out[o] = 0;
                 strcat(out, value);
-                o+= strlen(value);
+                o += lll;
+				
 			}
 			
 			has_colon = 0;
@@ -198,7 +241,7 @@ int expand_vars(char** str, struct nvlist_list* query) {
 		if (open == 0) {
 			out = (char *) realloc(out, o+1);
 			if (out == NULL)
-				return 4;
+				return EXP_ERR_REALLOC;
 			out[o++] = str[0][i];
 			out[o] = 0;
 		}
@@ -212,22 +255,25 @@ int expand_vars(char** str, struct nvlist_list* query) {
 
 #ifdef CMD_PARSER_MAIN
 int main(int argc, char*argv[]) {
-	
+	printf("Startup ....\n");
 	int ret = 0;
 	int i = 0;
 	int res;
 	
-	char* uri = (char*) "proto:auth/path?name1=value1&name2=value+2";
+	// FIXME: an url with the length of 38/39 bytes will result in a return 
+	//        code 127, example "proto:auth/path?name1=vaue1&name2=va11"
+	char* uri = (char*) "proto:auth/path?name1=vaue1&name2=va112";
 	char* cmd = (char*) "${env.HOME}\\notepad.exe /A \"${name1}\" ${ env.USERNAME != name2 : --debug }";
 	
 	struct t_uri uri_parsed = uriparse_create(uri);
+	printf("before parse\n");
 	res = uriparse_parse(uri, &uri_parsed);
+	printf("res: %s\n", res);
 	if (res != 0) {
 		ret = 127+res;
 		printf("Parser Error %d, %s\n", res, uri);
 		return ret;
 	}
-	
 	/*
 	nvlist_pair *p;
 	for (i=0; i<uri_parsed.nvquery.length; i++) {
@@ -242,3 +288,5 @@ int main(int argc, char*argv[]) {
 }
 
 #endif // CMD_PARSER_MAIN
+
+// proto:auth/path?name1=vaue1&name2=val
