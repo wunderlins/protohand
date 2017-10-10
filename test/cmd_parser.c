@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "../lib/stringlib.h"
-#include "../lib/nvlist.h"
-#include "../lib/uriparse.h"
+#include "cmd_parser.h"
 
 int find_var_value(char* varname, struct nvlist_list* query, char** result) {
     int ii;
@@ -46,24 +41,16 @@ typedef struct {
 	int match;
 } t_conditional;
 
-#define BLOCKSIZE 100
-
-#define EXP_ERR_NO_EQUAL 1 
-#define EXP_ERR_NO_COLON 2
-#define EXP_ERR_MALLOC 3 
-#define EXP_ERR_ENVVAR_NOT_FOUND 4 
-#define EXP_ERR_QUERYNVVAR_NOT_FOUND 5 
-#define EXP_ERR_REALLOC 6 
-
 /**
  * parse the conditional
  * schema: var[ \t]*[!]=[ \t]*var[ \t]*:[ \t]*value[ \t]*
  */
-int parse_conditional(char* varname, t_conditional* cond) {
+int parse_conditional(char* varname, t_conditional* cond, struct nvlist_list* query) {
 	
 	int ii = 0;
 	int pos = -1;
 	int ll = strlen(varname);
+	int ret = 0;
 	
 	// reset
 	cond->var1 = (char*) "";
@@ -134,10 +121,21 @@ int parse_conditional(char* varname, t_conditional* cond) {
 	while(cond->replace[ii] == ' ') cond->replace++;
 	//printf("replace: '%s'\n", cond->replace);	
 	
-	if (cond->sign == 1 && strcmp(cond->var1, cond->var2) == 0)
+	char* value1;
+	ret = find_var_value(cond->var1, query, &value1);
+	if (ret == 1)
+		return EXP_ERR_QUERYNVVAR_NOT_FOUND;
+
+	char* value2;
+	ret = find_var_value(cond->var2, query, &value2);
+	if (ret == 1)
+		return EXP_ERR_QUERYNVVAR_NOT_FOUND;
+
+	// compare values
+	if (cond->sign == 1 && strcmp(value1, value2) == 0)
 		cond->match = 1;
 	
-	if (cond->sign == -1 && strcmp(cond->var1, cond->var2) != 0)
+	if (cond->sign == -1 && strcmp(value1, value2) != 0)
 		cond->match = 1;
 	
 	return 0;
@@ -178,7 +176,7 @@ int expand_vars(char** str, struct nvlist_list* query) {
 	
 	for (i=0; i<l; i++) {
 		if (i > 0 && str[0][i] == '{' && str[0][i-1] == '$') {
-			printf("Begin: %d\n", i);
+			//printf("Begin: %d\n", i);
 			open = 1;
 			start = i;
 			out[strlen(out)-1] = 0; // remove '$' from out string
@@ -186,7 +184,7 @@ int expand_vars(char** str, struct nvlist_list* query) {
 		}
 		
 		if (str[0][i] == '}') {
-			printf("End:   %d\n", i);
+			//printf("End:   %d\n", i);
 			open = 0;
 			
 			int len = (i-start-1);
@@ -199,15 +197,15 @@ int expand_vars(char** str, struct nvlist_list* query) {
 			strncpy(varname, *(str)+start+1, len);
 			varname[len] = 0;
 			
-			printf("varname: %s\n", varname);
+			//printf("varname: %s\n", varname);
 			
 			// resolve expression
 			if (has_colon && has_equal) {
 				
-				ret = parse_conditional(varname, &cond);
+				ret = parse_conditional(varname, &cond, query);
 				
-				printf("var1: '%s', var2 '%s', replace: '%s'\n",
-				       cond.var1, cond.var2, cond.replace);
+				//printf("var1: '%s', var2 '%s', replace: '%s'\n",
+				//       cond.var1, cond.var2, cond.replace);
 				
 				if (cond.match == 1) {
 					ret = append_resize(out, cond.replace, buffer_length, BLOCKSIZE);
@@ -248,7 +246,7 @@ int expand_vars(char** str, struct nvlist_list* query) {
 		}
 	}
 	
-	printf("out: %s\n", out);
+	//printf("out: %s\n", out);
 	*str = out;
 	
 	return 0;
@@ -260,28 +258,50 @@ int main(int argc, char*argv[]) {
 	int i = 0;
 	int res;
 	
-	// FIXME: an url with the length of 38/39 bytes will result in a return 
-	//        code 127, example "proto:auth/path?name1=vaue1&name2=va11"
-	char* uri = (char*) "proto:auth/path?name1=vaue1&name2=va123456";
+	char* uri = (char*) "proto:auth/path?name1=vaue1&name2=wus";
 	char* cmd = (char*) "${env.HOME}\\notepad.exe /A \"${name1}\" ${name2} ${ env.USERNAME != name2 : --debug }";
-	
 	struct t_uri uri_parsed = uriparse_create(uri);
+	
 	res = uriparse_parse(uri, &uri_parsed);
-	printf("res: %d\n", res);
+	//printf("res: %d\n", res);
 	if (res != 0) {
 		ret = 127+res;
 		printf("Parser Error %d, %s\n", res, uri);
 		return ret;
 	}
-	/*
-	nvlist_pair *p;
-	for (i=0; i<uri_parsed.nvquery.length; i++) {
-		p = &uri_parsed.nvquery.items[i];
-		printf("k: %s, v: %s\n", p->key, p->value);
-	}
-	*/
 	
 	ret = expand_vars(&cmd, &uri_parsed.nvquery);
+	printf("out: %s\n", cmd);
+	
+	// no spaces
+	cmd = (char*) "${env.HOME}\\notepad.exe /A \"${name1}\" ${name2} ${env.USERNAME!=name2:--debug}";
+	uri_parsed = uriparse_create(uri);
+	res = uriparse_parse(uri, &uri_parsed);
+	//printf("res: %d\n", res);
+	if (res != 0) {
+		ret = 127+res;
+		printf("Parser Error %d, %s\n", res, uri);
+		return ret;
+	}
+	
+	ret = expand_vars(&cmd, &uri_parsed.nvquery);
+	printf("out: %s\n", cmd);
+	
+	// expression does not match
+	cmd = (char*) "${env.HOME}\\notepad.exe /A \"${name1}\" ${name2} ${env.USERNAME=name2:--debug}";
+	uri_parsed = uriparse_create(uri);
+	res = uriparse_parse(uri, &uri_parsed);
+	//printf("res: %d\n", res);
+	if (res != 0) {
+		ret = 127+res;
+		printf("Parser Error %d, %s\n", res, uri);
+		return ret;
+	}
+	
+	ret = expand_vars(&cmd, &uri_parsed.nvquery);
+	printf("out: %s\n", cmd);
+
+	
 	
 	return ret;
 }
