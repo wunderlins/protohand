@@ -25,6 +25,7 @@
 #include "lib/nvlist.h"
 #include "lib/uriparse.h"
 #include "lib/regcpp.h"
+#include "lib/cmd_parser.h"
 
 #include "generated/example_ini.h"
 #include "generated/README.h"

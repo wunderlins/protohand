@@ -33,14 +33,6 @@ int find_var_value(char* varname, struct nvlist_list* query, char** result) {
 	return 1;
 }
 
-typedef struct {
-	char* var1;
-	char* var2;
-	int sign;
-	char* replace;
-	int match;
-} t_conditional;
-
 /**
  * parse the conditional
  * schema: var[ \t]*[!]=[ \t]*var[ \t]*:[ \t]*value[ \t]*
@@ -255,7 +247,6 @@ int expand_vars(char** str, struct nvlist_list* query) {
 #ifdef CMD_PARSER_MAIN
 int main(int argc, char*argv[]) {
 	int ret = 0;
-	int i = 0;
 	int res;
 	
 	char* uri = (char*) "proto:auth/path?name1=vaue1&name2=wus";

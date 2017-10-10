@@ -175,12 +175,34 @@ int expenv(char** str) {
 int main(int argc, char** argv, char **envp) {
 	environ = envp;
 	
-	define_error_messages();
-	
 	int i = 0;
 	int ii = 0;
 	int l = 0;
 	int ret = 0;
+	int res;
+	
+	/*
+	// cmd parser test
+	char* uri = (char*) "proto:auth/path?name1=vaue1&name2=wus";
+	char* cmd = (char*) "${env.HOME}\\notepad.exe /A \"${name1}\" ${name2} ${ env.USERNAME != name2 : --debug }";
+	struct t_uri urit = uriparse_create(uri);
+	
+	urit = uriparse_create(uri);
+	res = uriparse_parse(uri, &urit);
+	//printf("res: %d\n", res);
+	if (res != 0) {
+		ret = 127+res;
+		printf("Parser Error %d, %s\n", res, uri);
+		return ret;
+	}
+	
+	ret = expand_vars(&cmd, &urit.nvquery);
+	printf("out: %s\n", cmd);
+	return 0;
+	*/
+	
+	define_error_messages();
+	
 	
 	// find the current directory of the executable
 	char *dir = (char*) malloc(sizeof(char*) * (MAX_CWD_LENGTH+1));
@@ -227,7 +249,6 @@ int main(int argc, char** argv, char **envp) {
 	writelog(2, logbuffer);
 	
 	// parse uri
-	int res;
 	//struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	struct t_uri uri_parsed = uriparse_create(argv[1]);
 	res = uriparse_parse(argv[1], &uri_parsed);

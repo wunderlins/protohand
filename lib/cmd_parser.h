@@ -21,6 +21,24 @@ extern "C" {
 #define EXP_ERR_QUERYNVVAR_NOT_FOUND 5 
 #define EXP_ERR_REALLOC 6 
 
+typedef struct {
+	char* var1;
+	char* var2;
+	int sign;
+	char* replace;
+	int match;
+} t_conditional;
+
+int find_var_value(char* varname, struct nvlist_list* query, char** result);
+/**
+ * parse the conditional
+ * schema: var[ \t]*[!]=[ \t]*var[ \t]*:[ \t]*value[ \t]*
+ */
+int parse_conditional(char* varname, t_conditional* cond, struct nvlist_list* query);
+int append_resize(char* string, char* append, int bufflength, int blocksize);
+int expand_vars(char** str, struct nvlist_list* query);
+
+
 #ifdef __cplusplus
 }
 #endif
