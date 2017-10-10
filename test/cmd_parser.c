@@ -46,6 +46,8 @@ typedef struct {
 	int match;
 } t_conditional;
 
+#define BLOCKSIZE 100
+
 #define EXP_ERR_NO_EQUAL 1 
 #define EXP_ERR_NO_COLON 2
 #define EXP_ERR_MALLOC 3 
@@ -62,6 +64,13 @@ int parse_conditional(char* varname, t_conditional* cond) {
 	int ii = 0;
 	int pos = -1;
 	int ll = strlen(varname);
+	
+	// reset
+	cond->var1 = (char*) "";
+	cond->var2 = (char*) "";
+	cond->sign = 0;
+	cond->replace = (char*) "";
+	cond->match = -1;
 	
 	// var name 1
 	for(ii=0; ii<ll; ii++) {
@@ -134,25 +143,45 @@ int parse_conditional(char* varname, t_conditional* cond) {
 	return 0;
 }
 
+int append_resize(char* string, char* append, int bufflength, int blocksize) {
+	int new_l = strlen(string) + strlen(append) + 1;
+	if (new_l > bufflength) { // realloc mor memmory
+		int diff = bufflength - new_l;
+		int add  = (diff/BLOCKSIZE*BLOCKSIZE)+BLOCKSIZE;
+		string = (char *) realloc(string, bufflength+add);
+		if (string == NULL)
+			return 0;
+		strcat(string, append);
+		return bufflength+add;
+	}
+	
+	strcat(string, append);
+	return bufflength;
+}
+
 int expand_vars(char** str, struct nvlist_list* query) {
-	int i, o, open, start;
+	int i, open, start;
 	int l = strlen(str[0]);
-	open = 0; i = 0; o = 0; start = 0;
+	open = 0; i = 0; start = 0;
 	int has_colon = 0;
 	int has_equal = 0;
-	int ii = 0;
+	int buffer_length = 0;
+	int ret;
+	char* result;
+	t_conditional cond = {(char*) "", (char*) "", 0, (char*) "", -1};
 	
-	char* out = (char*) malloc(sizeof(char*) * 1);
+	char* out = (char*) malloc(sizeof(char*) * BLOCKSIZE);
 	if (out == NULL)
 		return EXP_ERR_MALLOC;
+	buffer_length = BLOCKSIZE;
 	out[0] = 0;
 	
 	for (i=0; i<l; i++) {
 		if (i > 0 && str[0][i] == '{' && str[0][i-1] == '$') {
 			printf("Begin: %d\n", i);
 			open = 1;
-			o--;
 			start = i;
+			out[strlen(out)-1] = 0; // remove '$' from out string
 			continue;
 		}
 		
@@ -172,62 +201,32 @@ int expand_vars(char** str, struct nvlist_list* query) {
 			
 			printf("varname: %s\n", varname);
 			
-			// type
+			// resolve expression
 			if (has_colon && has_equal) {
-				printf("conditional: %s\n", varname);
 				
-				t_conditional cond = {(char*) "", (char*) "", 0, (char*) "", -1};
-				int ret = parse_conditional(varname, &cond);
+				ret = parse_conditional(varname, &cond);
 				
 				printf("var1: '%s', var2 '%s', replace: '%s'\n",
 				       cond.var1, cond.var2, cond.replace);
 				
-				out[o] = 0;
 				if (cond.match == 1) {
-					out = (char *) realloc(out, o+strlen(cond.replace)+3);
-					strcat(out, cond.replace);
-					o+= strlen(cond.replace);
+					ret = append_resize(out, cond.replace, buffer_length, BLOCKSIZE);
+					if (ret == 0)
+						return EXP_ERR_REALLOC;
+					
+					buffer_length = ret;
 				}
-				
-				
-			} else if (varname[0] == 'e' && varname[1] == 'n' && 
-			    varname[2] == 'v' && varname[3] == '.' ) {
-                
-                char* value;
-                int ret = find_var_value(varname, query, &value);
-                
-                if (ret != 0)
-                    return EXP_ERR_ENVVAR_NOT_FOUND;
-				
-				int lll = strlen(value);
-				int s = o+lll+1;
-				//printf("%s, o: %d, lll: %d, '%s'='%s', s: %d\n", out, o, lll, varname, value, s);
-				out = (char *) realloc(out, s);
-				if (out == NULL)
-					return EXP_ERR_REALLOC;
-				out[o] = 0;
-				
-				strncat(out, value, lll);
-				o += lll;
-				
 
-			} else {
-				//printf("regular var: %s, %d\n", varname, query->length);
-				
-                char* value;
-                int ret = find_var_value(varname, query, &value);
-                if (ret != 0)
-                    return EXP_ERR_QUERYNVVAR_NOT_FOUND;
-				
-				int lll = strlen(value);
-				printf("%s, %d, %d, %s\n", out, o, lll, varname);
-                out = (char *) realloc(out, o+lll*+3);
-				if (out == NULL)
+			// resolve query and env variables
+			} else { // variable
+				ret = find_var_value(varname, query, &result);
+				if (ret == 1)
+					return EXP_ERR_QUERYNVVAR_NOT_FOUND;
+				ret = append_resize(out, result, buffer_length, BLOCKSIZE);
+				if (ret == 0)
 					return EXP_ERR_REALLOC;
-                out[o] = 0;
-                strcat(out, value);
-                o += lll;
 				
+				buffer_length = ret;
 			}
 			
 			has_colon = 0;
@@ -239,11 +238,13 @@ int expand_vars(char** str, struct nvlist_list* query) {
 		if (str[0][i] == '=') has_equal = 1;
 		
 		if (open == 0) {
-			out = (char *) realloc(out, o+1);
-			if (out == NULL)
+			char append[2];
+			append[0] = str[0][i];
+			append[1] = 0;
+			ret = append_resize(out, append, buffer_length, BLOCKSIZE);
+			if (ret == 0)
 				return EXP_ERR_REALLOC;
-			out[o++] = str[0][i];
-			out[o] = 0;
+			buffer_length = ret;
 		}
 	}
 	
@@ -255,20 +256,18 @@ int expand_vars(char** str, struct nvlist_list* query) {
 
 #ifdef CMD_PARSER_MAIN
 int main(int argc, char*argv[]) {
-	printf("Startup ....\n");
 	int ret = 0;
 	int i = 0;
 	int res;
 	
 	// FIXME: an url with the length of 38/39 bytes will result in a return 
 	//        code 127, example "proto:auth/path?name1=vaue1&name2=va11"
-	char* uri = (char*) "proto:auth/path?name1=vaue1&name2=va112";
-	char* cmd = (char*) "${env.HOME}\\notepad.exe /A \"${name1}\" ${ env.USERNAME != name2 : --debug }";
+	char* uri = (char*) "proto:auth/path?name1=vaue1&name2=va123456";
+	char* cmd = (char*) "${env.HOME}\\notepad.exe /A \"${name1}\" ${name2} ${ env.USERNAME != name2 : --debug }";
 	
 	struct t_uri uri_parsed = uriparse_create(uri);
-	printf("before parse\n");
 	res = uriparse_parse(uri, &uri_parsed);
-	printf("res: %s\n", res);
+	printf("res: %d\n", res);
 	if (res != 0) {
 		ret = 127+res;
 		printf("Parser Error %d, %s\n", res, uri);
