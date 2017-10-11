@@ -4,7 +4,7 @@
 extern char **environ;
 
 // can hold one ini file entry
-#define DEFAULT_CONFIG { "", "", "", "", "", "", "", "", 0}
+#define DEFAULT_CONFIG { "", "", "", "", "", "", "", "", "", 0}
 typedef struct {
 	const char* section; // the section we are searchin for
 	const char* default_path;
@@ -15,6 +15,7 @@ typedef struct {
 	const char* replace_file;
 	const char* replace_regex;
 	const char* params_transform;
+	const char* cmd;
 	const char* exe;
 	int found; // 1 if the section was found. initialize it to 0 otherwise
 } configuration;
@@ -339,6 +340,8 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "exe: %s", config.exe); 
 		writelog(3, logbuffer);
+		sprintf(logbuffer, "cmd: %s", config.cmd); 
+		writelog(3, logbuffer);
 		sprintf(logbuffer, "found: %d", config.found); 
 		writelog(3, logbuffer);
 	}
@@ -638,6 +641,9 @@ static int ini_callback(void* user, const char* section, const char* name,
 			pconfig->found = 1;
 		} else if (MATCH(section, "exe")) {
 			pconfig->exe = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "cmd")) {
+			pconfig->cmd = strdup(value);
 			pconfig->found = 1;
 		} else if (MATCH(section, "replace_file")) {
 			pconfig->replace_file = strdup(value);
