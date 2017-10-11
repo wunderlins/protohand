@@ -61,6 +61,23 @@
 extern "C" {
 #endif
 
+// can hold one ini file entry
+#define DEFAULT_CONFIG { "", "", "", "", "", "", "", "", "", 0}
+typedef struct {
+	const char* section; // the section we are searchin for
+	const char* default_path;
+	const char* allowed_params;
+	const char* path_params;
+	const char* params_prepend;
+	const char* params_append;
+	const char* replace_file;
+	const char* replace_regex;
+	const char* params_transform;
+	const char* cmd;
+	const char* exe;
+	int found; // 1 if the section was found. initialize it to 0 otherwise
+} configuration;
+
 static int ini_callback(void* user, const char* section, const char* name, const char* value);
 int create_ini(char* ini_file);
 //void define_error_messages();

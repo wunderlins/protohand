@@ -3,23 +3,6 @@
 //const char* empty = "";
 extern char **environ;
 
-// can hold one ini file entry
-#define DEFAULT_CONFIG { "", "", "", "", "", "", "", "", "", 0}
-typedef struct {
-	const char* section; // the section we are searchin for
-	const char* default_path;
-	const char* allowed_params;
-	const char* path_params;
-	const char* params_prepend;
-	const char* params_append;
-	const char* replace_file;
-	const char* replace_regex;
-	const char* params_transform;
-	const char* cmd;
-	const char* exe;
-	int found; // 1 if the section was found. initialize it to 0 otherwise
-} configuration;
-
 /**
  * Display usage
  */
@@ -204,7 +187,6 @@ int main(int argc, char** argv, char **envp) {
 	
 	define_error_messages();
 	
-	
 	// find the current directory of the executable
 	char *dir = (char*) malloc(sizeof(char*) * (MAX_CWD_LENGTH+1));
 	int r = exedir(argv[0], dir);
@@ -212,6 +194,12 @@ int main(int argc, char** argv, char **envp) {
 		fprintf(stderr, "Failed to find current directory, error: %d\n", r);
 		return display_error(NO_CURRENTDIR);
 	}
+	
+	// set an environment Variable with our directroy path
+	char env[strlen(dir)+9] = {0};
+	strcat(env, "PH_HOME=");
+	strcat(env, dir);
+	putenv(env);
 	
 	// open log file
 	char log_file[MAX_CWD_LENGTH];
