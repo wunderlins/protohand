@@ -69,6 +69,7 @@ errstr:
 create_error: errstr
 	$(CC) $(CFLAGS) -o create_error.exe lib/errstr.o create_error.c
 	./create_error.exe
+	cp generated/error.html error.html
 	
 max_path:
 	$(CC) $(CFLAGS) -o bin/MAX_CWD_LENGTH.exe bin/MAX_CWD_LENGTH.c
