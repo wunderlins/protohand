@@ -610,9 +610,13 @@ int main(int argc, char** argv, char **envp) {
 	
 	if (ret != 0) {
 		//printf("Error parsing cmd: %d\n", ret);
+		sprintf(logbuffer, "%s", errstr[ret+32]);
+		writelog(1, logbuffer);
 		return display_error(ret+32);
 	}
 	
+	// TODO: check path parameters
+	// TODO: run command, might have to split it
 	printf("out: %s\n", cmd);
 	
 	return OK;
