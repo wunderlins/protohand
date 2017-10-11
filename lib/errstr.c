@@ -1,10 +1,11 @@
 #include "errstr.h"
-char* errstr[255] = { NULL };
 
 /* Make this header file easier to include in C++ code */
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+char* errstr[255] = { NULL };
 
 void define_error_messages() {
 	errstr[0] = "Ok";
@@ -24,6 +25,7 @@ void define_error_messages() {
 	
 	errstr[13] = "Failed to find ini Section.";
 	errstr[14] = "Failed to expand environment variable.";
+	errstr[15] = "Missing `cmd` directive in ini file.";
 	
 	errstr[128] = "Failed to parse URI, protocol missing.";
 	errstr[129] = "Failed to parse URI, authority missing.";

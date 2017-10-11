@@ -54,6 +54,7 @@
 
 #define NO_INI_SECTION_FOUND 13
 #define FAILED_TO_EXPAND_ENV 14
+#define NO_CMD_DIRECTIVE 15
 
 
 /* Make this header file easier to include in C++ code */
@@ -61,18 +62,17 @@
 extern "C" {
 #endif
 
+extern char* errstr[];
+
 // can hold one ini file entry
-#define DEFAULT_CONFIG { "", "", "", "", "", "", "", "", "", 0}
+#define DEFAULT_CONFIG { "", "", "", "", "", "", "", "", 0}
 typedef struct {
 	const char* section; // the section we are searchin for
 	const char* default_path;
 	const char* allowed_params;
 	const char* path_params;
-	const char* params_prepend;
-	const char* params_append;
 	const char* replace_file;
 	const char* replace_regex;
-	const char* params_transform;
 	const char* cmd;
 	const char* exe;
 	int found; // 1 if the section was found. initialize it to 0 otherwise

@@ -43,9 +43,10 @@ int display_error(int code) {
 	strcat(exe, getenv("windir"));
 	strcat(exe, "\\System32\\cmd.exe");
 	spawnve(P_NOWAIT, exe, (char* const*) myargs, (char* const*) environ);
-	//printf("spawnv %d\n", ret);
 	
-	// TODO: return message to stderr
+	//define_error_messages();
+	//fprintf(stderr, "%s\n", errstr[code]);
+	fprintf(stderr, "Error: %d, %s\n", code, errstr[code]);
 	
 	return code;
 }
@@ -318,10 +319,6 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "path_params: %s", config.path_params); 
 		writelog(3, logbuffer);
-		sprintf(logbuffer, "params_prepend: %s", config.params_prepend); 
-		writelog(3, logbuffer);
-		sprintf(logbuffer, "params_append: %s", config.params_append); 
-		writelog(3, logbuffer);
 		sprintf(logbuffer, "replace_file: %s", config.replace_file); 
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "replace_regex: %s", config.replace_regex); 
@@ -341,22 +338,30 @@ int main(int argc, char** argv, char **envp) {
 		return display_error(NO_INI_SECTION_FOUND);
 	}
 	
+	if (strcmp(config.exe, "") == 0)
+		return display_error(NO_CMD_DIRECTIVE);
+	
 	// expand environment variables
+	/*
 	ret = expenv((char**) &config.exe);
 	if (ret != 0) {
 		return display_error(FAILED_TO_EXPAND_ENV);;
 	}
-
+	*/
+	
+	// FIXME: use new variable expansion mechanism
 	ret = expenv((char**) &config.default_path);
 	if (ret != 0) {
-		return display_error(FAILED_TO_EXPAND_ENV);;
+		return display_error(FAILED_TO_EXPAND_ENV);
 	}
 
+	// FIXME: use new variable expansion mechanism
 	ret = expenv((char**) &config.replace_file);
 	if (ret != 0) {
-		return display_error(FAILED_TO_EXPAND_ENV);;
+		return display_error(FAILED_TO_EXPAND_ENV);
 	}
 	
+	/*
 	struct {
 		int exe;
 		int default_path;
@@ -393,6 +398,7 @@ int main(int argc, char** argv, char **envp) {
 	}
 	//printf("-> exe: %s\n", config.exe);
 	//return 0;
+	*/
 	
 	// do file content replacement
 	if (strcmp(config.replace_file, "") != 0) {
@@ -415,9 +421,9 @@ int main(int argc, char** argv, char **envp) {
 		}
 	}
 	
-	char space[2] = " ";
 	// TODO: check env parameters
 	
+	/* Obsolete
 	// replace url parameter names with cmd args
 	if (strcmp(config.params_transform, "") != 0) {
 		struct str_array pairs = str_array_split((char*) config.params_transform, space);
@@ -463,8 +469,6 @@ int main(int argc, char** argv, char **envp) {
 	
 	// create the arguments array
 	// TODO: Document limitation
-	char **params = (char**) malloc(sizeof(char*) * MAX_PARAMS);
-	int params_length = 0;
 	
 	//printf("End %d, %s\n", params_prepend.length, params_prepend.items[0]);
 	
@@ -539,6 +543,9 @@ int main(int argc, char** argv, char **envp) {
 	}
 	
 	// NULL delimit list
+	char space[2] = " ";
+	int params_length = 0;
+	char **params = (char**) malloc(sizeof(char*) * MAX_PARAMS);
 	params[params_length] = NULL;
 	
 	// create params array
@@ -593,6 +600,9 @@ int main(int argc, char** argv, char **envp) {
 		writelog(1, logbuffer);
 		fprintf(stderr, "%s\n", logbuffer);
 	}
+	*/
+	
+	printf("cmd: %s\n", config.cmd);
 	
 	return OK;
 }
@@ -621,12 +631,6 @@ static int ini_callback(void* user, const char* section, const char* name,
 		} else if (MATCH(section, "path_params")) {
 			pconfig->path_params = strdup(value);
 			pconfig->found = 1;
-		} else if (MATCH(section, "params_prepend")) {
-			pconfig->params_prepend = strdup(value);
-			pconfig->found = 1;
-		} else if (MATCH(section, "params_append")) {
-			pconfig->params_append = strdup(value);
-			pconfig->found = 1;
 		} else if (MATCH(section, "exe")) {
 			pconfig->exe = strdup(value);
 			pconfig->found = 1;
@@ -639,10 +643,11 @@ static int ini_callback(void* user, const char* section, const char* name,
 		} else if (MATCH(section, "replace_regex")) {
 			pconfig->replace_regex = strdup(value);
 			pconfig->found = 1;
-		} else if (MATCH(section, "params_transform")) {
-			pconfig->params_transform = strdup(value);
-			pconfig->found = 1;
 		} else {
+			sprintf(logbuffer, "Found unknown directive '%s' with value '%s' "
+			                   "in ini file.", name, value); 
+			writelog(1, logbuffer);
+			fprintf(stderr, "%s\n", logbuffer);
 			return 0;
 		}
 		
