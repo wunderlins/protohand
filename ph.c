@@ -417,6 +417,7 @@ int main(int argc, char** argv, char **envp) {
 			        config.replace_file, config.replace_regex);
 			writelog(1, logbuffer);
 			fprintf(stderr, "%s\n", logbuffer);
+			// FIXME: use display_error
 			return ret;
 		}
 	}
@@ -603,6 +604,16 @@ int main(int argc, char** argv, char **envp) {
 	*/
 	
 	printf("cmd: %s\n", config.cmd);
+	char* cmd = (char*) malloc(sizeof(char*) * (strlen(config.cmd)+1));
+	strcpy(cmd, config.cmd);
+	ret = expand_vars(&cmd, &uri_parsed.nvquery);
+	
+	if (ret != 0) {
+		//printf("Error parsing cmd: %d\n", ret);
+		return display_error(ret+32);
+	}
+	
+	printf("out: %s\n", cmd);
 	
 	return OK;
 }
