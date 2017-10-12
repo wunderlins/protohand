@@ -89,7 +89,6 @@ int create_ini(char* ini_file);
 //void define_error_messages();
 void writelog(int level, char* str);
 int display_error(int code);
-static int ini_callback(void* user, const char* section, const char* name, const char* value);
 
 #ifdef __cplusplus
 }

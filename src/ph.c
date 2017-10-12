@@ -97,6 +97,7 @@ int replace(const char* file, const char* regex) {
 	return OK;
 }
 
+/*
 int expenv(char** str) {
 	int i, o, open, start;
 	int l = strlen(str[0]);
@@ -156,6 +157,7 @@ int expenv(char** str) {
 	
 	return 0;
 }
+*/
 
 #ifndef PH_NO_MAIN
 //char **environ;
@@ -197,8 +199,8 @@ int main(int argc, char** argv, char **envp) {
 	strcat(ini_file, INI_FILE_NAME);
 	if( access(ini_file, F_OK) == -1 ) {
 		// file doesn't exist, create it
-		int ret = create_ini(ini_file);
-		return display_error(ret);
+		ret = create_ini(ini_file);
+		return OK;
 	}
 	
 	// check input
@@ -225,20 +227,21 @@ int main(int argc, char** argv, char **envp) {
 	//struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	struct t_uri uri_parsed = uriparse_create(argv[1]);
 	res = uriparse_parse(argv[1], &uri_parsed);
+	//printf("res: %d\n", res);
 	if (res != 0) {
 		ret = 127+res;
 		const char *err;
-		if (ret == FOUND_PROTO)
+		if (res == FOUND_PROTO)
 			err = "Failed to find protocol delimiter ':'";
-		else if (ret == FOUND_AUTHORITY)
+		else if (res == FOUND_AUTHORITY)
 			err = "Failed to extract authority";
-		else if (ret == FOUND_PATH)
+		else if (res == FOUND_PATH)
 			err = "Failed to find the path";
-		else if (ret == FOUND_QUERY)
+		else if (res == FOUND_QUERY)
 			err = "Failed to parse the query";
-		else if (ret == FOUND_FRAGMENT)
+		else if (res == FOUND_FRAGMENT)
 			err = "Failed to parse the fragment";
-		else if (ret == FOUND_END)
+		else if (res == FOUND_END)
 			err = "Failed to find the end";
 
 		sprintf(logbuffer, "URI Parser Error %d, %s, %s", res, err, argv[1]);
