@@ -100,7 +100,7 @@ Add additional parameters to the command line after the parameters that are pass
   - [ ] logging
   - [ ] global exe wrappers (ie. prefix `cmd /c ...` for windows)
   - [ ] error display prefix (ie. `cmd /c hh.exe -800 ...`)
-  - [ ] make sure the logfile does not exceed a certain size
+  - [x] make sure the logfile does not exceed a certain size
 - [ ] finalize documentation
   - [ ] document program execution steps
   - [ ] update example reg file
