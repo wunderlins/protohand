@@ -365,6 +365,21 @@ char isquoted(char* str) {
 	return 0;
 }
 
+int quote(char** str) {
+	int l = strlen(*str);
+	char *result = malloc(sizeof(char*) * (l+3));
+	if (result == NULL)
+		return 1;
+	
+	strcpy(result, "\"");
+	strcat(result, *str);
+	strcat(result, "\"");
+	
+	*str = result;
+	
+	return 0;
+}
+
 /**
  * Quote a string to be used on cmd.exe
  *

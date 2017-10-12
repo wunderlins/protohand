@@ -602,7 +602,6 @@ int main(int argc, char** argv, char **envp) {
 	}
 	*/
 	
-	printf("cmd: %s\n", config.cmd);
 	char* cmd = (char*) malloc(sizeof(char*) * (strlen(config.cmd)+1));
 	strcpy(cmd, config.cmd);
 	ret = expand_vars(&cmd, &uri_parsed.nvquery);
@@ -626,13 +625,20 @@ int main(int argc, char** argv, char **envp) {
 	myargs[0] = (char*) "/c";
 	myargs[1] = (char*) cmd;
 	myargs[2] = NULL;
-
+	
+	// FIXME: quoted paths with spaces are not run by 
+	//         cmd.exe
+	quote(&myargs[1]);
+	printf("cmd: %s\n", myargs[1]);
 	ret = spawnve(P_NOWAIT, exe, myargs, environ);
 	if (ret < 0) {
 		sprintf(logbuffer, "spawnve() returned error: %d", ret);
 		writelog(1, logbuffer);
 		fprintf(stderr, "%s\n", logbuffer);
 	}
+	
+	
+	//system(myargs[1]);
 
 	sprintf(logbuffer, "Success: %s /c %s", exe, myargs[1]);
 	writelog(1, logbuffer);
