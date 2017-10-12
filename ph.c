@@ -637,7 +637,7 @@ int main(int argc, char** argv, char **envp) {
 		fprintf(stderr, "%s\n", logbuffer);
 	}
 
-	sprintf(logbuffer, "Success: %d", exe);
+	sprintf(logbuffer, "Success: %s", exe);
 	writelog(1, logbuffer);
 	
 	return OK;
