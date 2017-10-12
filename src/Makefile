@@ -47,6 +47,14 @@ export
 # build the programm
 all: clean create_error max_path doc icon dep ph testcmd testregex
 
+test: # dep
+	$(CC) $(CFLAGS) -DCMD_PARSER_MAIN -o ../test/cmd_parser$(_EXT) lib/stringlib.o lib/nvlist.o lib/uriparse.o lib/cmd_parser.c 
+	$(CC) $(CFLAGS) -o ../test/mydir.exe $(REALPATH) -DMYDIR_MAIN lib/mydir.c
+	$(CC) $(CFLAGS) -D NVLIST_MAIN -o ../test/nvlist$(_EXT) lib/stringlib.o lib/nvlist.c
+	g++ -o ../test/regcpp.exe lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
+	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
+	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -o ../test/uriparse.exe lib/nvlist.o lib/stringlib.o lib/uriparse.o
+
 dep: regexcpp errstr
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
