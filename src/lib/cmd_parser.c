@@ -149,6 +149,8 @@ int append_resize(char* string, char* append, int bufflength, int blocksize) {
 	return bufflength;
 }
 
+char* expandvar_err_var_name = "";
+
 int expand_vars(char** str, struct nvlist_list* query) {
 	int i, open, start;
 	int l = strlen(str[0]);
@@ -210,8 +212,10 @@ int expand_vars(char** str, struct nvlist_list* query) {
 			// resolve query and env variables
 			} else { // variable
 				ret = find_var_value(varname, query, &result);
-				if (ret == 1)
+				if (ret == 1) {
+					expandvar_err_var_name = varname;
 					return EXP_ERR_QUERYNVVAR_NOT_FOUND;
+				}
 				ret = append_resize(out, result, buffer_length, BLOCKSIZE);
 				if (ret == 0)
 					return EXP_ERR_REALLOC;

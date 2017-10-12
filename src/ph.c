@@ -158,6 +158,7 @@ int expenv(char** str) {
 	return 0;
 }
 */
+extern char* expandvar_err_var_name;
 
 #ifndef PH_NO_MAIN
 //char **environ;
@@ -365,6 +366,7 @@ int main(int argc, char** argv, char **envp) {
 			return MISSING_REGEX;
 		}
 		
+		// FIXME: check if we find a sane way to handle quotes in filenames
 		cmdunquote((char**) &config.replace_file);
 		ret = replace(config.replace_file, config.replace_regex);
 		
@@ -383,9 +385,10 @@ int main(int argc, char** argv, char **envp) {
 	strcpy(cmd, config.cmd);
 	ret = expand_vars(&cmd, &uri_parsed.nvquery);
 	
+	// FIXME: add information in error message which variable failed to expand.
 	if (ret != 0) {
 		//printf("Error parsing cmd: %d\n", ret);
-		sprintf(logbuffer, "%s", errstr[ret+32]);
+		sprintf(logbuffer, "%s, varname=%s", errstr[ret+32], expandvar_err_var_name);
 		writelog(1, logbuffer);
 		return display_error(ret+32);
 	}
