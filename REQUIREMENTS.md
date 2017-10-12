@@ -26,9 +26,16 @@ has to be taken when pasing in path information.
 
 ## Ini file directives
 
-### exe
+### ~~exe~~
 Absolute path to the executable. The path might use environment variables 
 in the form of `${windir}\System32`. Case of the variable name *does* matter.
+
+- Environment variable expansion: yes
+
+### cmd
+A template of the command to be executed. You must use absolute paths to files.
+Environment variables in the form of ${env.VARNAME} will be expanded. URI query
+parameters in the form of ${paramname} will also be epxanded.
 
 - Environment variable expansion: yes
 
@@ -40,7 +47,7 @@ paths may not start with `..`. A path which does not start with `[^A-Z:]`,
 
 - Environment variable expansion: yes
 
-### params_transform
+### ~~params_transform~~
 Mapping query parameter names to command line parameters. Passing a query 
 string `?file=somefile.txt` might need to be converted into `/f somefile.txt`
 on the command line. The syntax used in this directive is:
@@ -65,10 +72,10 @@ See [Overview of Regular Expression Syntax][3] for more information on Posix reg
 
 - Environment variable expansion: no
 
-### params_prepend
+### ~~params_prepend~~
 Add additional parameters to the command line before the parameters that are passed in via query.
 
-### params_append
+### ~~params_append~~
 Add additional parameters to the command line after the parameters that are passed in via query.
 
 ## Goals

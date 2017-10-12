@@ -1,0 +1,61 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>ph Error</title>
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<style>
+		body {font-family: arial, helvetica, sans;}
+		h1 {border-bottom: 1px solid gray;}
+		.detail {display: none;}
+	</style>
+</head>
+
+<body>
+	<h1>Error: <span id="code"></span></h1>
+	<p id="description"></p>
+	
+	<div>
+		<div class="detail" id="err0">Ok</div>
+		<div class="detail" id="err1">Argument 1 missing.</div>
+		<div class="detail" id="err2">Failed to find current directory. getcwd() or realpath() failed to resolve the app directory.</div>
+		<div class="detail" id="err3">Failed to create ph.ini, permission denied.</div>
+		<div class="detail" id="err4">Failed to create ph.ini, unable to write to file.</div>
+		<div class="detail" id="err5">Failed to parse ini file.</div>
+		<div class="detail" id="err6">Wrong path or program is not executable.</div>
+		<div class="detail" id="err7">No inisection found.</div>
+		<div class="detail" id="err8">While generating the commandline string, too many arguments were passed in via query and/or configuration. The limit is: MAX_PARAMS.</div>
+		<div class="detail" id="err9">Failed to open file for replacement.</div>
+		<div class="detail" id="err10">Failed to parse regular expression.</div>
+		<div class="detail" id="err11">Could not allocate enough memmory to read the file into RAM for replacement.</div>
+		<div class="detail" id="err12">replace_file set but replace_regex empty or missing.</div>
+		<div class="detail" id="err13">Failed to find ini Section.</div>
+		<div class="detail" id="err14">Failed to expand environment variable.</div>
+		<div class="detail" id="err15">Missing `cmd` directive in ini file.</div>
+		<div class="detail" id="err33">No equal sign found in expression expansion.</div>
+		<div class="detail" id="err34">No colon found in expression expansion.</div>
+		<div class="detail" id="err35">Failed to dynamically allocate memmory while expanding variables (malloc).</div>
+		<div class="detail" id="err36">Ennvironment variable not found while trying to expand.</div>
+		<div class="detail" id="err37">Query parameter not found while expaning.</div>
+		<div class="detail" id="err38">Failed to dynamically allocate memmory while expanding variables (realloc).</div>
+		<div class="detail" id="err128">Failed to parse URI, protocol missing.</div>
+		<div class="detail" id="err129">Failed to parse URI, authority missing.</div>
+		<div class="detail" id="err130">Failed to parse URI, error in query string.</div>
+		<div class="detail" id="err131">Failed to parse URI, error in fragment.</div>
+
+	</div>
+	<br/>
+	<hr size="1"/>
+	<em><small>Check the error log for more information.</small></em>
+	
+</body>
+<script type="text/javascript">
+var code = window.location.search.slice(1);
+document.getElementById("code").innerHTML = code;
+try {
+	document.getElementById("err"+code).style.display = "block";
+} catch (e) {;}
+</script>
+</html>

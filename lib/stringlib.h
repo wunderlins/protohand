@@ -14,6 +14,7 @@ struct str_array {
 };
 
 char *trim(char *str);
+char *trim2(char *str);
 int split(char* string, char* delim, char** result, int *count);
 int findchar(const char* allowed, const char* string);
 int find_substr(char* string, char* search);
@@ -34,6 +35,7 @@ void urldecode2(char*, const char*);
 void hex_dump(char *desc, void *addr, int len);
 
 char isquoted(char* str);
+int quote(char** str);
 int cmdquote(char** str);
 int cmdunquote(char** str);
 

@@ -28,6 +28,23 @@ char *trim(char *str) {
 	return str;
 }
 
+char* trim2(char* b) {
+	char *out;
+	out = b;
+	//printf("in trim, out: %s\n", out);
+	int len;
+	len = strlen(out);
+	int i;
+
+	for (i=len-1; i >= 0; i--) {
+		if(out[i] != ' ') break;
+	}
+
+	//printf("i: %d\n", i);
+	out[i+1] = '\0';
+	return out;
+}
+
 int split(char* string, char* delim, char** result, int *count) {
 
 	//char buf[] =" abc / qwe / ccd ";
@@ -345,6 +362,21 @@ char isquoted(char* str) {
 			return '\'';
 		return 0;
 	}
+	return 0;
+}
+
+int quote(char** str) {
+	int l = strlen(*str);
+	char *result = malloc(sizeof(char*) * (l+3));
+	if (result == NULL)
+		return 1;
+	
+	strcpy(result, "\"");
+	strcat(result, *str);
+	strcat(result, "\"");
+	
+	*str = result;
+	
 	return 0;
 }
 

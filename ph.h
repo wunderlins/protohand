@@ -25,6 +25,7 @@
 #include "lib/nvlist.h"
 #include "lib/uriparse.h"
 #include "lib/regcpp.h"
+#include "lib/cmd_parser.h"
 
 #include "generated/example_ini.h"
 #include "generated/README.h"
@@ -53,12 +54,35 @@
 
 #define NO_INI_SECTION_FOUND 13
 #define FAILED_TO_EXPAND_ENV 14
+#define NO_CMD_DIRECTIVE 15
+
+#define PH_EXP_ERR_NO_EQUAL (EXP_ERR_NO_EQUAL+32) 
+#define PH_EXP_ERR_NO_COLON (EXP_ERR_NO_COLON+32)
+#define PH_EXP_ERR_MALLOC (EXP_ERR_MALLOC+32)
+#define PH_EXP_ERR_ENVVAR_NOT_FOUND (EXP_ERR_ENVVAR_NOT_FOUND+32) 
+#define PH_EXP_ERR_QUERYNVVAR_NOT_FOUND (EXP_ERR_QUERYNVVAR_NOT_FOUND+32) 
+#define PH_EXP_ERR_REALLOC (EXP_ERR_REALLOC+32)
 
 
 /* Make this header file easier to include in C++ code */
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+extern char* errstr[];
+
+// can hold one ini file entry
+#define DEFAULT_CONFIG { "", "", "", "", "", "", "", 0}
+typedef struct {
+	const char* section; // the section we are searchin for
+	const char* default_path;
+	const char* allowed_params;
+	const char* path_params;
+	const char* replace_file;
+	const char* replace_regex;
+	const char* cmd;
+	int found; // 1 if the section was found. initialize it to 0 otherwise
+} configuration;
 
 static int ini_callback(void* user, const char* section, const char* name, const char* value);
 int create_ini(char* ini_file);

@@ -1,10 +1,11 @@
 #include "errstr.h"
-char* errstr[255] = { NULL };
 
 /* Make this header file easier to include in C++ code */
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+char* errstr[255] = { NULL };
 
 void define_error_messages() {
 	errstr[0] = "Ok";
@@ -24,6 +25,14 @@ void define_error_messages() {
 	
 	errstr[13] = "Failed to find ini Section.";
 	errstr[14] = "Failed to expand environment variable.";
+	errstr[15] = "Missing `cmd` directive in ini file.";
+
+	errstr[33] = "No equal sign found in expression expansion.";
+	errstr[34] = "No colon found in expression expansion.";
+	errstr[35] = "Failed to dynamically allocate memmory while expanding variables (malloc).";
+	errstr[36] = "Ennvironment variable not found while trying to expand.";
+	errstr[37] = "Query parameter not found while expaning.";
+	errstr[38] = "Failed to dynamically allocate memmory while expanding variables (realloc).";
 	
 	errstr[128] = "Failed to parse URI, protocol missing.";
 	errstr[129] = "Failed to parse URI, authority missing.";

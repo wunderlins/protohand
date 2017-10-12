@@ -3,22 +3,6 @@
 //const char* empty = "";
 extern char **environ;
 
-// can hold one ini file entry
-#define DEFAULT_CONFIG { "", "", "", "", "", "", "", "", 0}
-typedef struct {
-	const char* section; // the section we are searchin for
-	const char* default_path;
-	const char* allowed_params;
-	const char* path_params;
-	const char* params_prepend;
-	const char* params_append;
-	const char* replace_file;
-	const char* replace_regex;
-	const char* params_transform;
-	const char* exe;
-	int found; // 1 if the section was found. initialize it to 0 otherwise
-} configuration;
-
 /**
  * Display usage
  */
@@ -59,9 +43,12 @@ int display_error(int code) {
 	strcat(exe, getenv("windir"));
 	strcat(exe, "\\System32\\cmd.exe");
 	spawnve(P_NOWAIT, exe, (char* const*) myargs, (char* const*) environ);
-	//printf("spawnv %d\n", ret);
 	
-	// TODO: return message to stderr
+	//define_error_messages();
+	//fprintf(stderr, "%s\n", errstr[code]);
+	fprintf(stderr, "Error: %d, %s\n", code, errstr[code]);
+	sprintf(logbuffer, "Error: %d, %s", code, errstr[code]);
+	writelog(1, logbuffer);
 	
 	return code;
 }
@@ -175,12 +162,33 @@ int expenv(char** str) {
 int main(int argc, char** argv, char **envp) {
 	environ = envp;
 	
-	define_error_messages();
-	
 	int i = 0;
-	int ii = 0;
+	//int ii = 0;
 	int l = 0;
 	int ret = 0;
+	int res;
+	
+	/*
+	// cmd parser test
+	char* uri = (char*) "proto:auth/path?name1=vaue1&name2=wus";
+	char* cmd = (char*) "${env.HOME}\\notepad.exe /A \"${name1}\" ${name2} ${ env.USERNAME != name2 : --debug }";
+	struct t_uri urit = uriparse_create(uri);
+	
+	urit = uriparse_create(uri);
+	res = uriparse_parse(uri, &urit);
+	//printf("res: %d\n", res);
+	if (res != 0) {
+		ret = 127+res;
+		printf("Parser Error %d, %s\n", res, uri);
+		return ret;
+	}
+	
+	ret = expand_vars(&cmd, &urit.nvquery);
+	printf("out: %s\n", cmd);
+	return 0;
+	*/
+	
+	define_error_messages();
 	
 	// find the current directory of the executable
 	char *dir = (char*) malloc(sizeof(char*) * (MAX_CWD_LENGTH+1));
@@ -189,6 +197,13 @@ int main(int argc, char** argv, char **envp) {
 		fprintf(stderr, "Failed to find current directory, error: %d\n", r);
 		return display_error(NO_CURRENTDIR);
 	}
+	
+	// set an environment Variable with our directroy path
+	char env[strlen(dir)+9] = {0};
+	strcat(env, "PH_HOME=");
+	strcat(env, dir);
+	env[strlen(env)-1] = 0;
+	putenv(env);
 	
 	// open log file
 	char log_file[MAX_CWD_LENGTH];
@@ -227,7 +242,6 @@ int main(int argc, char** argv, char **envp) {
 	writelog(2, logbuffer);
 	
 	// parse uri
-	int res;
 	//struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	struct t_uri uri_parsed = uriparse_create(argv[1]);
 	res = uriparse_parse(argv[1], &uri_parsed);
@@ -308,15 +322,11 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "path_params: %s", config.path_params); 
 		writelog(3, logbuffer);
-		sprintf(logbuffer, "params_prepend: %s", config.params_prepend); 
-		writelog(3, logbuffer);
-		sprintf(logbuffer, "params_append: %s", config.params_append); 
-		writelog(3, logbuffer);
 		sprintf(logbuffer, "replace_file: %s", config.replace_file); 
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "replace_regex: %s", config.replace_regex); 
 		writelog(3, logbuffer);
-		sprintf(logbuffer, "exe: %s", config.exe); 
+		sprintf(logbuffer, "cmd: %s", config.cmd); 
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "found: %d", config.found); 
 		writelog(3, logbuffer);
@@ -329,22 +339,28 @@ int main(int argc, char** argv, char **envp) {
 		return display_error(NO_INI_SECTION_FOUND);
 	}
 	
-	// expand environment variables
-	ret = expenv((char**) &config.exe);
-	if (ret != 0) {
-		return display_error(FAILED_TO_EXPAND_ENV);;
-	}
-
-	ret = expenv((char**) &config.default_path);
-	if (ret != 0) {
-		return display_error(FAILED_TO_EXPAND_ENV);;
-	}
-
-	ret = expenv((char**) &config.replace_file);
-	if (ret != 0) {
-		return display_error(FAILED_TO_EXPAND_ENV);;
-	}
+	if (strcmp(config.cmd, "") == 0)
+		return display_error(NO_CMD_DIRECTIVE);
 	
+	// expand environment variables
+	
+	char* default_path = (char*) malloc(sizeof(char*) * (strlen(config.default_path)+1));
+	strcpy(default_path, config.default_path);
+	ret = expand_vars(&default_path, &uri_parsed.nvquery);
+	if (ret != 0) {
+		return display_error(FAILED_TO_EXPAND_ENV);
+	}
+	config.default_path = default_path;
+	
+	char* replace_file = (char*) malloc(sizeof(char*) * (strlen(config.replace_file)+1));
+	strcpy(replace_file, config.replace_file);
+	ret = expand_vars(&replace_file, &uri_parsed.nvquery);
+	if (ret != 0) {
+		return display_error(FAILED_TO_EXPAND_ENV);
+	}
+	config.replace_file = replace_file;
+	
+	/*
 	struct {
 		int exe;
 		int default_path;
@@ -381,6 +397,7 @@ int main(int argc, char** argv, char **envp) {
 	}
 	//printf("-> exe: %s\n", config.exe);
 	//return 0;
+	*/
 	
 	// do file content replacement
 	if (strcmp(config.replace_file, "") != 0) {
@@ -399,13 +416,14 @@ int main(int argc, char** argv, char **envp) {
 			        config.replace_file, config.replace_regex);
 			writelog(1, logbuffer);
 			fprintf(stderr, "%s\n", logbuffer);
+			// FIXME: use display_error
 			return ret;
 		}
 	}
 	
-	char space[2] = " ";
 	// TODO: check env parameters
 	
+	/* Obsolete
 	// replace url parameter names with cmd args
 	if (strcmp(config.params_transform, "") != 0) {
 		struct str_array pairs = str_array_split((char*) config.params_transform, space);
@@ -451,8 +469,6 @@ int main(int argc, char** argv, char **envp) {
 	
 	// create the arguments array
 	// TODO: Document limitation
-	char **params = (char**) malloc(sizeof(char*) * MAX_PARAMS);
-	int params_length = 0;
 	
 	//printf("End %d, %s\n", params_prepend.length, params_prepend.items[0]);
 	
@@ -527,6 +543,9 @@ int main(int argc, char** argv, char **envp) {
 	}
 	
 	// NULL delimit list
+	char space[2] = " ";
+	int params_length = 0;
+	char **params = (char**) malloc(sizeof(char*) * MAX_PARAMS);
 	params[params_length] = NULL;
 	
 	// create params array
@@ -581,6 +600,48 @@ int main(int argc, char** argv, char **envp) {
 		writelog(1, logbuffer);
 		fprintf(stderr, "%s\n", logbuffer);
 	}
+	*/
+	
+	char* cmd = (char*) malloc(sizeof(char*) * (strlen(config.cmd)+1));
+	strcpy(cmd, config.cmd);
+	ret = expand_vars(&cmd, &uri_parsed.nvquery);
+	
+	if (ret != 0) {
+		//printf("Error parsing cmd: %d\n", ret);
+		sprintf(logbuffer, "%s", errstr[ret+32]);
+		writelog(1, logbuffer);
+		return display_error(ret+32);
+	}
+	
+	// TODO: check path parameters
+	// TODO: run command, might have to split it
+	printf("out: %s\n", cmd);
+	
+	char exe[4096] = "";
+	strcat(exe, getenv("windir"));
+	strcat(exe, "\\System32\\cmd.exe");
+
+	char* myargs[3];
+	myargs[0] = (char*) "/c";
+	myargs[1] = (char*) cmd;
+	myargs[2] = NULL;
+	
+	// FIXME: quoted paths with spaces are not run by 
+	//         cmd.exe
+	quote(&myargs[1]);
+	printf("cmd: %s\n", myargs[1]);
+	ret = spawnve(P_NOWAIT, exe, myargs, environ);
+	if (ret < 0) {
+		sprintf(logbuffer, "spawnve() returned error: %d", ret);
+		writelog(1, logbuffer);
+		fprintf(stderr, "%s\n", logbuffer);
+	}
+	
+	
+	//system(myargs[1]);
+
+	sprintf(logbuffer, "Success: %s /c %s", exe, myargs[1]);
+	writelog(1, logbuffer);
 	
 	return OK;
 }
@@ -609,14 +670,8 @@ static int ini_callback(void* user, const char* section, const char* name,
 		} else if (MATCH(section, "path_params")) {
 			pconfig->path_params = strdup(value);
 			pconfig->found = 1;
-		} else if (MATCH(section, "params_prepend")) {
-			pconfig->params_prepend = strdup(value);
-			pconfig->found = 1;
-		} else if (MATCH(section, "params_append")) {
-			pconfig->params_append = strdup(value);
-			pconfig->found = 1;
-		} else if (MATCH(section, "exe")) {
-			pconfig->exe = strdup(value);
+		} else if (MATCH(section, "cmd")) {
+			pconfig->cmd = strdup(value);
 			pconfig->found = 1;
 		} else if (MATCH(section, "replace_file")) {
 			pconfig->replace_file = strdup(value);
@@ -624,10 +679,11 @@ static int ini_callback(void* user, const char* section, const char* name,
 		} else if (MATCH(section, "replace_regex")) {
 			pconfig->replace_regex = strdup(value);
 			pconfig->found = 1;
-		} else if (MATCH(section, "params_transform")) {
-			pconfig->params_transform = strdup(value);
-			pconfig->found = 1;
 		} else {
+			sprintf(logbuffer, "Found unknown directive '%s' with value '%s' "
+			                   "in ini file.", name, value); 
+			writelog(1, logbuffer);
+			fprintf(stderr, "%s\n", logbuffer);
 			return 0;
 		}
 		

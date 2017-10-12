@@ -4,7 +4,7 @@
 # LOG_TO_FILE=1 will send dbg output to stdout, else to protohand.log
 DEBUG=3
 LOG_TO_FILE=1
-VERSION=0.3.1
+VERSION=0.3.2
 # naming
 PROGNAME = protohand
 PROGNAME_SHORT = ph
@@ -45,19 +45,20 @@ export
 # build the programm
 all: clean create_error max_path doc icon dep ph testcmd testregex
 
-dep: regexcpp 
+dep: regexcpp errstr
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
-
+	$(CC) $(CFLAGS) -c lib/cmd_parser.c -o lib/cmd_parser.o
+	
 regexcpp:
 	g++ $(CFLAGS) -lpcrecpp -lpcre -c -o lib/regcpp.o lib/reg.cpp
 	
 ph:
-	g++ $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/regcpp.o lib/errstr.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o ph.c ico/app.res -lpcrecpp -lpcre -DPCRE_STATIC 
+	g++ $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/regcpp.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o lib/cmd_parser.o lib/errstr.o ph.c ico/app.res -lpcrecpp -lpcre -DPCRE_STATIC 
 
 testregex:
 	g++ $(CFLAGS) -o testregex$(_EXT) $(REALPATH) lib/regcpp.o testregex.c ico/testregex_generated.res -lpcrecpp -lpcre -DPCRE_STATIC 
@@ -68,6 +69,7 @@ errstr:
 create_error: errstr
 	$(CC) $(CFLAGS) -o create_error.exe lib/errstr.o create_error.c
 	./create_error.exe
+	cp generated/error.html error.html
 	
 max_path:
 	$(CC) $(CFLAGS) -o bin/MAX_CWD_LENGTH.exe bin/MAX_CWD_LENGTH.c
@@ -193,7 +195,7 @@ clean:
 usage:
 	echo "// Automatically generated file. Edit README.txt and run " > generated/README.h
 	echo "// 'make usage' to update this documentation!" >> generated/README.h
-	echo "" >> generated/README.h
+	echo -en "\r\n" >> generated/README.h
 	echo "const char* usage_str = \"\"" >> generated/README.h
 	#sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' README.txt >> generated/README.h
 	#sed -i 's/"/\\"/g;' generated/README.h
@@ -209,7 +211,7 @@ usage:
 ini:
 	echo "// Automatically generated file. Edit example.ini and run " > generated/example_ini.h
 	echo "// 'make ini' to update this documentation!" >> generated/example_ini.h
-	echo "" >> generated/example_ini.h
+	echo -en "\r\n" >> generated/example_ini.h
 	echo "const char* ini_str = \"\"" >> generated/example_ini.h
 	sed -f bin/replace.sed example.ini >> generated/example_ini.h
 	echo \""\";" >> generated/example_ini.h
@@ -221,7 +223,7 @@ ini:
 error:
 	echo "// Automatically generated file. Edit generated/error.html and run " > generated/error.h
 	echo "// 'make ini' to update this documentation!" >> generated/error.h
-	echo "" >> generated/error.h
+	echo -en "\r\n" >> generated/error.h
 	echo "const char* error_str = \"\"" >> generated/error.h
 	sed -f bin/replace.sed generated/error.html >> generated/error.h
 	echo \""\";" >> generated/error.h
