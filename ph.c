@@ -47,6 +47,8 @@ int display_error(int code) {
 	//define_error_messages();
 	//fprintf(stderr, "%s\n", errstr[code]);
 	fprintf(stderr, "Error: %d, %s\n", code, errstr[code]);
+	sprintf(logbuffer, "Error: %d, %s", code, errstr[code]);
+	writelog(1, logbuffer);
 	
 	return code;
 }
@@ -161,7 +163,7 @@ int main(int argc, char** argv, char **envp) {
 	environ = envp;
 	
 	int i = 0;
-	int ii = 0;
+	//int ii = 0;
 	int l = 0;
 	int ret = 0;
 	int res;
@@ -338,7 +340,7 @@ int main(int argc, char** argv, char **envp) {
 		return display_error(NO_INI_SECTION_FOUND);
 	}
 	
-	if (strcmp(config.exe, "") == 0)
+	if (strcmp(config.cmd, "") == 0)
 		return display_error(NO_CMD_DIRECTIVE);
 	
 	// expand environment variables
@@ -618,6 +620,25 @@ int main(int argc, char** argv, char **envp) {
 	// TODO: check path parameters
 	// TODO: run command, might have to split it
 	printf("out: %s\n", cmd);
+	
+	char exe[4096] = "";
+	strcat(exe, getenv("windir"));
+	strcat(exe, "\\System32\\cmd.exe");
+
+	char* myargs[3];
+	myargs[0] = (char*) "/c";
+	myargs[1] = (char*) cmd;
+	myargs[2] = NULL;
+
+	ret = spawnve(P_NOWAIT, exe, myargs, environ);
+	if (ret < 0) {
+		sprintf(logbuffer, "spawnve() returned error: %d", ret);
+		writelog(1, logbuffer);
+		fprintf(stderr, "%s\n", logbuffer);
+	}
+
+	sprintf(logbuffer, "Success: %d", exe);
+	writelog(1, logbuffer);
 	
 	return OK;
 }

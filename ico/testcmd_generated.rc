@@ -1,7 +1,7 @@
 app ICON "preferences-system-symbolic.ico"
 1 VERSIONINFO
-FILEVERSION     0,3,1,0
-PRODUCTVERSION  0,3,1,0
+FILEVERSION     0,3,2,0
+PRODUCTVERSION  0,3,2,0
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
@@ -9,12 +9,12 @@ BEGIN
     BEGIN
       VALUE "CompanyName", "Simon Wunderlin"
       VALUE "FileDescription", "General Protocol Handler"
-      VALUE "FileVersion", "0.3.1"
+      VALUE "FileVersion", "0.3.2"
       VALUE "InternalName", "protohand"
       VALUE "LegalCopyright", "Simon Wunderlin"
       VALUE "OriginalFilename", "testregex.exe"
       VALUE "ProductName", "Protohand"
-      VALUE "ProductVersion", "0.3.1"
+      VALUE "ProductVersion", "0.3.2"
     END
   END
   BLOCK "VarFileInfo"
