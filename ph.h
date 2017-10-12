@@ -72,7 +72,7 @@ extern "C" {
 extern char* errstr[];
 
 // can hold one ini file entry
-#define DEFAULT_CONFIG { "", "", "", "", "", "", "", "", 0}
+#define DEFAULT_CONFIG { "", "", "", "", "", "", "", 0}
 typedef struct {
 	const char* section; // the section we are searchin for
 	const char* default_path;
@@ -81,7 +81,6 @@ typedef struct {
 	const char* replace_file;
 	const char* replace_regex;
 	const char* cmd;
-	const char* exe;
 	int found; // 1 if the section was found. initialize it to 0 otherwise
 } configuration;
 

@@ -195,7 +195,7 @@ clean:
 usage:
 	echo "// Automatically generated file. Edit README.txt and run " > generated/README.h
 	echo "// 'make usage' to update this documentation!" >> generated/README.h
-	echo "" >> generated/README.h
+	echo -en "\r\n" >> generated/README.h
 	echo "const char* usage_str = \"\"" >> generated/README.h
 	#sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' README.txt >> generated/README.h
 	#sed -i 's/"/\\"/g;' generated/README.h
@@ -211,7 +211,7 @@ usage:
 ini:
 	echo "// Automatically generated file. Edit example.ini and run " > generated/example_ini.h
 	echo "// 'make ini' to update this documentation!" >> generated/example_ini.h
-	echo "" >> generated/example_ini.h
+	echo -en "\r\n" >> generated/example_ini.h
 	echo "const char* ini_str = \"\"" >> generated/example_ini.h
 	sed -f bin/replace.sed example.ini >> generated/example_ini.h
 	echo \""\";" >> generated/example_ini.h
@@ -223,7 +223,7 @@ ini:
 error:
 	echo "// Automatically generated file. Edit generated/error.html and run " > generated/error.h
 	echo "// 'make ini' to update this documentation!" >> generated/error.h
-	echo "" >> generated/error.h
+	echo -en "\r\n" >> generated/error.h
 	echo "const char* error_str = \"\"" >> generated/error.h
 	sed -f bin/replace.sed generated/error.html >> generated/error.h
 	echo \""\";" >> generated/error.h

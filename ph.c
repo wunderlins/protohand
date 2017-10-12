@@ -202,6 +202,7 @@ int main(int argc, char** argv, char **envp) {
 	char env[strlen(dir)+9] = {0};
 	strcat(env, "PH_HOME=");
 	strcat(env, dir);
+	env[strlen(env)-1] = 0;
 	putenv(env);
 	
 	// open log file
@@ -325,8 +326,6 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "replace_regex: %s", config.replace_regex); 
 		writelog(3, logbuffer);
-		sprintf(logbuffer, "exe: %s", config.exe); 
-		writelog(3, logbuffer);
 		sprintf(logbuffer, "cmd: %s", config.cmd); 
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "found: %d", config.found); 
@@ -344,24 +343,22 @@ int main(int argc, char** argv, char **envp) {
 		return display_error(NO_CMD_DIRECTIVE);
 	
 	// expand environment variables
-	/*
-	ret = expenv((char**) &config.exe);
-	if (ret != 0) {
-		return display_error(FAILED_TO_EXPAND_ENV);;
-	}
-	*/
 	
-	// FIXME: use new variable expansion mechanism
-	ret = expenv((char**) &config.default_path);
+	char* default_path = (char*) malloc(sizeof(char*) * (strlen(config.default_path)+1));
+	strcpy(default_path, config.default_path);
+	ret = expand_vars(&default_path, &uri_parsed.nvquery);
 	if (ret != 0) {
 		return display_error(FAILED_TO_EXPAND_ENV);
 	}
-
-	// FIXME: use new variable expansion mechanism
-	ret = expenv((char**) &config.replace_file);
+	config.default_path = default_path;
+	
+	char* replace_file = (char*) malloc(sizeof(char*) * (strlen(config.replace_file)+1));
+	strcpy(replace_file, config.replace_file);
+	ret = expand_vars(&replace_file, &uri_parsed.nvquery);
 	if (ret != 0) {
 		return display_error(FAILED_TO_EXPAND_ENV);
 	}
+	config.replace_file = replace_file;
 	
 	/*
 	struct {
@@ -637,7 +634,7 @@ int main(int argc, char** argv, char **envp) {
 		fprintf(stderr, "%s\n", logbuffer);
 	}
 
-	sprintf(logbuffer, "Success: %s", exe);
+	sprintf(logbuffer, "Success: %s /c %s", exe, myargs[1]);
 	writelog(1, logbuffer);
 	
 	return OK;
@@ -666,9 +663,6 @@ static int ini_callback(void* user, const char* section, const char* name,
 			pconfig->found = 1;
 		} else if (MATCH(section, "path_params")) {
 			pconfig->path_params = strdup(value);
-			pconfig->found = 1;
-		} else if (MATCH(section, "exe")) {
-			pconfig->exe = strdup(value);
 			pconfig->found = 1;
 		} else if (MATCH(section, "cmd")) {
 			pconfig->cmd = strdup(value);
