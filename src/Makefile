@@ -11,6 +11,8 @@ PROGNAME_SHORT = ph
 _EXT = .exe
 CC = gcc
 
+R_DIR=../release
+
 detected_OS := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 SEDI_EXT=
 ifeq ($(detected_OS),Darwin)  # Mac OS X
@@ -60,9 +62,6 @@ regexcpp:
 ph:
 	g++ $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/regcpp.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o lib/cmd_parser.o lib/errstr.o ph.c ico/app.res -lpcrecpp -lpcre -DPCRE_STATIC 
 
-testregex:
-	g++ $(CFLAGS) -o testregex$(_EXT) $(REALPATH) lib/regcpp.o testregex.c ico/testregex_generated.res -lpcrecpp -lpcre -DPCRE_STATIC 
-
 errstr:
 	$(CC) $(CFLAGS) -c lib/errstr.c -o lib/errstr.o
 	
@@ -81,14 +80,6 @@ test_ph: ph
 icon:
 	$(MAKE) -C ico
 	
-#protohand:
-#	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
-#	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
-#	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
-#	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
-#	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
-#	$(CC) $(CFLAGS) -o $(PROGNAME)$(_EXT) lib/nvlist.o lib/realpath.o lib/stringlib.o lib/ini.o lib/uriparse.o protohand.c ico/app.res
-
 # auto-update documentation
 doc: usage ini errstr create_error reg error
 	
@@ -101,40 +92,40 @@ release:
 	$(MAKE) all
 	
 	# make release directory
-	@echo release/$(rel)
-	mkdir "release/$(rel)"
+	@echo $(R_DIR)/$(rel)
+	mkdir "$(R_DIR)/$(rel)"
 	
 	# copy files to release directory
-	cp $(PROGNAME_SHORT)$(_EXT) "release/$(rel)"
-	strip "release/$(rel)/$(PROGNAME_SHORT)$(_EXT)"
-	cp README.txt "release/$(rel)/"
-	cp generated/error.html "release/$(rel)/"
-	cp testcmd$(_EXT) "release/$(rel)/"
-	cp testregex$(_EXT) "release/$(rel)/"
-	cp protohand.reg "release/$(rel)/ph.reg"
-	cp ph.ini "release/$(rel)"
-	cp LICENSE.txt "release/$(rel)/"
-	strip "release/$(rel)/testcmd$(_EXT)"
-	strip "release/$(rel)/testregex$(_EXT)"
+	cp $(PROGNAME_SHORT)$(_EXT) "$(R_DIR)/$(rel)"
+	strip "$(R_DIR)/$(rel)/$(PROGNAME_SHORT)$(_EXT)"
+	cp README.txt "$(R_DIR)/$(rel)/"
+	cp generated/error.html "$(R_DIR)/$(rel)/"
+	cp testcmd$(_EXT) "$(R_DIR)/$(rel)/"
+	cp testregex$(_EXT) "$(R_DIR)/$(rel)/"
+	cp protohand.reg "$(R_DIR)/$(rel)/ph.reg"
+	cp ph.ini "$(R_DIR)/$(rel)"
+	cp LICENSE.txt "$(R_DIR)/$(rel)/"
+	strip "$(R_DIR)/$(rel)/testcmd$(_EXT)"
+	strip "$(R_DIR)/$(rel)/testregex$(_EXT)"
 	
 	# subsitute all keywords in the README.txt file
-	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME_SHORT)/g' release/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' release/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' release/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' release/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME_SHORT)/g' $(R_DIR)/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' $(R_DIR)/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' $(R_DIR)/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' $(R_DIR)/$(rel)/README.txt
 	# windows line endings
-	sed -i $(SEDI_EXT) 's/$$/\r/' release/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/$$/\r/' release/$(rel)/LICENSE.txt
-	sed -i $(SEDI_EXT) 's/$$/\r/' release/$(rel)/ph.ini
-	sed -i $(SEDI_EXT) 's/protohand\.exe/$(PROGNAME_SHORT)$(_EXT)/g' release/$(rel)/ph.reg
-	sed -i $(SEDI_EXT) 's/$$/\r/' release/$(rel)/ph.reg
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/LICENSE.txt
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/ph.ini
+	sed -i $(SEDI_EXT) 's/protohand\.exe/$(PROGNAME_SHORT)$(_EXT)/g' $(R_DIR)/$(rel)/ph.reg
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/ph.reg
 	
 	
 	# create zip file
-	cd release/$(rel); ../../bin/zip.exe "../$(rel).zip" * 
+	cd $(R_DIR)/$(rel); ../../src/bin/zip.exe "../$(rel).zip" * 
 	
 	# remove working directory
-	rm -r "release/$(rel)"
+	rm -r "$(R_DIR)/$(rel)"
 	
 	# add to git repo, tag release and push changes/tags
 	#git add release/*.zip
@@ -148,28 +139,6 @@ testcmd:
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -o testcmd$(_EXT) $(REALPATH) lib/mydir.o testcmd.c ico/testcmd_generated.res
 
-# test url parser
-test:
-	./$(PROGNAME_SHORT)$(_EXT) "12345://67890" || true
-	./$(PROGNAME_SHORT)$(_EXT) "12345:///67890" || true
-	./$(PROGNAME_SHORT)$(_EXT)$(_EXT) "12345://?67890" || true
-	./$(PROGNAME_SHORT)$(_EXT) "12345://as/67890" || true
-	./$(PROGNAME_SHORT)$(_EXT) "12345://as?67890" || true
-	./$(PROGNAME_SHORT)$(_EXT) "12345://as/xy?67890" || true
-	./$(PROGNAME_SHORT)$(_EXT) "12345:67890" || true
-	./$(PROGNAME_SHORT)$(_EXT) "12345:/67890" || true
-	./$(PROGNAME_SHORT)$(_EXT) "12345:?67890" || true
-	./$(PROGNAME_SHORT)$(_EXT) "12345:as/67890" || true
-	./$(PROGNAME_SHORT)$(_EXT) "12345:as?67890" || true
-	./$(PROGNAME_SHORT)$(_EXT) "12345:as/xy?67890" || true
-	./$(PROGNAME_SHORT)$(_EXT) "usb://centricity?--auth=user&pass=ab%20de" || true
-
-# run parameter test
-param_test:
-	./$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=C:\\windows\\CSUP.txt&a=b&%20&b=x&c=d&--help" || cat protohand.log
-	./$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=%20C:\\windows\\CSUP.txt&--help" ||  cat protohand.log
-	./$(PROGNAME)$(_EXT) "aaa://fertimed/document?--document=\\\\anacom03\\tegris\\c$$\\windows\\CSUP.txt&--help" || cat protohand.log
-
 # cleanup
 clean:
 	rm -r $(PROGNAME)$(_EXT) || true
@@ -177,6 +146,7 @@ clean:
 	rm -r testcmd$(_EXT) || true
 	rm -r create_error.exe || true
 	rm -r testcmd.exe || true
+	rm -r testregex.exe || true
 	rm -r stringlib$(_EXT) || true
 	rm -r test/realpath_test$(_EXT) || true
 	rm -r test/find_param$(_EXT) || true
@@ -243,6 +213,25 @@ reg:
 todo:
 	egrep -nr "FIXME|TODO" *.c *.h
 
+clearlog:
+	rm ph.log || true
+	rm testcmd.log || true
+
+	
+## test targets
+testregex:
+	g++ $(CFLAGS) -o testregex$(_EXT) $(REALPATH) lib/regcpp.o testregex.c ico/testregex_generated.res -lpcrecpp -lpcre -DPCRE_STATIC 
+
+uriparse: stringlib
+	$(CC) $(CFLAGS) -c -o test/nvlist.o test/nvlist.c
+	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
+	$(CC) $(CFLAGS) -o lib/uriparse.exe test/nvlist.o lib/stringlib.o lib/uriparse.o
+	lib/uriparse.exe
+
+ini_test:
+	$(CC) $(CFLAGS) -c ini.c
+	$(CC) $(CFLAGS) -o test/ini_test$(_EXT) ini.o test/ini_test.c
+
 # example programs for library test
 find_param:
 	$(CC) $(CFLAGS) -c lib/stringlib.c
@@ -266,10 +255,6 @@ ini_example:
 	$(CC) $(CFLAGS) -c ini.c
 	$(CC) $(CFLAGS) -o ini/ini_example$(_EXT) ini.o ini/ini_example.c
 
-ini_test:
-	$(CC) $(CFLAGS) -c ini.c
-	$(CC) $(CFLAGS) -o test/ini_test$(_EXT) ini.o test/ini_test.c
-
 nvlist:
 	$(CC) $(CFLAGS) -c stringlib.c
 	$(CC) $(CFLAGS) -D NVLIST_MAIN -o test/nvlist$(_EXT) stringlib.o test/nvlist.c
@@ -277,12 +262,3 @@ nvlist:
 compare:
 	$(CC) $(CFLAGS) -o test/compare$(_EXT) test/compare.c
 
-uriparse: stringlib
-	$(CC) $(CFLAGS) -c -o test/nvlist.o test/nvlist.c
-	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
-	$(CC) $(CFLAGS) -o lib/uriparse.exe test/nvlist.o lib/stringlib.o lib/uriparse.o
-	lib/uriparse.exe
-
-clearlog:
-	rm ph.log || true
-	rm testcmd.log || true
