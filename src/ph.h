@@ -56,6 +56,9 @@
 #define FAILED_TO_EXPAND_ENV 14
 #define NO_CMD_DIRECTIVE 15
 
+#define ERR_LOG_DELETE 16
+#define ERR_LOG_RENAME 17
+
 #define PH_EXP_ERR_NO_EQUAL (EXP_ERR_NO_EQUAL+32) 
 #define PH_EXP_ERR_NO_COLON (EXP_ERR_NO_COLON+32)
 #define PH_EXP_ERR_MALLOC (EXP_ERR_MALLOC+32)
@@ -63,6 +66,7 @@
 #define PH_EXP_ERR_QUERYNVVAR_NOT_FOUND (EXP_ERR_QUERYNVVAR_NOT_FOUND+32) 
 #define PH_EXP_ERR_REALLOC (EXP_ERR_REALLOC+32)
 
+#define LOG_LENGTH 10000
 
 /* Make this header file easier to include in C++ code */
 #ifdef __cplusplus
@@ -70,6 +74,7 @@ extern "C" {
 #endif
 
 extern char* errstr[];
+extern char* expandvar_err_var_name;
 
 // can hold one ini file entry
 #define DEFAULT_CONFIG { "", "", "", "", "", "", "", 0}

@@ -15,6 +15,8 @@ void usage(void) {
  */
 int loglevel = 5; // 0 will disable logging
 char logbuffer[4096];
+char log_file[MAX_CWD_LENGTH];
+
 void writelog(int level, char* str) {
 	
 	char prefix[20] = "";
@@ -158,7 +160,6 @@ int expenv(char** str) {
 	return 0;
 }
 */
-extern char* expandvar_err_var_name;
 
 #ifndef PH_NO_MAIN
 //char **environ;
@@ -189,7 +190,6 @@ int main(int argc, char** argv, char **envp) {
 	putenv(env);
 	
 	// open log file
-	char log_file[MAX_CWD_LENGTH];
 	strcpy(log_file, dir);
 	strcat(log_file, "ph.log");
 	logfile = fopen(log_file, "ab+");
@@ -334,9 +334,9 @@ int main(int argc, char** argv, char **envp) {
 		return display_error(FAILED_TO_EXPAND_ENV);
 	}
 	config.default_path = default_path;
-	if (loglevel > 2) {
+	if (loglevel > 1) {
 		sprintf(logbuffer, "default_path expanded: %s", config.default_path); 
-		writelog(3, logbuffer);
+		writelog(2, logbuffer);
 	}
 	
 	char* replace_file = (char*) malloc(sizeof(char*) * (strlen(config.replace_file)+1));
@@ -346,18 +346,18 @@ int main(int argc, char** argv, char **envp) {
 		return display_error(FAILED_TO_EXPAND_ENV);
 	}
 	config.replace_file = replace_file;
-	if (loglevel > 2) {
+	if (loglevel > 1) {
 		sprintf(logbuffer, "replace_file expanded: %s", config.replace_file); 
-		writelog(3, logbuffer);
+		writelog(2, logbuffer);
 	}
 	
 	// do file content replacement
 	if (strcmp(config.replace_file, "") != 0) {
-		if (loglevel > 2) {
+		if (loglevel > 1) {
 			sprintf(logbuffer, "Regex replace in: %s", config.replace_file); 
-			writelog(3, logbuffer);
+			writelog(2, logbuffer);
 			sprintf(logbuffer, "Regex : %s", config.replace_regex); 
-			writelog(3, logbuffer);
+			writelog(2, logbuffer);
 		}
 		if (strcmp(config.replace_regex, "") == 0) {
 			sprintf(logbuffer, "Missing regex.");
@@ -392,9 +392,9 @@ int main(int argc, char** argv, char **envp) {
 		writelog(1, logbuffer);
 		return display_error(ret+32);
 	}
-	if (loglevel > 2) {
+	if (loglevel > 1) {
 		sprintf(logbuffer, "cmd expanded: %s", cmd); 
-		writelog(3, logbuffer);
+		writelog(2, logbuffer);
 	}
 	
 	// TODO: check path parameters
@@ -421,11 +421,86 @@ int main(int argc, char** argv, char **envp) {
 		fprintf(stderr, "%s\n", logbuffer);
 	}
 	
-	
-	//system(myargs[1]);
-
 	sprintf(logbuffer, "Success: %s /c %s", exe, myargs[1]);
 	writelog(1, logbuffer);
+	
+	
+	// shrink file if needed
+	l = strlen(log_file);
+	char* tmplog = (char*) malloc(sizeof(char*) * l+2);
+	strcpy(tmplog, log_file);
+	tmplog[l+1] = 0;
+	tmplog[l] = 'g';
+	tmplog[l-1] = 'o';
+	tmplog[l-2] = 'l';
+	tmplog[l-3] = '.';
+	tmplog[l-4] = '2';
+	printf("%s\n", tmplog);
+	
+	fseek(logfile, 0, SEEK_END);
+	long fsize = ftell(logfile);
+	fseek(logfile, 0, SEEK_SET);  //same as rewind(f);
+
+	printf("size: %ld\n", fsize);
+	long newlen = (LOG_LENGTH-1024);
+	
+	if (fsize > LOG_LENGTH) {
+		fclose(logfile);
+		FILE* oldlog = fopen(log_file, "rb");
+
+		fseek(oldlog, -1*newlen, SEEK_END);
+		char tempchar, tempchar1, tempchar2, tempchar3;
+		
+		while((tempchar = fgetc(oldlog))) {
+			newlen--;
+			if (tempchar == '=') {
+				tempchar1 = fgetc(oldlog);
+				if (tempchar1 != '=')
+					continue;
+				tempchar2 = fgetc(oldlog);
+				if (tempchar2 != '=')
+					continue;
+				tempchar3 = fgetc(oldlog);
+				if (tempchar3 != '>')
+					continue;
+				fseek(oldlog, -3, SEEK_CUR);
+				newlen += 3;
+				
+				char *string = (char*) malloc(newlen + 1);
+				if (string == NULL)
+					return FAILED_TO_ALLOC_MEM_FOR_FILE;
+				
+				printf("Reading %ld bytes, str len: %llu\n", newlen, strlen(string));
+				fread(string, newlen-3, 1, oldlog);
+				string[newlen-3] = 0;
+				fclose(oldlog);
+				
+				printf("Opening: %s\n", tmplog);
+				FILE* fp = fopen(tmplog, "wb");
+				fwrite(string, 1, strlen(string), fp);
+				fclose(fp);
+				
+				// FIXME: log is not deleted due to locking issues ?
+				ret = unlink(log_file);
+				if(ret == -1) {
+					perror("Delete log");
+					fprintf(stderr, "Error deleting log file, %d", errno);
+					return ERR_LOG_DELETE;
+				}
+				
+				ret = rename(tmplog, log_file);
+				if(ret != 0) {
+					fprintf(stderr, "Error: unable to rename the log file, %d", ret);
+					return ERR_LOG_RENAME;
+				}
+				
+				break;
+			}
+		}
+		
+		//fclose(oldlog);
+		//logfile = fopen(log_file, "ab+");
+	}
 	
 	return OK;
 }

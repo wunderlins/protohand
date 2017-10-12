@@ -94,7 +94,7 @@ Add additional parameters to the command line after the parameters that are pass
 - [ ] sanitize and check paths
 - [x] logging
   - [ ] configuable in ph.ini
-- [ ] checking if parameter passed username equals ${USERNAME}
+- [x] checking if parameter passed username equals ${USERNAME}
 - [x] display error messages if something goes south
 - [ ] global config (log path, log level)
   - [ ] logging

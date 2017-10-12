@@ -27,6 +27,9 @@ void define_error_messages() {
 	errstr[14] = "Failed to expand environment variable.";
 	errstr[15] = "Missing `cmd` directive in ini file.";
 
+	errstr[16] = "Failed to delete log file.";
+	errstr[17] = "Failed to rename log file.";
+	
 	errstr[33] = "No equal sign found in expression expansion.";
 	errstr[34] = "No colon found in expression expansion.";
 	errstr[35] = "Failed to dynamically allocate memmory while expanding variables (malloc).";
