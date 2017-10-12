@@ -102,7 +102,7 @@ release:
 	cp generated/error.html "$(R_DIR)/$(rel)/"
 	cp testcmd$(_EXT) "$(R_DIR)/$(rel)/"
 	cp testregex$(_EXT) "$(R_DIR)/$(rel)/"
-	cp protohand.reg "$(R_DIR)/$(rel)/ph.reg"
+	cp ph.reg "$(R_DIR)/$(rel)/ph.reg"
 	cp ph.ini "$(R_DIR)/$(rel)"
 	cp LICENSE.txt "$(R_DIR)/$(rel)/"
 	strip "$(R_DIR)/$(rel)/testcmd$(_EXT)"
