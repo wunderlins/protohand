@@ -227,7 +227,7 @@ int main(int argc, char** argv, char **envp) {
 	//struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	struct t_uri uri_parsed = uriparse_create(argv[1]);
 	res = uriparse_parse(argv[1], &uri_parsed);
-	//printf("res: %d\n", res);
+	printf("res: %d\n", res);
 	if (res != 0) {
 		ret = 127+res;
 		const char *err;
@@ -326,7 +326,6 @@ int main(int argc, char** argv, char **envp) {
 		return display_error(NO_CMD_DIRECTIVE);
 	
 	// expand environment variables
-	
 	char* default_path = (char*) malloc(sizeof(char*) * (strlen(config.default_path)+1));
 	strcpy(default_path, config.default_path);
 	ret = expand_vars(&default_path, &uri_parsed.nvquery);
@@ -334,6 +333,10 @@ int main(int argc, char** argv, char **envp) {
 		return display_error(FAILED_TO_EXPAND_ENV);
 	}
 	config.default_path = default_path;
+	if (loglevel > 2) {
+		sprintf(logbuffer, "default_path expanded: %s", config.default_path); 
+		writelog(3, logbuffer);
+	}
 	
 	char* replace_file = (char*) malloc(sizeof(char*) * (strlen(config.replace_file)+1));
 	strcpy(replace_file, config.replace_file);
@@ -342,9 +345,19 @@ int main(int argc, char** argv, char **envp) {
 		return display_error(FAILED_TO_EXPAND_ENV);
 	}
 	config.replace_file = replace_file;
+	if (loglevel > 2) {
+		sprintf(logbuffer, "replace_file expanded: %s", config.replace_file); 
+		writelog(3, logbuffer);
+	}
 	
 	// do file content replacement
 	if (strcmp(config.replace_file, "") != 0) {
+		if (loglevel > 2) {
+			sprintf(logbuffer, "Regex replace in: %s", config.replace_file); 
+			writelog(3, logbuffer);
+			sprintf(logbuffer, "Regex : %s", config.replace_regex); 
+			writelog(3, logbuffer);
+		}
 		if (strcmp(config.replace_regex, "") == 0) {
 			sprintf(logbuffer, "Missing regex.");
 			writelog(1, logbuffer);
@@ -375,6 +388,10 @@ int main(int argc, char** argv, char **envp) {
 		sprintf(logbuffer, "%s", errstr[ret+32]);
 		writelog(1, logbuffer);
 		return display_error(ret+32);
+	}
+	if (loglevel > 2) {
+		sprintf(logbuffer, "cmd expanded: %s", cmd); 
+		writelog(3, logbuffer);
 	}
 	
 	// TODO: check path parameters

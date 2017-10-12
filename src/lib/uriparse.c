@@ -146,15 +146,6 @@ int uriparse_parse(char* uri, struct t_uri* uri_parsed) {
 
 	}
 	
-	// check for required parameters
-	if (uri_parsed->pos[FOUND_PROTO] == -1 ) 
-		return FOUND_PROTO;
-	
-	if (uri_parsed->pos[FOUND_AUTHORITY] == -1 ) 
-		return FOUND_AUTHORITY;
-	
-	return 0;
-	
 	// check if we have an authority
 	if (uri_parsed->pos[FOUND_AUTHORITY] == -1) {
 		if (uri_parsed->pos[FOUND_PATH] != -1)
@@ -175,6 +166,13 @@ int uriparse_parse(char* uri, struct t_uri* uri_parsed) {
 	    uri_parsed->pos[FOUND_PROTO]+1 < length) {
 		uri_parsed->pos[FOUND_AUTHORITY] = length;
 	}
+	
+	// check for required parameters
+	if (uri_parsed->pos[FOUND_PROTO] == -1 ) 
+		return FOUND_PROTO;
+	
+	if (uri_parsed->pos[FOUND_AUTHORITY] == -1 ) 
+		return FOUND_AUTHORITY;
 	
 	// start chopping strings out of the original string
 	uri_parsed->proto = malloc(sizeof(char*) * uri_parsed->pos[FOUND_PROTO]+1);
