@@ -66,7 +66,7 @@
 #define PH_EXP_ERR_QUERYNVVAR_NOT_FOUND (EXP_ERR_QUERYNVVAR_NOT_FOUND+32) 
 #define PH_EXP_ERR_REALLOC (EXP_ERR_REALLOC+32)
 
-#define LOG_LENGTH 10000
+#define LOG_LENGTH (1024*1000*1)
 
 /* Make this header file easier to include in C++ code */
 #ifdef __cplusplus

@@ -399,7 +399,7 @@ int main(int argc, char** argv, char **envp) {
 	
 	// TODO: check path parameters
 	// TODO: run command, might have to split it
-	printf("out: %s\n", cmd);
+	//printf("out: %s\n", cmd);
 	
 	char exe[4096] = "";
 	strcat(exe, getenv("windir"));
@@ -413,7 +413,7 @@ int main(int argc, char** argv, char **envp) {
 	// FIXME: quoted paths with spaces are not run by 
 	//         cmd.exe
 	quote(&myargs[1]);
-	printf("cmd: %s\n", myargs[1]);
+	//printf("cmd: %s\n", myargs[1]);
 	ret = spawnve(P_NOWAIT, exe, myargs, environ);
 	if (ret < 0) {
 		sprintf(logbuffer, "spawnve() returned error: %d", ret);
@@ -424,83 +424,63 @@ int main(int argc, char** argv, char **envp) {
 	sprintf(logbuffer, "Success: %s /c %s", exe, myargs[1]);
 	writelog(1, logbuffer);
 	
-	
-	// shrink file if needed
-	l = strlen(log_file);
-	char* tmplog = (char*) malloc(sizeof(char*) * l+2);
-	strcpy(tmplog, log_file);
-	tmplog[l+1] = 0;
-	tmplog[l] = 'g';
-	tmplog[l-1] = 'o';
-	tmplog[l-2] = 'l';
-	tmplog[l-3] = '.';
-	tmplog[l-4] = '2';
-	printf("%s\n", tmplog);
-	
 	fseek(logfile, 0, SEEK_END);
 	long fsize = ftell(logfile);
 	fseek(logfile, 0, SEEK_SET);  //same as rewind(f);
 
-	printf("size: %ld\n", fsize);
+	if (loglevel > 2) {
+		sprintf(logbuffer, "logfile size: %ld", fsize); 
+		writelog(3, logbuffer);
+	}
+
 	long newlen = (LOG_LENGTH-1024);
 	
 	if (fsize > LOG_LENGTH) {
+		if (loglevel > 2) {
+			sprintf(logbuffer, "Truncating logfile");
+			writelog(3, logbuffer);
+		}
 		fclose(logfile);
-		FILE* oldlog = fopen(log_file, "rb");
+		FILE* logfile = fopen(log_file, "rb");
 
-		fseek(oldlog, -1*newlen, SEEK_END);
+		fseek(logfile, -1*newlen, SEEK_END);
 		char tempchar, tempchar1, tempchar2, tempchar3;
 		
-		while((tempchar = fgetc(oldlog))) {
+		while((tempchar = fgetc(logfile))) {
 			newlen--;
 			if (tempchar == '=') {
-				tempchar1 = fgetc(oldlog);
+				tempchar1 = fgetc(logfile);
 				if (tempchar1 != '=')
 					continue;
-				tempchar2 = fgetc(oldlog);
+				tempchar2 = fgetc(logfile);
 				if (tempchar2 != '=')
 					continue;
-				tempchar3 = fgetc(oldlog);
+				tempchar3 = fgetc(logfile);
 				if (tempchar3 != '>')
 					continue;
-				fseek(oldlog, -3, SEEK_CUR);
+				
+				fseek(logfile, -3, SEEK_CUR);
 				newlen += 3;
 				
 				char *string = (char*) malloc(newlen + 1);
 				if (string == NULL)
 					return FAILED_TO_ALLOC_MEM_FOR_FILE;
 				
-				printf("Reading %ld bytes, str len: %llu\n", newlen, strlen(string));
-				fread(string, newlen-3, 1, oldlog);
+				//printf("Reading %ld bytes, str len: %llu\n", newlen, strlen(string));
+				fread(string, newlen-3, 1, logfile);
 				string[newlen-3] = 0;
-				fclose(oldlog);
+				fclose(logfile);
 				
-				printf("Opening: %s\n", tmplog);
-				FILE* fp = fopen(tmplog, "wb");
+				//printf("Opening: %s\n", tmplog);
+				FILE* fp = fopen(log_file, "wb");
 				fwrite(string, 1, strlen(string), fp);
 				fclose(fp);
-				
-				// FIXME: log is not deleted due to locking issues ?
-				ret = unlink(log_file);
-				if(ret == -1) {
-					perror("Delete log");
-					fprintf(stderr, "Error deleting log file, %d", errno);
-					return ERR_LOG_DELETE;
-				}
-				
-				ret = rename(tmplog, log_file);
-				if(ret != 0) {
-					fprintf(stderr, "Error: unable to rename the log file, %d", ret);
-					return ERR_LOG_RENAME;
-				}
 				
 				break;
 			}
 		}
 		
-		//fclose(oldlog);
-		//logfile = fopen(log_file, "ab+");
-	}
+	} // end log truncation
 	
 	return OK;
 }
