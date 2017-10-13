@@ -117,7 +117,7 @@ release:
 	cp testregex$(_EXT) "$(R_DIR)/$(rel)/"
 	cp ph.reg "$(R_DIR)/$(rel)/ph.reg"
 	cp ph.ini "$(R_DIR)/$(rel)"
-	cp LICENSE.txt "$(R_DIR)/$(rel)/"
+	cp ../LICENSE.txt "$(R_DIR)/$(rel)/"
 	strip "$(R_DIR)/$(rel)/testcmd$(_EXT)"
 	strip "$(R_DIR)/$(rel)/testregex$(_EXT)"
 	
