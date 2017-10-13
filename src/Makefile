@@ -252,11 +252,11 @@ clearlog:
 
 ## TEST ########################################################################
 test: dep test_cmdparser
-	$(CC) $(CFLAGS) -o ../test/mydir.exe $(REALPATH) -DMYDIR_MAIN lib/mydir.c
 	$(CC) $(CFLAGS) -D NVLIST_MAIN -o ../test/nvlist$(_EXT) lib/stringlib.o lib/nvlist.c
+	$(CC) $(CFLAGS) -o ../test/mydir.exe $(REALPATH) -DMYDIR_MAIN lib/mydir.c
+	g++ $(CFLAGS) -o ../test/regcpp.exe lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -o ../test/uriparse.exe lib/nvlist.o lib/stringlib.o lib/uriparse.o
-	g++ $(CFLAGS) -o ../test/regcpp.exe lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
 
 test_cmdparser:
 	$(CC) $(CFLAGS) -DCMD_PARSER_MAIN -o ../test/cmd_parser$(_EXT) lib/stringlib.o lib/nvlist.o lib/uriparse.o lib/cmd_parser.c 
