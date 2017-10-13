@@ -25,7 +25,7 @@ MAX_CWD_LENGTH = $(shell sh -c './bin/MAX_CWD_LENGTH.exe')
 
 # cflags, strip if debuggign is disabled
 CFLAGS = -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) # -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
-CFLAGS += -I ../pcre/include -L ../pcre/lib
+CFLAGS += -I ../pcre/include -L../pcre/lib
 ifeq ($(DEBUG),0) 
 	CFLAGS += -s
 endif
@@ -35,8 +35,16 @@ include os.mk
 # use our own realpath on windows
 ifeq ($(OS),Windows_NT)
 	REALPATH=lib/realpath.o
+	APP_ICO=ico/app.res
+	TESTCMD_ICO=ico/testcmd_generated.res
+	TESTREGEX_ICO=ico/testregex_generated.res
+	BUILD_ICONS=icon
 else
 	REALPATH=
+	APP_ICO=
+	TESTCMD_ICO=
+	TESTREGEX_ICO=
+	BUILD_ICONS=
 endif
 
 # create release name: OS_VERSION_TIMESTAMP
@@ -45,26 +53,19 @@ rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 export
 
-# build the programm
-all: clean create_error max_path doc icon dep ph testcmd testregex
+# build everything including 3rd party libs
+all: pcre app
 
+# build all without deps
+app: clean create_error max_path doc $(BUILD_ICONS) dep ph testcmd testregex
+
+## DEPENDENCIES ################################################################
 PCRE_VERSION=8.41
 pcre:
 	tar xfj pcre-$(PCRE_VERSION).tar.bz2 -C ..
 	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $$PWD/../pcre
 	cd ../pcre-$(PCRE_VERSION) && make && make install
 
-test: dep test_cmdparser
-	$(CC) $(CFLAGS) -o ../test/mydir.exe $(REALPATH) -DMYDIR_MAIN lib/mydir.c
-	$(CC) $(CFLAGS) -D NVLIST_MAIN -o ../test/nvlist$(_EXT) lib/stringlib.o lib/nvlist.c
-	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
-	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -o ../test/uriparse.exe lib/nvlist.o lib/stringlib.o lib/uriparse.o
-	g++ $(CFLAGS) -o ../test/regcpp.exe lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
-
-test_cmdparser:
-	$(CC) $(CFLAGS) -DCMD_PARSER_MAIN -o ../test/cmd_parser$(_EXT) lib/stringlib.o lib/nvlist.o lib/uriparse.o lib/cmd_parser.c 
-	
-	
 dep: regexcpp errstr cmdparser
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
@@ -78,108 +79,40 @@ cmdparser:
 	
 regexcpp:
 	g++ $(CFLAGS) -lpcrecpp -lpcre -c -o lib/regcpp.o lib/reg.cpp
-	
-ph:
-	g++ $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/regcpp.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o lib/cmd_parser.o lib/errstr.o ph.c ico/app.res -lpcrecpp -lpcre -DPCRE_STATIC 
-
-errstr:
-	$(CC) $(CFLAGS) -c lib/errstr.c -o lib/errstr.o
-	
-create_error: errstr
-	$(CC) $(CFLAGS) -o create_error.exe lib/errstr.o create_error.c
-	./create_error.exe
-	cp generated/error.html error.html
-	
-max_path:
-	$(CC) $(CFLAGS) -o bin/MAX_CWD_LENGTH.exe bin/MAX_CWD_LENGTH.c
-	$(eval MAX_CWD_LENGTH := $(shell sh -c './bin/MAX_CWD_LENGTH.exe'))
-
-test_ph: ph
-	$(PROGNAME_SHORT)$(_EXT) 'proto:auth?query=value%201&param2&param3 '
 
 icon:
 	$(MAKE) -C ico
 	
-# auto-update documentation
-doc: usage ini errstr create_error reg error
-	
-# create a release
-release:
-	# get latest code
-	git pull
-	
-	# build the application
-	$(MAKE) all
-	
-	# make release directory
-	@echo $(R_DIR)/$(rel)
-	mkdir "$(R_DIR)/$(rel)"
-	
-	# copy files to release directory
-	cp $(PROGNAME_SHORT)$(_EXT) "$(R_DIR)/$(rel)"
-	strip "$(R_DIR)/$(rel)/$(PROGNAME_SHORT)$(_EXT)"
-	cp README.txt "$(R_DIR)/$(rel)/"
-	cp generated/error.html "$(R_DIR)/$(rel)/"
-	cp testcmd$(_EXT) "$(R_DIR)/$(rel)/"
-	cp testregex$(_EXT) "$(R_DIR)/$(rel)/"
-	cp ph.reg "$(R_DIR)/$(rel)/ph.reg"
-	cp ph.ini "$(R_DIR)/$(rel)"
-	cp ../LICENSE.txt "$(R_DIR)/$(rel)/"
-	strip "$(R_DIR)/$(rel)/testcmd$(_EXT)"
-	strip "$(R_DIR)/$(rel)/testregex$(_EXT)"
-	
-	# subsitute all keywords in the README.txt file
-	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME_SHORT)/g' $(R_DIR)/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' $(R_DIR)/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' $(R_DIR)/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' $(R_DIR)/$(rel)/README.txt
-	# windows line endings
-	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/LICENSE.txt
-	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/ph.ini
-	sed -i $(SEDI_EXT) 's/protohand\.exe/$(PROGNAME_SHORT)$(_EXT)/g' $(R_DIR)/$(rel)/ph.reg
-	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/ph.reg
-	
-	
-	# create zip file
-	cd $(R_DIR)/$(rel); ../../src/bin/zip.exe "../$(rel).zip" * 
-	
-	# remove working directory
-	rm -r "$(R_DIR)/$(rel)"
-	
-	# add to git repo, tag release and push changes/tags
-	#git add release/*.zip
-	#git commit -am "Added release $(rel)"
-	#git push
-	#git tag $(rel) && git push --tags
-	
+
+## APPLICATIONS ################################################################
+ph:
+	g++ $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/regcpp.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o lib/cmd_parser.o lib/errstr.o ph.c $(APP_ICO) -lpcrecpp -lpcre -DPCRE_STATIC 
+
+max_path:
+	$(CC) $(CFLAGS) -o bin/MAX_CWD_LENGTH.exe bin/MAX_CWD_LENGTH.c
+	$(eval MAX_CWD_LENGTH := $(shell sh -c './bin/MAX_CWD_LENGTH.exe'))
+
 # generate a simple cmd utility that will print all parameters
 testcmd:
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
-	$(CC) $(CFLAGS) -o testcmd$(_EXT) $(REALPATH) lib/mydir.o testcmd.c ico/testcmd_generated.res
+	$(CC) $(CFLAGS) -o testcmd$(_EXT) $(REALPATH) lib/mydir.o testcmd.c $(TESTCMD_ICO)
 
-# cleanup
-clean:
-	rm -r $(PROGNAME)$(_EXT) || true
-	rm -r $(PROGNAME_SHORT)$(_EXT) || true
-	rm -r testcmd$(_EXT) || true
-	rm -r create_error.exe || true
-	rm -r testcmd.exe || true
-	rm -r testregex.exe || true
-	rm -r stringlib$(_EXT) || true
-	rm -r test/realpath_test$(_EXT) || true
-	rm -r test/find_param$(_EXT) || true
-	rm -r test/cleanpath$(_EXT) || true
-	rm -r ini/ini_dump$(_EXT) || true
-	rm -r ini/ini_example$(_EXT) || true
-	rm -r test/ini_test$(_EXT) || true
-	rm -r test/compare$(_EXT) || true
-	#find ./ -iname "*.exe" -exec rm {} \; || true
-	rm -r *.o || true
-	rm -r lib/*.o || true
-	rm -r test/*.o || true
-	rm *.bak || true
+# test targets
+testregex:
+	g++ $(CFLAGS) -o testregex$(_EXT) $(REALPATH) lib/regcpp.o testregex.c $(TESTREGEX_ICO) -lpcrecpp -lpcre -DPCRE_STATIC 
+
+## DOCUMENTATION ###############################################################
+# auto-update documentation
+doc: usage ini errstr create_error reg error
+
+errstr:
+	$(CC) $(CFLAGS) -c lib/errstr.c -o lib/errstr.o
+
+create_error: errstr
+	$(CC) $(CFLAGS) -o create_error.exe lib/errstr.o create_error.c
+	./create_error.exe
+	cp generated/error.html error.html
 
 # create usage generated/README.h header file from README.txt
 usage:
@@ -233,14 +166,99 @@ reg:
 todo:
 	egrep -nr "FIXME|TODO" *.c *.h
 
+
+
+# create a release
+release:
+	# get latest code
+	git pull
+	
+	# build the application
+	$(MAKE) all
+	
+	# make release directory
+	@echo $(R_DIR)/$(rel)
+	mkdir "$(R_DIR)/$(rel)"
+	
+	# copy files to release directory
+	cp $(PROGNAME_SHORT)$(_EXT) "$(R_DIR)/$(rel)"
+	strip "$(R_DIR)/$(rel)/$(PROGNAME_SHORT)$(_EXT)"
+	cp README.txt "$(R_DIR)/$(rel)/"
+	cp generated/error.html "$(R_DIR)/$(rel)/"
+	cp testcmd$(_EXT) "$(R_DIR)/$(rel)/"
+	cp testregex$(_EXT) "$(R_DIR)/$(rel)/"
+	cp ph.reg "$(R_DIR)/$(rel)/ph.reg"
+	cp ph.ini "$(R_DIR)/$(rel)"
+	cp ../LICENSE.txt "$(R_DIR)/$(rel)/"
+	strip "$(R_DIR)/$(rel)/testcmd$(_EXT)"
+	strip "$(R_DIR)/$(rel)/testregex$(_EXT)"
+	
+	# subsitute all keywords in the README.txt file
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME_SHORT)/g' $(R_DIR)/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' $(R_DIR)/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' $(R_DIR)/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' $(R_DIR)/$(rel)/README.txt
+	# windows line endings
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/LICENSE.txt
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/ph.ini
+	sed -i $(SEDI_EXT) 's/protohand\.exe/$(PROGNAME_SHORT)$(_EXT)/g' $(R_DIR)/$(rel)/ph.reg
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/ph.reg
+	
+	
+	# create zip file
+	cd $(R_DIR)/$(rel); ../../src/bin/zip.exe "../$(rel).zip" * 
+	
+	# remove working directory
+	rm -r "$(R_DIR)/$(rel)"
+	
+	# add to git repo, tag release and push changes/tags
+	#git add release/*.zip
+	#git commit -am "Added release $(rel)"
+	#git push
+	#git tag $(rel) && git push --tags
+	
+# cleanup
+clean:
+	rm -r $(PROGNAME)$(_EXT) || true
+	rm -r $(PROGNAME_SHORT)$(_EXT) || true
+	rm -r testcmd$(_EXT) || true
+	rm -r create_error.exe || true
+	rm -r testcmd.exe || true
+	rm -r testregex.exe || true
+	rm -r stringlib$(_EXT) || true
+	rm -r test/realpath_test$(_EXT) || true
+	rm -r test/find_param$(_EXT) || true
+	rm -r test/cleanpath$(_EXT) || true
+	rm -r ini/ini_dump$(_EXT) || true
+	rm -r ini/ini_example$(_EXT) || true
+	rm -r test/ini_test$(_EXT) || true
+	rm -r test/compare$(_EXT) || true
+	#find ./ -iname "*.exe" -exec rm {} \; || true
+	rm -r *.o || true
+	rm -r lib/*.o || true
+	rm -r test/*.o || true
+	rm *.bak || true
+
+
 clearlog:
 	rm ph.log || true
 	rm testcmd.log || true
 
+
+## TEST ########################################################################
+test: dep test_cmdparser
+	$(CC) $(CFLAGS) -o ../test/mydir.exe $(REALPATH) -DMYDIR_MAIN lib/mydir.c
+	$(CC) $(CFLAGS) -D NVLIST_MAIN -o ../test/nvlist$(_EXT) lib/stringlib.o lib/nvlist.c
+	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
+	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -o ../test/uriparse.exe lib/nvlist.o lib/stringlib.o lib/uriparse.o
+	g++ $(CFLAGS) -o ../test/regcpp.exe lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
+
+test_cmdparser:
+	$(CC) $(CFLAGS) -DCMD_PARSER_MAIN -o ../test/cmd_parser$(_EXT) lib/stringlib.o lib/nvlist.o lib/uriparse.o lib/cmd_parser.c 
 	
-## test targets
-testregex:
-	g++ $(CFLAGS) -o testregex$(_EXT) $(REALPATH) lib/regcpp.o testregex.c ico/testregex_generated.res -lpcrecpp -lpcre -DPCRE_STATIC 
+test_ph: ph
+	$(PROGNAME_SHORT)$(_EXT) 'proto:auth?query=value%201&param2&param3 '
 
 uriparse: stringlib
 	$(CC) $(CFLAGS) -c -o test/nvlist.o test/nvlist.c
