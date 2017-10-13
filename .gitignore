@@ -6,3 +6,5 @@
 _*
 *.a
 *.dll
+pcre*
+*.res

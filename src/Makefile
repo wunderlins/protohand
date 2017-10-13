@@ -171,7 +171,7 @@ todo:
 # create a release
 release:
 	# get latest code
-	git pull
+	#git pull
 	
 	# build the application
 	$(MAKE) all
@@ -209,6 +209,8 @@ release:
 	# create zip file
 	cd $(R_DIR)/$(rel); ../../src/bin/zip.exe "../$(rel).zip" * 
 	
+	cp $(R_DIR)/$(rel)/* ../build
+	
 	# remove working directory
 	rm -r "$(R_DIR)/$(rel)"
 	
@@ -239,6 +241,8 @@ clean:
 	rm -r lib/*.o || true
 	rm -r test/*.o || true
 	rm *.bak || true
+	rm ../test/* || true
+	rm ../build/* || true
 
 
 clearlog:
