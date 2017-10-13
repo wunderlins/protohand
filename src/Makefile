@@ -251,7 +251,7 @@ clearlog:
 
 
 ## TEST ########################################################################
-test: dep test_cmdparser
+test: dep test_cmdparser realpath
 	$(CC) $(CFLAGS) -D NVLIST_MAIN -o ../test/nvlist$(_EXT) lib/stringlib.o lib/nvlist.c
 	$(CC) $(CFLAGS) -o ../test/mydir.exe $(REALPATH) -DMYDIR_MAIN lib/mydir.c
 	g++ $(CFLAGS) -o ../test/regcpp.exe lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
@@ -283,8 +283,8 @@ stringlib:
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 
 realpath:
-	$(CC) $(CFLAGS) -c realpath.c -o realpath.o
-	$(CC) $(CFLAGS) -o test/realpath_test$(_EXT) realpath.o test/realpath_test.c
+	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
+	$(CC) $(CFLAGS) -o ../test/realpath_test$(_EXT) lib/realpath.o test/realpath_test.c
 
 cleanpath:
 	$(CC) $(CFLAGS) -o test/cleanpath$(_EXT) test/cleanpath.c

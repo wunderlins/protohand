@@ -8,7 +8,7 @@
 #include <string.h>
 #include <libgen.h>   
 #include <limits.h>
-#include "../realpath.h"
+#include "../lib/realpath.h"
 
 static char *s_pMyName;
 void usage(void);
