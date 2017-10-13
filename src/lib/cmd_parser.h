@@ -8,6 +8,7 @@ extern "C" {
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "../lib/stringlib.h"
 #include "../lib/nvlist.h"
 #include "../lib/uriparse.h"

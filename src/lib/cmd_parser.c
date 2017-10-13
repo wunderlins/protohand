@@ -1,5 +1,24 @@
 #include "cmd_parser.h"
 
+int strcmp_lcase(char* str1, char* str2) {
+	int i;
+	char* lcase1 = (char*) malloc(sizeof(char) * (strlen(str1)+1));
+	char* lcase2 = (char*) malloc(sizeof(char) * (strlen(str2)+1));
+	
+	strcpy(lcase1, str1);
+	strcpy(lcase2, str2);
+	
+	for(i = 0; lcase1[i]; i++){
+		lcase1[i] = tolower(lcase1[i]);
+	}
+	
+	for(i = 0; lcase2[i]; i++){
+		lcase2[i] = tolower(lcase2[i]);
+	}
+	
+	return strcmp(lcase1, lcase2);
+}
+
 int find_var_value(char* varname, struct nvlist_list* query, char** result) {
     int ii;
     
@@ -124,10 +143,10 @@ int parse_conditional(char* varname, t_conditional* cond, struct nvlist_list* qu
 		return EXP_ERR_QUERYNVVAR_NOT_FOUND;
 
 	// compare values
-	if (cond->sign == 1 && strcmp(value1, value2) == 0)
+	if (cond->sign == 1 && strcmp_lcase(value1, value2) == 0)
 		cond->match = 1;
 	
-	if (cond->sign == -1 && strcmp(value1, value2) != 0)
+	if (cond->sign == -1 && strcmp_lcase(value1, value2) != 0)
 		cond->match = 1;
 	
 	return 0;
@@ -249,56 +268,64 @@ int expand_vars(char** str, struct nvlist_list* query) {
 }
 
 #ifdef CMD_PARSER_MAIN
+
+int asserts(char* str1, char* str2) {
+	if (strcmp(str1, str2) == 0) 
+		return 0;
+	return 1;
+}
+
+int cmdparser_test(char* uri, char** cmd, char* expect) {
+	int ret, res = 0;
+	
+	struct t_uri uri_parsed = uriparse_create(uri);
+	ret = uriparse_parse(uri, &uri_parsed);
+	if (ret != 0) {
+		printf("Parser Error %d, %s\n", ret, uri);
+		return ret;
+	}
+	
+	ret = expand_vars(cmd, &uri_parsed.nvquery);
+	res = asserts(*cmd, expect);
+	printf("r: %d: out: %s, exp: %s\n", res, *cmd, expect);
+	
+	return res;
+}
+
 int main(int argc, char*argv[]) {
 	int ret = 0;
-	int res;
+	int res = 0;
 	
-	char* uri = (char*) "proto:auth/path?name1=vaue1&name2=wus";
-	char* cmd = (char*) "${env.HOME}\\notepad.exe /A \"${name1}\" ${name2} ${ env.USERNAME != name2 : --debug }";
-	struct t_uri uri_parsed = uriparse_create(uri);
+	char* uri;
+	char* cmd; 
+	char* expect;
 	
-	res = uriparse_parse(uri, &uri_parsed);
-	//printf("res: %d\n", res);
-	if (res != 0) {
-		ret = 127+res;
-		printf("Parser Error %d, %s\n", res, uri);
-		return ret;
-	}
+	// match with spaces in expression
+	uri = (char*) "proto:auth/path?name1=vaue1&name2=xxx";
+	cmd = (char*) "${env.windir}\\notepad.exe /A \"${name1}\" ${name2} ${ env.USERNAME != name2 :--debug}";
+	expect = (char*) "C:\\WINDOWS\\notepad.exe /A \"vaue1\" xxx --debug";
 	
-	ret = expand_vars(&cmd, &uri_parsed.nvquery);
-	printf("out: %s\n", cmd);
+	// match without spaces in expression
+	ret = cmdparser_test(uri, &cmd, expect);
+	cmd = (char*) "${env.windir}\\notepad.exe /A \"${name1}\" ${name2} ${env.USERNAME!=name2:--debug}";
+	ret = cmdparser_test(uri, &cmd, expect);
+	res += ret;
 	
-	// no spaces
-	cmd = (char*) "${env.HOME}\\notepad.exe /A \"${name1}\" ${name2} ${env.USERNAME!=name2:--debug}";
-	uri_parsed = uriparse_create(uri);
-	res = uriparse_parse(uri, &uri_parsed);
-	//printf("res: %d\n", res);
-	if (res != 0) {
-		ret = 127+res;
-		printf("Parser Error %d, %s\n", res, uri);
-		return ret;
-	}
+	// no match
+	cmd = (char*) "${env.windir}\\notepad.exe /A \"${name1}\" ${name2} ${env.USERNAME=name2:--debug}";
+	expect = (char*) "C:\\WINDOWS\\notepad.exe /A \"vaue1\" xxx ";
+	ret = cmdparser_test(uri, &cmd, expect);
+	res += ret;
 	
-	ret = expand_vars(&cmd, &uri_parsed.nvquery);
-	printf("out: %s\n", cmd);
+	// case insensitive comparison
+	uri = (char*) "proto:auth/path?name1=vaue1&name2=xxx";
+	cmd = (char*) "${env.windir}\\notepad.exe /A \"${name1}\" ${name2} ${env.MYVAR=name2:--debug}";
+	putenv("MYVAR=XXX");
+	expect = (char*) "C:\\WINDOWS\\notepad.exe /A \"vaue1\" xxx --debug";
+	ret = cmdparser_test(uri, &cmd, expect);
+	res += ret;
 	
-	// expression does not match
-	cmd = (char*) "${env.HOME}\\notepad.exe /A \"${name1}\" ${name2} ${env.USERNAME=name2:--debug}";
-	uri_parsed = uriparse_create(uri);
-	res = uriparse_parse(uri, &uri_parsed);
-	//printf("res: %d\n", res);
-	if (res != 0) {
-		ret = 127+res;
-		printf("Parser Error %d, %s\n", res, uri);
-		return ret;
-	}
-	
-	ret = expand_vars(&cmd, &uri_parsed.nvquery);
-	printf("out: %s\n", cmd);
-
-	
-	
-	return ret;
+	return res;
 }
 
 #endif // CMD_PARSER_MAIN
