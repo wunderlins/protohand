@@ -228,7 +228,7 @@ int main(int argc, char** argv, char **envp) {
 	//struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	struct t_uri uri_parsed = uriparse_create(argv[1]);
 	res = uriparse_parse(argv[1], &uri_parsed);
-	printf("res: %d\n", res);
+	//printf("res: %d\n", res);
 	if (res != 0) {
 		ret = 127+res;
 		const char *err;

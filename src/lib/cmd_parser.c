@@ -22,6 +22,8 @@ int strcmp_lcase(char* str1, char* str2) {
 int find_var_value(char* varname, struct nvlist_list* query, char** result) {
     int ii;
     
+	//printf("---> %s\n", varname);
+	
     // environment variables
     if (varname[0] == 'e' && varname[1] == 'n' &&
         varname[2] == 'v' && varname[3] == '.' ) {
@@ -188,11 +190,14 @@ int expand_vars(char** str, struct nvlist_list* query) {
 	out[0] = 0;
 	
 	for (i=0; i<l; i++) {
+		//printf("%d %d %c\n", has_colon, has_equal, str[0][i]);
 		if (i > 0 && str[0][i] == '{' && str[0][i-1] == '$') {
 			//printf("Begin: %d\n", i);
 			open = 1;
 			start = i;
 			out[strlen(out)-1] = 0; // remove '$' from out string
+			has_colon = 0;
+			has_equal = 0;
 			continue;
 		}
 		
@@ -213,8 +218,8 @@ int expand_vars(char** str, struct nvlist_list* query) {
 			//printf("varname: %s\n", varname);
 			
 			// resolve expression
-			if (has_colon && has_equal) {
-				
+			if (has_colon == 1 && has_equal == 1) {
+				//printf("resolving expression %s\n", varname);
 				ret = parse_conditional(varname, &cond, query);
 				
 				//printf("var1: '%s', var2 '%s', replace: '%s'\n",
@@ -230,8 +235,10 @@ int expand_vars(char** str, struct nvlist_list* query) {
 
 			// resolve query and env variables
 			} else { // variable
+				//printf("Resolving variable\n");
 				ret = find_var_value(varname, query, &result);
 				if (ret == 1) {
+					//printf("Result: %s\n", result);
 					expandvar_err_var_name = varname;
 					return EXP_ERR_QUERYNVVAR_NOT_FOUND;
 				}

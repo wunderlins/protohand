@@ -58,13 +58,15 @@ test_cmdparser:
 	$(CC) $(CFLAGS) -DCMD_PARSER_MAIN -o ../test/cmd_parser$(_EXT) lib/stringlib.o lib/nvlist.o lib/uriparse.o lib/cmd_parser.c 
 	
 	
-dep: regexcpp errstr
+dep: regexcpp errstr cmdparser
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
+
+cmdparser:
 	$(CC) $(CFLAGS) -c lib/cmd_parser.c -o lib/cmd_parser.o
 	
 regexcpp:
