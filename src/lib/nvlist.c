@@ -99,6 +99,7 @@ int main(int argc, char** argv, char **envp) {
 	nvlist_addpair(&rep, "k1", "v1");
 	nvlist_addpair(&rep, "k2", "v2");
 	nvlist_addstr(&rep, "k3&v3", '&');
+	nvlist_addstr(&rep, "k4&v+4", '&');
 	
 	// FIXME: umlauts don't work on W10 msys with a us codepage
 	//printf("ö\n"); // works if file uses CP 'OEM 852' 
@@ -125,6 +126,11 @@ int main(int argc, char** argv, char **envp) {
 	printf("r: %d key  , %s, %s\n", ret, rep.items[2].key, "k3");
 	ret = strcmp(rep.items[2].value, "v3"); res += ret;
 	printf("r: %d value, %s, %s\n", ret, rep.items[2].value, "v3");
+	
+	ret = strcmp(rep.items[3].key, "k4"); res += ret;
+	printf("r: %d key  , %s, %s\n", ret, rep.items[3].key, "k4");
+	ret = strcmp(rep.items[3].value, "v+4"); res += ret;
+	printf("r: %d value, %s, %s\n", ret, rep.items[3].value, "v+4");
 	
 	free(rep.items);
 	
