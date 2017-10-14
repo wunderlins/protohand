@@ -109,6 +109,7 @@ Add additional parameters to the command line after the parameters that are pass
   - [ ] update README.txt, this is the program manual
   - [ ] update README.md, this is the build and programming manual
   - [ ] document limitations
+- [x] implement unit tests
 
 [1]: https://tools.ietf.org/html/rfc3986
 [2]: https://www.gnu.org/software/libc/manual/html_node/Regular-Expressions.html#Regular-Expressions
