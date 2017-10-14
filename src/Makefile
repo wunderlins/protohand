@@ -13,6 +13,7 @@ CC = gcc
 
 R_DIR=../release
 
+pwd := $(shell sh -c 'pwd || echo ""')
 detected_OS := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 SEDI_EXT=
 ifeq ($(detected_OS),Darwin)  # Mac OS X
@@ -52,7 +53,7 @@ rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 export
 
-CFLAGS += -I ../pcre/include -L../pcre/lib
+CFLAGS += -I ../pcre/include -L$(pwd)/../pcre/lib
 
 # build everything including 3rd party libs
 all: pcre app
@@ -63,9 +64,11 @@ app: clean create_error max_path doc $(BUILD_ICONS) dep ph testcmd testregex
 ## DEPENDENCIES ################################################################
 PCRE_VERSION=8.41
 pcre:
+	mkdir ../pcre | true
 	tar xfj pcre-$(PCRE_VERSION).tar.bz2 -C ..
-	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $$PWD/../pcre
-	cd ../pcre-$(PCRE_VERSION) && make && make install
+	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $(pwd)/../pcre
+	cd ../pcre-$(PCRE_VERSION) && make
+	cd ../pcre-$(PCRE_VERSION) && make install
 
 dep: regexcpp errstr cmdparser
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
