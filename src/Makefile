@@ -25,7 +25,6 @@ MAX_CWD_LENGTH = $(shell sh -c './bin/MAX_CWD_LENGTH.exe')
 
 # cflags, strip if debuggign is disabled
 CFLAGS = -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) # -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
-CFLAGS += -I ../pcre/include -L../pcre/lib
 ifeq ($(DEBUG),0) 
 	CFLAGS += -s
 endif
@@ -52,6 +51,8 @@ timestamp=$(shell date "+%Y%m%d%H%M")
 rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 export
+
+CFLAGS += -I ../pcre/include -L../pcre/lib
 
 # build everything including 3rd party libs
 all: pcre app
