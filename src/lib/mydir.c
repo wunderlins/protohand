@@ -36,6 +36,8 @@ int exedir(char *argv0, char *exedir) {
 		strcat(tmp, argv0);
 	}
 	
+	l = strlen(tmp);
+	//printf("tmp: %s\n", tmp);
 	// remove the filename from tmp
 	for(i=l; i>0; i--) {
 		if (tmp[i] == '/') {
@@ -43,12 +45,14 @@ int exedir(char *argv0, char *exedir) {
 			break;
 		}
 	}
+	//printf("tmp: %s\n", tmp);
 	
 	// clean the path, remove all . and ..
 	errno = 0;
 	//printf("%s\n", tmp);
 	realpath(tmp, cleaned);
 	if (errno != 0) {
+		fprintf(stderr, "error: %d ", errno);
 		perror("realpath failed");
 		return 2;
 	}
@@ -68,7 +72,7 @@ int exedir(char *argv0, char *exedir) {
 int main(int argc, char* argv[]) {
 	char *dir = malloc(sizeof(char*) * (MAX_CWD_LENGTH+1));
 	int ret = exedir(argv[0], dir);
-	printf("exedir: %s\n", dir);
+	printf("exedir: %s\nargv[0]: %s\n", dir, argv[0]);
 	return ret;
 }
 #endif

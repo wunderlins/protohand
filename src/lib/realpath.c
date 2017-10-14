@@ -89,14 +89,17 @@ char *realpath(const char *path, char resolved_path[PATH_MAX])
         switch (GetLastError())
         {
           case ERROR_FILE_NOT_FOUND:
+			//printf("not found");
             errno = ENOENT;
             break;
 
           case ERROR_PATH_NOT_FOUND: case ERROR_INVALID_DRIVE:
+			//printf("invalid drive");
             errno = ENOTDIR;
             break;
 
           case ERROR_ACCESS_DENIED:
+			//printf("access denied");
             errno = EACCES;
             break;
           
