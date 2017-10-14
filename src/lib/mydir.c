@@ -1,4 +1,5 @@
 #include "mydir.h"
+#include "stringlib.h"
 
 void fwdslash(char* path) {
 	int i;
@@ -71,8 +72,37 @@ int exedir(char *argv0, char *exedir) {
 #ifdef MYDIR_MAIN
 int main(int argc, char* argv[]) {
 	char *dir = malloc(sizeof(char*) * (MAX_CWD_LENGTH+1));
-	int ret = exedir(argv[0], dir);
-	printf("exedir: %s\nargv[0]: %s\n", dir, argv[0]);
+	exedir(argv[0], dir);
+	
+	FILE *fp; char path[1035];
+	char* cmd = malloc(sizeof(char*) * 1024);
+	strcpy(cmd, "realpath ../test/mydir.exe");
+	//strcat(cmd, argv[0]);
+	//printf("cmd: %s\n", cmd);
+	fp = popen(cmd, "r");
+	if (fp == NULL) {
+		printf("Failed to run command\n" );
+		exit(1);
+	}
+	fgets(path, sizeof(path)-1, fp);
+	trim(path);
+	path[0] = 'C'; path[1] = ':';
+	pclose(fp);
+	
+	int l = strlen(path);
+	int i = 0;
+	for(i=l; i>0; i--) {
+		if (path[i] == '/') {
+			path[i+1] = '\0';
+			break;
+		}
+	}
+	//printf("path: %s\n", path);
+	//printf("exedir: %s\nargv[0]: %s\n", dir, argv[0]);
+	
+	int ret = strcmp(path, dir);
+	printf("r: %d, %s, %s\n", ret, dir, path);
 	return ret;
+	
 }
 #endif

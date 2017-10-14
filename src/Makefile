@@ -263,7 +263,7 @@ test: dep test_cmdparser realpath test_mydir
 
 test_mydir:
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
-	$(CC) $(CFLAGS) -o ../test/mydir.exe $(REALPATH) -DMYDIR_MAIN lib/mydir.c
+	$(CC) $(CFLAGS) -o ../test/mydir.exe lib/stringlib.o $(REALPATH) -DMYDIR_MAIN lib/mydir.c
 	
 test_cmdparser:
 	$(CC) $(CFLAGS) -DCMD_PARSER_MAIN -o ../test/cmd_parser$(_EXT) lib/stringlib.o lib/nvlist.o lib/uriparse.o lib/cmd_parser.c 
