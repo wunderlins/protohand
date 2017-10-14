@@ -255,15 +255,24 @@ clearlog:
 
 
 ## TEST ########################################################################
-test: dep test_cmdparser realpath test_mydir
-	$(CC) $(CFLAGS) -D NVLIST_MAIN -o ../test/nvlist$(_EXT) lib/stringlib.o lib/nvlist.c
-	g++ -std=c++11 $(CFLAGS) -o ../test/regcpp.exe lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
+test: dep test_cmdparser realpath test_mydir test_nvlist
+	g++ -std=c++11 $(CFLAGS) -o ../test/regcpp$(_EXT) lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
-	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -o ../test/uriparse.exe lib/nvlist.o lib/stringlib.o lib/uriparse.o
+	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -o ../test/uriparse$(_EXT) lib/nvlist.o lib/stringlib.o lib/uriparse.o
+	
+	@echo 
+	../test/cmd_parser$(_EXT)
+	../test/mydir$(_EXT)
+	../test/nvlist$(_EXT)
+	../test/regcpp$(_EXT)
+	../test/uriparse$(_EXT)
+
+test_nvlist:
+	$(CC) $(CFLAGS) -D NVLIST_MAIN -o ../test/nvlist$(_EXT) lib/stringlib.o lib/nvlist.c
 
 test_mydir:
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
-	$(CC) $(CFLAGS) -o ../test/mydir.exe lib/stringlib.o $(REALPATH) -DMYDIR_MAIN lib/mydir.c
+	$(CC) $(CFLAGS) -o ../test/mydir$(_EXT) lib/stringlib.o $(REALPATH) -DMYDIR_MAIN lib/mydir.c
 	
 test_cmdparser:
 	$(CC) $(CFLAGS) -DCMD_PARSER_MAIN -o ../test/cmd_parser$(_EXT) lib/stringlib.o lib/nvlist.o lib/uriparse.o lib/cmd_parser.c 

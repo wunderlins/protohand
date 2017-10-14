@@ -103,14 +103,31 @@ int main(int argc, char** argv, char **envp) {
 	// FIXME: umlauts don't work on W10 msys with a us codepage
 	//printf("ö\n"); // works if file uses CP 'OEM 852' 
 	
+	/*
 	int i;
 	for (i=0; i<rep.length; i++) {
 		printf("%s=%s\n", rep.items[i].key, rep.items[i].value);
-		free(rep.items[i].key);
-	}
+	}*/
+	
+	int ret = 0;
+	int res = 0;
+	ret = strcmp(rep.items[0].key, "k1"); res += ret;
+	printf("r: %d key  , %s, %s\n", ret, rep.items[0].key, "k1");
+	ret = strcmp(rep.items[0].value, "v1"); res += ret;
+	printf("r: %d value, %s, %s\n", ret, rep.items[0].value, "v1");
+	
+	ret = strcmp(rep.items[1].key, "k2"); res += ret;
+	printf("r: %d key  , %s, %s\n", ret, rep.items[1].key, "k2");
+	ret = strcmp(rep.items[1].value, "v2"); res += ret;
+	printf("r: %d value, %s, %s\n", ret, rep.items[1].value, "v2");
+	
+	ret = strcmp(rep.items[2].key, "k3"); res += ret;
+	printf("r: %d key  , %s, %s\n", ret, rep.items[2].key, "k3");
+	ret = strcmp(rep.items[2].value, "v3"); res += ret;
+	printf("r: %d value, %s, %s\n", ret, rep.items[2].value, "v3");
 	
 	free(rep.items);
 	
-	return 0;
+	return res;
 }
 #endif
