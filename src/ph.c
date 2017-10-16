@@ -32,8 +32,9 @@ void writelog(int level, char* str) {
 }
 
 int display_error(int code) {
-	char params[25] = "";
-	sprintf(params, "error.html?%d", code);
+	char params[MAX_CWD_LENGTH];
+	
+	sprintf(params, "%s/error.html?%d", getenv("PH_HOME"), code);
 	const char* myargs[5] = {
 		"/c"
 		"hh.exe",
