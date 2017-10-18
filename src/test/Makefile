@@ -53,4 +53,4 @@ cmd_parser:
 	$(CC) $(CFLAGS) -DCMD_PARSER_MAIN -o cmd_parser.exe ../lib/stringlib.o ../lib/nvlist.o ../lib/uriparse.o ../lib/cmd_parser.c 
 
 xor:
-	$(CC) $(CFLAGS) -o xor$(_EXT) xor.c
+	$(CC) $(CFLAGS) -o xor$(_EXT) xor.c -DXOR_MAIN
