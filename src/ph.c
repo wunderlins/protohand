@@ -195,23 +195,6 @@ int main(int argc, char** argv, char **envp) {
 	strcat(log_file, "ph.log");
 	logfile = fopen(log_file, "ab+");
 	
-	// check if we have an ini file, if not, create it
-	char ini_file[MAX_CWD_LENGTH];
-	strcpy(ini_file, dir);
-	strcat(ini_file, INI_FILE_NAME);
-	if( access(ini_file, F_OK) == -1 ) {
-		// file doesn't exist, create it
-		ret = create_ini(ini_file);
-		return OK;
-	}
-	
-	// check input
-	if(argc != 2) {
-		perror("argument 1 with uri missing");
-		usage();
-		return display_error(NO_INPUT);
-	}
-
 	// logging uri
 	time_t t = time(NULL);
 	struct tm tm = *localtime(&t);
@@ -222,8 +205,32 @@ int main(int argc, char** argv, char **envp) {
 
 	sprintf(logbuffer, "Current working dir: %s", dir);
 	writelog(2, logbuffer);
+	
+	// check if we have an ini file, if not, create it
+	char ini_file[MAX_CWD_LENGTH];
+	if (argc == 3) {
+		strcpy(ini_file, argv[2]);
+	} else {
+		strcpy(ini_file, dir);
+		strcat(ini_file, INI_FILE_NAME);
+	}
+	
 	sprintf(logbuffer, "Current ini file:    %s", ini_file);
 	writelog(2, logbuffer);
+	
+	if( access(ini_file, F_OK) == -1 ) {
+		// file doesn't exist, create it
+		ret = create_ini(ini_file);
+		return OK;
+	}
+	
+	// check input
+	if(argc < 2) {
+		perror("argument 1 with uri missing");
+		usage();
+		return display_error(NO_INPUT);
+	}
+
 	
 	// parse uri
 	//struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};

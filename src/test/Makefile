@@ -54,3 +54,6 @@ cmd_parser:
 
 xor:
 	$(CC) $(CFLAGS) -o xor$(_EXT) xor.c -DXOR_MAIN
+
+unc:
+	$(CC) $(CFLAGS) -o unc$(_EXT) unc.c -DXOR_MAIN

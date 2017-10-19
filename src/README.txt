@@ -1,4 +1,4 @@
-Usage: PROGNAME_EXT <url>
+Usage: PROGNAME_EXT <url> [config file]
 
 SYNOPSYS:
 
