@@ -15,7 +15,7 @@ char *xor(char *string, const char *key, long l) {
 	return out;
 }
 
-int transcode(char* fin, char* fout, char* key) {
+int transcode_file(char* fin, char* fout, char* key) {
 	
 	xormode_t mode = ENCODE;
 	
@@ -66,10 +66,74 @@ int transcode(char* fin, char* fout, char* key) {
 	return 0;
 }
 
+int transcode_str(char* strin, long* fsize, char** strout, char* key) {
+	
+	xormode_t mode = ENCODE;
+	long outlen;
+	
+	if (strin[0] == xor_magic[0] && 
+	    strin[1] == xor_magic[1] && 
+		strin[2] == xor_magic[2] && 
+		strin[3] == xor_magic[3]) {
+		strin += 4;
+		outlen = *fsize-4;
+		mode = DECODE;
+		//printf("Decode\n");
+	} else {
+		outlen = *fsize+4;
+		//printf("Encode\n");
+	}
+	
+	char *result = (char*) malloc(outlen);
+	if (mode == ENCODE) {
+		memcpy(result, xor_magic, 4);
+		memcpy(result+4, xor(strin, key, *fsize), *fsize);
+	} else 
+		memcpy(result, xor(strin, key, *fsize), *fsize);
+	
+	/*
+	long i;
+	for(i=0; i<outlen; i++) {
+		if (mode == ENCODE && (result[i] == '\r' || result[i] == '\n'))
+			result[i] = 0;
+		if (mode == DECODE && result[i] == '\0')
+			result[i] = '\n';
+	}
+	*/
+	
+	*strout = result;
+	*fsize = outlen;
+	
+	return 0;
+}
 #ifdef XOR_MAIN
 int main(int argc, char * argv[]) {
-	int res = transcode(argv[1], argv[2], argv[3]);
-	printf("res: %d\n", res);
+
+	FILE *f = fopen(argv[1], "rb");
+	if (f == NULL)
+		return 1;
+	fseek(f, 0, SEEK_END);
+	long fsize = ftell(f);
+	fseek(f, 0, SEEK_SET);  //same as rewind(f);
+	//printf("%ld\n", fsize);
+	char *string = (char*) malloc(fsize);
+	fread(string, fsize, 1, f);
+	//string[fsize] = 0;
+	fclose(f);
+	
+	char *result;
+	int res = transcode_str(string, &fsize, &result, argv[3]);
+	//printf("%s", result);
+	//fwrite(result, 1, fsize, stdout);
+	//printf("\n");
 	fflush(stdout);
+	
+	f = fopen(argv[2], "wb");
+	fwrite(result, 1, fsize, f);
+	fclose(f);
+	
+	//printf("%s\n", xor(xor(string, "123", fsize), "123", fsize));
+	
+	return 0;
 }
 #endif
