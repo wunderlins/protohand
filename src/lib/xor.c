@@ -5,7 +5,7 @@
 
 const char xor_magic[5] = "0x66";
 
-char *xor(char *string, const char *key, long l) {
+char* _xor(char *string, const char *key, long l) {
 	int i = 0;
 	char* out = malloc(l);
 	size_t length = strlen(key);
@@ -52,7 +52,7 @@ int transcode_file(char* fin, char* fout, char* key) {
 	
 	//printf("%ld\n", fsize);
 	char *result; // = (char*) malloc(fsize + 1);
-	result = xor(string, key, fsize);
+	result = _xor(string, key, fsize);
 	if (mode == ENCODE)
 		fwrite(xor_magic, 1, 4, f);
 	//printf("%ld\n", fsize);
@@ -87,9 +87,9 @@ int transcode_str(char* strin, long* fsize, char** strout, char* key) {
 	char *result = (char*) malloc(outlen);
 	if (mode == ENCODE) {
 		memcpy(result, xor_magic, 4);
-		memcpy(result+4, xor(strin, key, *fsize), *fsize);
+		memcpy(result+4, _xor(strin, key, *fsize), *fsize);
 	} else 
-		memcpy(result, xor(strin, key, *fsize), *fsize);
+		memcpy(result, _xor(strin, key, *fsize), *fsize);
 	
 	/*
 	long i;
