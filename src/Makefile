@@ -77,6 +77,7 @@ dep: regexcpp errstr cmdparser
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
+	$(CC) $(CFLAGS) -c lib/xor.c -o lib/xor.o
 
 cmdparser:
 	$(CC) $(CFLAGS) -c lib/cmd_parser.c -o lib/cmd_parser.o
