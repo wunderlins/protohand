@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "xor.h"
 
 const char xor_magic[5] = "0x66";
-typedef enum {DECODE, ENCODE} xormode_t;
 
 char *xor(char *string, const char *key, long l) {
 	int i = 0;
