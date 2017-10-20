@@ -1,4 +1,4 @@
-.PHONY: uriparse regex
+.PHONY: uriparse regex xor
 
 CC=gcc 
 CFLAGS=-Wall -DEBUG=1 -DURIPARSE_DEBUG=1 -DNVLIST_MAIN=1

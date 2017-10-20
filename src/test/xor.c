@@ -61,7 +61,7 @@ int transcode(char* fin, char* fout, char* key) {
 	//fflush(stdout);
 
 	free(result);
-	free(string);
+	//free(string);
 
 	return 0;
 }
