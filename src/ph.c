@@ -422,6 +422,8 @@ int main(int argc, char** argv, char **envp) {
 	//         cmd.exe
 	quote(&myargs[1]);
 	//printf("cmd: %s\n", myargs[1]);
+	// FIXME: for osx, ue posix_spawn:
+	// https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man2/posix_spawn.2.html
 	ret = spawnve(P_NOWAIT, exe, myargs, environ);
 	if (ret < 0) {
 		sprintf(logbuffer, "spawnve() returned error: %d", ret);

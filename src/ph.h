@@ -19,7 +19,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stddef.h>
-#include <process.h> 
+#ifdef __APPLE__
+	#include <spawn.h>
+#else
+	#include <process.h>
+#endif
 #include "lib/ini.h"
 #include "lib/stringlib.h"
 #include "lib/nvlist.h"

@@ -39,12 +39,14 @@ ifeq ($(OS),Windows_NT)
 	TESTCMD_ICO=ico/testcmd_generated.res
 	TESTREGEX_ICO=ico/testregex_generated.res
 	BUILD_ICONS=icon
+	DEP_REALPATH=dep_realpath
 else
 	REALPATH=
 	APP_ICO=
 	TESTCMD_ICO=
 	TESTREGEX_ICO=
 	BUILD_ICONS=
+	DEP_REALPATH=
 endif
 
 # create release name: OS_VERSION_TIMESTAMP
@@ -70,14 +72,16 @@ pcre:
 	cd ../pcre-$(PCRE_VERSION) && make
 	cd ../pcre-$(PCRE_VERSION) && make install
 
-dep: regexcpp errstr cmdparser
+dep: regexcpp errstr cmdparser $(DEP_REALPATH)
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
-	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
 	$(CC) $(CFLAGS) -c lib/xor.c -o lib/xor.o
+
+dep_realpath:
+	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 
 cmdparser:
 	$(CC) $(CFLAGS) -c lib/cmd_parser.c -o lib/cmd_parser.o

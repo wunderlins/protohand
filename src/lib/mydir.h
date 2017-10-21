@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
     // Windows (x86 or x64)
