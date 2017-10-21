@@ -8,7 +8,6 @@ VERSION=0.3.4
 # naming
 PROGNAME = protohand
 PROGNAME_SHORT = ph
-_EXT = .exe
 CC = gcc
 
 R_DIR=../release
@@ -41,6 +40,7 @@ ifeq ($(OS),Windows_NT)
 	BUILD_ICONS=icon
 	DEP_REALPATH=dep_realpath
 	TEST_REALPATH=realpath
+	_EXT = .exe
 else
 	REALPATH=
 	APP_ICO=
@@ -49,6 +49,7 @@ else
 	BUILD_ICONS=
 	DEP_REALPATH=
 	TEST_REALPATH=
+	_EXT=
 endif
 
 # create release name: OS_VERSION_TIMESTAMP
