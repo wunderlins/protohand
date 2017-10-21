@@ -40,6 +40,7 @@ ifeq ($(OS),Windows_NT)
 	TESTREGEX_ICO=ico/testregex_generated.res
 	BUILD_ICONS=icon
 	DEP_REALPATH=dep_realpath
+	TEST_REALPATH=realpath
 else
 	REALPATH=
 	APP_ICO=
@@ -47,6 +48,7 @@ else
 	TESTREGEX_ICO=
 	BUILD_ICONS=
 	DEP_REALPATH=
+	TEST_REALPATH=
 endif
 
 # create release name: OS_VERSION_TIMESTAMP
@@ -260,7 +262,7 @@ clearlog:
 
 
 ## TEST ########################################################################
-test: dep test_cmdparser realpath test_mydir test_nvlist
+test: dep test_cmdparser $(TEST_REALPATH) test_mydir test_nvlist
 	g++ -std=c++11 $(CFLAGS) -o ../test/regcpp$(_EXT) lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -o ../test/uriparse$(_EXT) lib/nvlist.o lib/stringlib.o lib/uriparse.o
@@ -276,7 +278,7 @@ test_nvlist:
 	$(CC) $(CFLAGS) -D NVLIST_MAIN -o ../test/nvlist$(_EXT) lib/stringlib.o lib/nvlist.c
 
 test_mydir:
-	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
+	#$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -o ../test/mydir$(_EXT) lib/stringlib.o $(REALPATH) -DMYDIR_MAIN lib/mydir.c
 	
 test_cmdparser:
