@@ -1,25 +1,25 @@
 Windows Registry Editor Version 5.00
 ;; Register a protocol handler
 ;;
-;; REPLACE PROGNAME with your protocol name and <yourpath> with your path 
+;; REPLACE <proto> with your protocol name and <yourpath> with your path 
 ;; to the executable
 
-[HKEY_CLASSES_ROOT\PROGNAME]
-@="URL: PROGNAME Protocol"
+[HKEY_CLASSES_ROOT\<proto>]
+@="URL: <proto> Protocol"
 "URL Protocol"=""
 
-[HKEY_CLASSES_ROOT\PROGNAME\shell]
-[HKEY_CLASSES_ROOT\PROGNAME\shell\open]
-[HKEY_CLASSES_ROOT\PROGNAME\shell\open\command]
+[HKEY_CLASSES_ROOT\<proto>\shell]
+[HKEY_CLASSES_ROOT\<proto>\shell\open]
+[HKEY_CLASSES_ROOT\<proto>\shell\open\command]
 ; replace <yourpath> with your installation location
-@="\"<yourpath>\\PROGNAME_EXT\" \"%1\""
+@="\"<yourpath>\\PROGNAME_SHORT_EXT\" \"%1\""
 
 ;; internet explorer will show a warning when this protocol is used, you can 
 ;; disable this warning site wide or per user
 ; per user setting
-;[HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\ProtocolExecute\PROGNAME]
+;[HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\ProtocolExecute\<proto>]
 ;"WarnOnOpen"=dword:00000000
 
 ; computer setting
-[HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer\ProtocolExecute\PROGNAME]
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer\ProtocolExecute\<proto>]
 "WarnOnOpen"=dword:00000000
