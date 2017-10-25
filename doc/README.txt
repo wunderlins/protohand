@@ -42,6 +42,10 @@ DESCRIPTION
         [authority/path/dir] ; this is the mapping to the url
         cmd = some_executable.exe --file="${param1}"
 
+    Registering a protocol scheme can be donw trough a registry setting on 
+    windows. An example registrz file should come with this program if not 
+	run it in a folder without a configuration file and it will be created.
+
 
 OPTIONS
 
@@ -102,3 +106,4 @@ SEE ALSO
     INSTALL.txt        for installation and configuration instructions.
     BUILD.txt          for instructions on building for Windows, OSX and Linux
     LICENSE.txt        BSD License
+    PROGNAME_SHORT.reg             Example registry file

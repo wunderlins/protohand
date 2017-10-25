@@ -11,6 +11,7 @@ PROGNAME_SHORT = ph
 CC = gcc
 
 R_DIR=../release
+B_DIR=../build
 
 pwd := $(shell sh -c 'pwd || echo ""')
 detected_OS := $(shell sh -c 'uname -s 2>/dev/null || echo not')
@@ -28,6 +29,8 @@ CFLAGS = -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNA
 ifeq ($(DEBUG),0) 
 	CFLAGS += -s
 endif
+
+CFLAGS += -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
 
 include os.mk
 
@@ -193,38 +196,42 @@ release:
 	mkdir "$(R_DIR)/$(rel)"
 	
 	# copy files to release directory
-	cp $(PROGNAME_SHORT)$(_EXT) "$(R_DIR)/$(rel)"
-	strip "$(R_DIR)/$(rel)/$(PROGNAME_SHORT)$(_EXT)"
-	cp README.txt "$(R_DIR)/$(rel)/"
-	cp generated/error.html "$(R_DIR)/$(rel)/"
-	cp testcmd$(_EXT) "$(R_DIR)/$(rel)/"
-	cp testregex$(_EXT) "$(R_DIR)/$(rel)/"
-	cp ph.reg "$(R_DIR)/$(rel)/ph.reg"
-	cp ph.ini "$(R_DIR)/$(rel)"
-	cp ../LICENSE.txt "$(R_DIR)/$(rel)/"
-	strip "$(R_DIR)/$(rel)/testcmd$(_EXT)"
-	strip "$(R_DIR)/$(rel)/testregex$(_EXT)"
+	cp $(PROGNAME_SHORT)$(_EXT) "$(B_DIR)/"
+	strip "$(B_DIR)/$(PROGNAME_SHORT)$(_EXT)"
+	cp ../doc/README.txt "$(B_DIR)/"
+	cp generated/error.html "$(B_DIR)/"
+	cp testcmd$(_EXT) "$(B_DIR)/"
+	cp testregex$(_EXT) "$(B_DIR)/"
+	cp ph.reg "$(B_DIR)/ph.reg"
+	cp example.ini "$(B_DIR)/ph.ini"
+	cp ../doc/LICENSE.txt "$(B_DIR)/"
+	cp ../doc/INSTALL.txt "$(B_DIR)/"
+	cp ../doc/BUILD.txt "$(B_DIR)/"
+	strip "$(B_DIR)/testcmd$(_EXT)"
+	strip "$(B_DIR)/testregex$(_EXT)"
 	
 	# subsitute all keywords in the README.txt file
-	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME_SHORT)/g' $(R_DIR)/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' $(R_DIR)/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' $(R_DIR)/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' $(R_DIR)/$(rel)/README.txt
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME_SHORT)/g' $(B_DIR)/README.txt
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' $(B_DIR)/README.txt
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' $(B_DIR)/README.txt
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' $(B_DIR)/README.txt
 	# windows line endings
-	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/README.txt
-	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/LICENSE.txt
-	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/ph.ini
-	sed -i $(SEDI_EXT) 's/protohand\.exe/$(PROGNAME_SHORT)$(_EXT)/g' $(R_DIR)/$(rel)/ph.reg
-	sed -i $(SEDI_EXT) 's/$$/\r/' $(R_DIR)/$(rel)/ph.reg
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/README.txt
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/INSTALL.txt
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/BUILD.txt
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/LICENSE.txt
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/ph.ini
+	sed -i $(SEDI_EXT) 's/protohand\.exe/$(PROGNAME_SHORT)$(_EXT)/g' $(B_DIR)/ph.reg
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/ph.reg
 	
 	
 	# create zip file
-	cd $(R_DIR)/$(rel); ../../src/bin/zip.exe "../$(rel).zip" * 
+	cd $(B_DIR)/; ../../src/bin/zip.exe "../$(rel).zip" * 
 	
-	cp $(R_DIR)/$(rel)/* ../build
+	#cp $(R_DIR)/$(rel)/* ../build
 	
 	# remove working directory
-	rm -r "$(R_DIR)/$(rel)"
+	#rm -r "$(R_DIR)/$(rel)"
 	
 	# add to git repo, tag release and push changes/tags
 	#git add release/*.zip
