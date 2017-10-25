@@ -102,11 +102,11 @@ Add additional parameters to the command line after the parameters that are pass
   - [ ] error display prefix (ie. `cmd /c hh.exe -800 ...`)
   - [x] make sure the logfile does not exceed a certain size
 - [ ] finalize documentation
-  - [ ] document program execution steps
-  - [ ] update example reg file
+  - [x] document program execution steps
+  - [x] update example reg file
   - [ ] create documented ini file with example. compile it in
   - [ ] complete list of error messages, update error.html. compile error.html in.
-  - [ ] update README.txt, this is the program manual
+  - [x] update README.txt, this is the program manual
   - [ ] update README.md, this is the build and programming manual
   - [ ] document limitations
 - [x] implement unit tests
