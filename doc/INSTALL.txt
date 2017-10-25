@@ -58,6 +58,3 @@ Configuration directives:
 	
     path_params: deprecated
 
-    
-    
-    

@@ -30,7 +30,7 @@ ifeq ($(DEBUG),0)
 	CFLAGS += -s
 endif
 
-CFLAGS += -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
+#CFLAGS += -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
 
 include os.mk
 
@@ -189,7 +189,7 @@ release:
 	#git pull
 	
 	# build the application
-	$(MAKE) all
+	#$(MAKE) all
 	
 	# make release directory
 	@echo $(R_DIR)/$(rel)
@@ -211,10 +211,25 @@ release:
 	strip "$(B_DIR)/testregex$(_EXT)"
 	
 	# subsitute all keywords in the README.txt file
-	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME_SHORT)/g' $(B_DIR)/README.txt
+	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' $(B_DIR)/README.txt
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' $(B_DIR)/README.txt
 	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' $(B_DIR)/README.txt
 	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' $(B_DIR)/README.txt
 	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' $(B_DIR)/README.txt
+	
+	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' $(B_DIR)/INSTALL.txt
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' $(B_DIR)/INSTALL.txt
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' $(B_DIR)/INSTALL.txt
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' $(B_DIR)/INSTALL.txt
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' $(B_DIR)/INSTALL.txt
+	
+	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' $(B_DIR)/BUILD.txt
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' $(B_DIR)/BUILD.txt
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' $(B_DIR)/BUILD.txt
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' $(B_DIR)/BUILD.txt
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' $(B_DIR)/BUILD.txt
+	
+	
 	# windows line endings
 	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/README.txt
 	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/INSTALL.txt
@@ -226,7 +241,8 @@ release:
 	
 	
 	# create zip file
-	cd $(B_DIR)/; ../../src/bin/zip.exe "../$(rel).zip" * 
+	cd $(B_DIR)/; ../src/bin/zip.exe "../$(rel).zip" * 
+	mv "../$(rel).zip" ../release
 	
 	#cp $(R_DIR)/$(rel)/* ../build
 	

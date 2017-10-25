@@ -66,13 +66,19 @@ ENVIRONMENT
 
 FILES
 
-    $PH_HOME/ph.ini   The default location of the configration file. If the 
-                      2nd argument is not provided, `PROGNAME_SHORT_EXT`
-                      will search for the configuration file here.
+    $PH_HOME/ph.ini      The default location of the configration file. If the 
+                         2nd argument is not provided, `PROGNAME_SHORT_EXT`
+                         will search for the configuration file here.
 
-    $PH_HOME/ph.dat   The default location of the encoded configration file.
-                      To encode an `.ini` file into a `.dat` file see the `-e`
-                      command line switch.
+    $PH_HOME/ph.dat      The default location of the encoded configration file.
+                         To encode an `.ini` file into a `.dat` file see 
+                         the `-e` command line switch.
+
+    $PH_HOME/ph.log      Logfile f the program.
+
+    $PH_HOME/error.html  Error messages displayed in a browser when the 
+                         program encounters a problem.
+
 
 LIMITATIONS
 
@@ -98,7 +104,12 @@ LIMITATIONS
 
 COPYRIGHT
 
-    2017, Simon Wunderlin - BSD
+    2017, Simon Wunderlin (BSD license)
+	2009, Ben Hoyt - Ini parser, https://github.com/benhoyt/inih (BSD license)
+	
+    Regular expression support is provided by the PCRE library package,
+    which is open source software, written by Philip Hazel, and copyright
+    by the University of Cambridge, England.
 
 
 SEE ALSO

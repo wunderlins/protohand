@@ -1,7 +1,7 @@
 .PHONY: all test
 
 all:
-	$(MAKE) release -C src
+	$(MAKE) all release -C src
 
 test:
 	$(MAKE) test -C src

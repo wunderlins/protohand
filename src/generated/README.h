@@ -2,7 +2,7 @@
 // 'make usage' to update this documentation!
 
 const char* usage_str = ""
-"Usage: protohand.exe <url>\r\n"
+"Usage: protohand.exe <url> [config file]\r\n"
 "\r\n"
 "SYNOPSYS:\r\n"
 "\r\n"
