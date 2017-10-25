@@ -7,7 +7,7 @@ SYNOPSIS
 
     PROGNAME_SHORT_EXT <url> [config_file]
     PROGNAME_SHORT_EXT -e <config_file> [out_file]
-	PROGNAME_SHORT_EXT -r </regex/replace/> <file>
+    PROGNAME_SHORT_EXT -r </regex/replace/> <file>
 
 
 DESCRIPTION
@@ -19,14 +19,38 @@ DESCRIPTION
     instructions what needs to be executed. The config file is written i nthe 
     form of an ini file or it an be compiled into an encoded file to hide 
     sensitive information such as passwords.
+    
+    Once the program is registered to handle a specific protocol sheme, it must 
+    be called by the shell with the full url as first parameter. As an example
+    (assuming the program is registered with the protocol scheme `proto:`):
+    
+        proto://authority/path/dir?param1=value1
+    
+    can be mapped to run the following program:
+        
+        some_executable.exe --file="${param1}"
+    
+    where `${param1}` will b substitued by the value of the query parameter 
+    `value1`.
+    
+    The mapping is done throug the `PROGNAME_SHORT.ini` file. Detailed information
+    on how to use the configuration file can be found in INSTALL.txt.
+    
+    But in short, the following configuration would be needed to make the above
+    example work:
+    
+        [authority/path/dir] ; this is the mapping to the url
+        cmd = some_executable.exe --file="${param1}"
 
 
 OPTIONS
 
     -e encode a plain text ini config file. the resulting file will be stored
-       in the same folder bit with a file extension of `.dat`.
+       in the same folder bit with a file extension of `.dat`. Mone information
+       the usage of this option can be found in INSTALL.txt
     
-    -r /regex/replace/ will test the build in regex replace mechanism
+    -r /regex/replace/ will test the build in regex replace mechanism. Mone 
+       information the usage of this option can be found in INSTALL.txt
 
 
 ENVIRONMENT
@@ -75,7 +99,6 @@ COPYRIGHT
 
 SEE ALSO
 
-    INSTALL.txt        for installation instructions.
-    CONFIGURATION.txt  descriotion how to configure the program
+    INSTALL.txt        for installation and configuration instructions.
     BUILD.txt          for instructions on building for Windows, OSX and Linux
     LICENSE.txt        BSD License
