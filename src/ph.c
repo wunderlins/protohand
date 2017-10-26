@@ -17,6 +17,8 @@ int loglevel = 5; // 0 will disable logging
 char logbuffer[4096];
 char log_file[MAX_CWD_LENGTH];
 
+char encodek[20];
+
 void writelog(int level, char* str) {
 	
 	char prefix[20] = "";
@@ -162,6 +164,84 @@ int expenv(char** str) {
 }
 */
 
+int encode_file(int argc, char** argv) {
+	
+	char* infile = argv[2];
+	char* outfile;
+	if (argc > 3)
+		outfile = argv[3];
+	else {
+		int l = strlen(infile);
+		outfile = (char*) malloc(sizeof(char*) * (l + 1));
+		strcpy(outfile, infile);
+		outfile[l-4] = '.';
+		outfile[l-3] = 'd';
+		outfile[l-2] = 'a';
+		outfile[l-1] = 't';
+	}
+	
+	FILE *f = fopen(infile, "rb");
+	if (f == NULL)
+		return 1;
+	
+	fseek(f, 0, SEEK_END);
+	long fsize = ftell(f);
+	fseek(f, 0, SEEK_SET);  //same as rewind(f);
+	//printf("%ld\n", fsize);
+	char *string = (char*) malloc(fsize);
+	fread(string, fsize, 1, f);
+	//string[fsize] = 0;
+	fclose(f);
+	
+	char *result;
+	transcode_str(string, &fsize, &result, encodek);
+	
+	f = fopen(outfile, "wb");
+	fwrite(result, 1, fsize, f);
+	if (f == NULL)
+		return 2;
+	
+	fclose(f);
+	
+	return OK;
+}
+	
+int test_regex(int argc, char** argv) {
+	
+	// open file
+	FILE *f = fopen(argv[3], "rb");
+	if (f == NULL) {
+		fprintf(stderr, "Failed to open file.\n");
+		return 2;
+	}
+	
+	fseek(f, 0, SEEK_END);
+	long fsize = ftell(f);
+	fseek(f, 0, SEEK_SET);  //same as rewind(f);
+
+	char *string = (char*) malloc(fsize + 1);
+	fread(string, fsize, 1, f);
+	fclose(f);
+
+	string[fsize] = 0;
+	
+	const char* result;
+	//const char* reg = "pre/[0-9]+/NNNN/m";
+	
+	printf("regex: %s\n", argv[2]);
+	result = regreplace(argv[2], string);
+	
+	if (result == NULL) {
+		printf("Failed to execute regex: %d\n", regerrno);
+		return 3;
+	}
+	
+	printf("%s\n", result);
+	
+	return OK;
+}
+
+
 #ifndef PH_NO_MAIN
 //char **environ;
 int main(int argc, char** argv, char **envp) {
@@ -172,6 +252,26 @@ int main(int argc, char** argv, char **envp) {
 	int l = 0;
 	int ret = 0;
 	int res;
+
+	encodek[0] = '3';
+	encodek[1] = 'f';
+	encodek[2] = 'J';
+	encodek[3] = '%';
+	encodek[4] = 'd';
+	encodek[5] = '6';
+	encodek[6] = '5';
+	encodek[7] = ',';
+	encodek[8] = '$';
+	encodek[9] = '/';
+	encodek[10] = '@';
+	encodek[11] = 'd';
+	encodek[12] = 'f';
+	encodek[13] = 'h';
+	encodek[14] = 's';
+	encodek[15] = '(';
+	encodek[16] = '3';
+	encodek[17] = 'l';
+	encodek[19] = 'd';
 	
 	define_error_messages();
 	
@@ -206,7 +306,7 @@ int main(int argc, char** argv, char **envp) {
 	sprintf(logbuffer, "Current working dir: %s", dir);
 	writelog(2, logbuffer);
 	
-	// check if we have an ini file, if not, create it
+	// use ini file from argv or in the exe folder ?
 	char ini_file[MAX_CWD_LENGTH];
 	if (argc == 3) {
 		strcpy(ini_file, argv[2]);
@@ -218,6 +318,19 @@ int main(int argc, char** argv, char **envp) {
 	sprintf(logbuffer, "Current ini file:    %s", ini_file);
 	writelog(2, logbuffer);
 	
+
+	// check command line parameters for mode
+	// encode config file
+	// PROGNAME_SHORT_EXT -e <config_file> [out_file]
+	if (strcmp(argv[1], "-e") == 0)
+		return encode_file(argc, argv);
+	
+	// test regex
+	// PROGNAME_SHORT_EXT -r </regex/replace/> <file>
+	if (strcmp(argv[1], "-r") == 0)
+		return test_regex(argc, argv);
+
+	// check if we have an ini file, if not, create it
 	if( access(ini_file, F_OK) == -1 ) {
 		// file doesn't exist, create it
 		ret = create_ini(ini_file);
