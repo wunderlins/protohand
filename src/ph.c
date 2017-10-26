@@ -322,12 +322,12 @@ int main(int argc, char** argv, char **envp) {
 	// check command line parameters for mode
 	// encode config file
 	// PROGNAME_SHORT_EXT -e <config_file> [out_file]
-	if (strcmp(argv[1], "-e") == 0)
+	if (argc > 1 && strcmp(argv[1], "-e") == 0)
 		return encode_file(argc, argv);
 	
 	// test regex
 	// PROGNAME_SHORT_EXT -r </regex/replace/> <file>
-	if (strcmp(argv[1], "-r") == 0)
+	if (argc > 1 && strcmp(argv[1], "-r") == 0)
 		return test_regex(argc, argv);
 
 	// check if we have an ini file, if not, create it
