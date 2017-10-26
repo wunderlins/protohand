@@ -4,7 +4,7 @@
 # LOG_TO_FILE=1 will send dbg output to stdout, else to protohand.log
 DEBUG=3
 LOG_TO_FILE=1
-VERSION=0.3.4
+VERSION=0.3.5
 # naming
 PROGNAME = protohand
 PROGNAME_SHORT = ph

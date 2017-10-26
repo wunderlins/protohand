@@ -104,7 +104,7 @@ Add additional parameters to the command line after the parameters that are pass
 - [ ] finalize documentation
   - [x] document program execution steps
   - [x] update example reg file
-  - [ ] create documented ini file with example. compile it in
+  - [x] create documented ini file with example. compile it in
   - [ ] complete list of error messages, update error.html. compile error.html in.
   - [x] update README.txt, this is the program manual
   - [ ] update README.md, this is the build and programming manual
