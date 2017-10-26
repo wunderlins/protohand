@@ -119,7 +119,7 @@ testregex:
 
 ## DOCUMENTATION ###############################################################
 # auto-update documentation
-doc: usage ini errstr create_error reg error
+doc: release_doc usage ini errstr create_error reg error
 
 errstr:
 	$(CC) $(CFLAGS) -c lib/errstr.c -o lib/errstr.o
@@ -138,12 +138,8 @@ usage:
 	#sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' README.txt >> generated/README.h
 	#sed -i 's/"/\\"/g;' generated/README.h
 	#sed -i 's/$$/\\n"/g' generated/README.h
-	sed -f bin/replace.sed README.txt >> generated/README.h
+	sed -f bin/replace.sed "$(B_DIR)/README.txt" >> generated/README.h
 	echo \""\";" >> generated/README.h
-	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/README.h
-	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' generated/README.h
-	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' generated/README.h
-	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' generated/README.h
 
 # create example ini content header file generated/example_ini.h from example.ini
 ini:
@@ -181,34 +177,13 @@ reg:
 todo:
 	egrep -nr "FIXME|TODO" *.c *.h
 
-
-
-# create a release
-release:
-	# get latest code
-	#git pull
-	
-	# build the application
-	#$(MAKE) all
-	
-	# make release directory
-	@echo $(R_DIR)/$(rel)
-	mkdir "$(R_DIR)/$(rel)"
-	
-	# copy files to release directory
-	cp $(PROGNAME_SHORT)$(_EXT) "$(B_DIR)/"
-	strip "$(B_DIR)/$(PROGNAME_SHORT)$(_EXT)"
+release_doc:
 	cp ../doc/README.txt "$(B_DIR)/"
-	cp generated/error.html "$(B_DIR)/"
-	cp testcmd$(_EXT) "$(B_DIR)/"
-	cp testregex$(_EXT) "$(B_DIR)/"
-	cp ph.reg "$(B_DIR)/ph.reg"
-	cp example.ini "$(B_DIR)/ph.ini"
 	cp ../doc/LICENSE.txt "$(B_DIR)/"
 	cp ../doc/INSTALL.txt "$(B_DIR)/"
 	cp ../doc/BUILD.txt "$(B_DIR)/"
-	strip "$(B_DIR)/testcmd$(_EXT)"
-	strip "$(B_DIR)/testregex$(_EXT)"
+	cp ph.reg "$(B_DIR)/ph.reg"
+	cp example.ini "$(B_DIR)/ph.ini"
 	
 	# subsitute all keywords in the README.txt file
 	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' $(B_DIR)/README.txt
@@ -238,7 +213,28 @@ release:
 	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/ph.ini
 	sed -i $(SEDI_EXT) 's/protohand\.exe/$(PROGNAME_SHORT)$(_EXT)/g' $(B_DIR)/ph.reg
 	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/ph.reg
+
+
+# create a release
+release: release_doc
+	# get latest code
+	#git pull
 	
+	# build the application
+	#$(MAKE) all
+	
+	# make release directory
+	@echo $(R_DIR)/$(rel)
+	mkdir "$(R_DIR)/$(rel)"
+	
+	# copy files to release directory
+	cp $(PROGNAME_SHORT)$(_EXT) "$(B_DIR)/"
+	strip "$(B_DIR)/$(PROGNAME_SHORT)$(_EXT)"
+	cp generated/error.html "$(B_DIR)/"
+	cp testcmd$(_EXT) "$(B_DIR)/"
+	cp testregex$(_EXT) "$(B_DIR)/"
+	strip "$(B_DIR)/testcmd$(_EXT)"
+	strip "$(B_DIR)/testregex$(_EXT)"
 	
 	# create zip file
 	cd $(B_DIR)/; ../src/bin/zip.exe "../$(rel).zip" * 
