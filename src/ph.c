@@ -337,6 +337,19 @@ int main(int argc, char** argv, char **envp) {
 		return OK;
 	}
 	
+	// display help
+	if (argc > 1 && 
+	    (strcmp(argv[1], "-h") == 0 || 
+		 strcmp(argv[1], "--help") == 0 || 
+		 strcmp(argv[1], "/h") == 0 || 
+		 strcmp(argv[1], "/H") == 0 || 
+		 strcmp(argv[1], "/?") == 0
+		)) {
+		usage();
+		return OK;
+	}
+		
+	
 	// check input
 	if(argc < 2) {
 		perror("argument 1 with uri missing");

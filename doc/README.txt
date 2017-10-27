@@ -8,6 +8,7 @@ SYNOPSIS
     PROGNAME_SHORT_EXT <url> [config_file]
     PROGNAME_SHORT_EXT -e <config_file> [out_file]
     PROGNAME_SHORT_EXT -r </regex/replace/> <file>
+    PROGNAME_SHORT_EXT -h 
 
 
 DESCRIPTION
@@ -39,8 +40,9 @@ DESCRIPTION
     where `${param1}` will b substitued by the value of the query parameter 
     `value1`. Parameter names are case insensitive. 
     
-    The mapping is done throug the `PROGNAME_SHORT.ini` file. Detailed information
-    on how to use the configuration file can be found in INSTALLATION section.
+    The mapping is done throug the `PROGNAME_SHORT.ini` file. Detailed 
+    information on how to use the configuration file can be found in 
+    INSTALLATION section.
     
     But in short, the following configuration would be needed to make the above
     example work:
@@ -62,52 +64,54 @@ OPTIONS
     -r /regex/replace/ will test the build in regex replace mechanism. Mone 
        information the usage of this option can be found in INSTALL.txt
 
+    -h This help documentation.
 
 INSTALLATION
 
-The minimum installation requires the `PROGNAME_SHORT_EXT` being placed in your 
-desired installation directory. If the program is run once, it will produce an
-example `PROGNAME_SHORT.ini` file in the same folder which is the configuration
-file. It will also create a `PROGNAME_SHORT.log` file for debugging and a
-`PROGNAME_SHORT.reg` for registration as windows protocol handler.
+    The minimum installation requires the `PROGNAME_SHORT_EXT` being placed in 
+    your desired installation directory. If the program is run once, it will 
+    produce an example `PROGNAME_SHORT.ini` file in the same folder which is 
+    the configuration file. It will also create a `PROGNAME_SHORT.log` file 
+    for debugging and a `PROGNAME_SHORT.reg` for registration as windows 
+    protocol handler.
 
 
 WINDOWS REGISTRY
 
-The `PROGNAME_SHORT.reg` file includes two place holders `<proto>` with your 
-desired protocol name. If, say, your shell shall route all calls to 
-`myprotocol://someuri` to `PROGNAME_SHORT_EXT`, then replace `<proto>` with
-`myprotocol`. You will need to replace `<yourpath>` with the path to the 
-`PROGNAME_SHORT_EXT` executable. Make sure to use double backslashes `\\` in 
-the path, a single backslash is interpreted as escape character.
+    The `PROGNAME_SHORT.reg` file includes two place holders `<proto>` with your
+    desired protocol name. If, say, your shell shall route all calls to 
+    `myprotocol://someuri` to `PROGNAME_SHORT_EXT`, then replace `<proto>` with
+    `myprotocol`. You will need to replace `<yourpath>` with the path to the 
+    `PROGNAME_SHORT_EXT` executable. Make sure to use double backslashes `\\` in
+    the path, a single backslash is interpreted as escape character.
 
-The example registry file includes 2 examples how to suppress the warning in 
-internet explorer. One for the user registry (per user), one for the local 
-machine (system wide).
+    The example registry file includes 2 examples how to suppress the warning in
+    internet explorer. One for the user registry (per user), one for the local 
+    machine (system wide).
 
 
 CONFIGURATION
 
-The program will first check if it is called with a 2nd parameter. If so, it 
-will search the configuration file in this locations. This might be a local 
-file path or an UNC. If parameter 2 is not provided, `PROGNAME_SHORT_EXT` will
-look in the isntallation directory for a file called `PROGNAME_SHORT.ini` 
-or `PROGNAME_SHORT.dat`. The latter is an obfuscated file which hides sensitive 
-data such as passwords.
+    The program will first check if it is called with a 2nd parameter. If so, it
+    will search the configuration file in this locations. This might be a local 
+    file path or an UNC. If parameter 2 is not provided, `PROGNAME_SHORT_EXT` 
+    will     look in the isntallation directory for a file called 
+    `PROGNAME_SHORT.ini` or `PROGNAME_SHORT.dat`. The latter is an obfuscated 
+    file which hides sensitive data such as passwords.
 
-You can create an obfuscated file by running:
+    You can create an obfuscated file by running:
 
-    PROGNAME_SHORT_EXT -e <config_file> [out_file]
+        PROGNAME_SHORT_EXT -e <config_file> [out_file]
 
-if parameter 2 is omitted, the obfuscated file will be stored in the same 
-directory as the source file but with a `.dat` ending.
+    if parameter 2 is omitted, the obfuscated file will be stored in the same 
+    directory as the source file but with a `.dat` ending.
 
-The configuration file is in INI format and contains sections and name=value
-pairs. The sectiosn are enclosed in brackets and represent the authority
-and path part of an URI. If you, for example, run the following url 
-`proto://something/else` through `PROGNAME_SHORT_EXT`, the the program 
-will look for the following section in the ini file: 
-[something/else]. If found, all name value pairs are read and interpreted.
+    The configuration file is in INI format and contains sections and 
+    name=value pairs. The sectiosn are enclosed in brackets and represent the 
+    authority and path part of an URI. If you, for example, run the following 
+    url `proto://something/else` through `PROGNAME_SHORT_EXT`, the the program 
+    will look for the following section in the ini file: 
+    [something/else]. If found, all name value pairs are read and interpreted.
 
 Configuration directives:
 
@@ -118,7 +122,7 @@ Configuration directives:
         Variable substitution is available for environment variables
         and URI query parameters. The URI query parameters are represented 
         in the following format in the cmd value: `${param_name}` which will
-        correspond to the query parameter `?param_name=value` and be expanded
+        corespond to the query parameter `?param_name=value` and be expanded
         to `value`. If the query variable cannot be found, the proram will 
         abort.
         
@@ -139,14 +143,6 @@ Configuration directives:
     replace_file: 
         File to run a regex against
     
-    
-    default_path: deprecated
-    
-    allowed_params: deprecated
-    
-    path_params: deprecated
-
-
 
 ENVIRONMENT
 
