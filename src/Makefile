@@ -149,6 +149,7 @@ ini:
 	echo "const char* ini_str = \"\"" >> generated/example_ini.h
 	sed -f bin/replace.sed example.ini >> generated/example_ini.h
 	echo \""\";" >> generated/example_ini.h
+	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' generated/example_ini.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/example_ini.h
 	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' generated/example_ini.h
 	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' generated/example_ini.h
@@ -161,6 +162,7 @@ error:
 	echo "const char* error_str = \"\"" >> generated/error.h
 	sed -f bin/replace.sed generated/error.html >> generated/error.h
 	echo \""\";" >> generated/error.h
+	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' generated/error.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/error.h
 	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' generated/error.h
 	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' generated/error.h
@@ -170,6 +172,7 @@ reg:
 	echo "const char* reg_str = \"\"" > generated/reg.h
 	sed -f bin/replace.sed example.reg >> generated/reg.h
 	echo \""\";" >> generated/reg.h
+	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' generated/reg.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/reg.h
 	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' generated/reg.h
 
@@ -182,7 +185,7 @@ release_doc:
 	cp ../doc/LICENSE.txt "$(B_DIR)/"
 	cp ../doc/INSTALL.txt "$(B_DIR)/"
 	cp ../doc/BUILD.txt "$(B_DIR)/"
-	cp ph.reg "$(B_DIR)/ph.reg"
+	cp example.reg "$(B_DIR)/ph.reg"
 	cp example.ini "$(B_DIR)/ph.ini"
 	
 	# subsitute all keywords in the README.txt file
@@ -204,6 +207,12 @@ release_doc:
 	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' $(B_DIR)/BUILD.txt
 	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' $(B_DIR)/BUILD.txt
 	
+	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' $(B_DIR)/ph.reg
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' $(B_DIR)/ph.reg
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' $(B_DIR)/ph.reg
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' $(B_DIR)/ph.reg
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' $(B_DIR)/ph.reg
+	
 	
 	# windows line endings
 	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/README.txt
@@ -211,7 +220,6 @@ release_doc:
 	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/BUILD.txt
 	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/LICENSE.txt
 	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/ph.ini
-	sed -i $(SEDI_EXT) 's/protohand\.exe/$(PROGNAME_SHORT)$(_EXT)/g' $(B_DIR)/ph.reg
 	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/ph.reg
 
 

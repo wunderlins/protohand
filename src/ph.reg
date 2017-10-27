@@ -12,7 +12,7 @@ Windows Registry Editor Version 5.00
 [HKEY_CLASSES_ROOT\<proto>\shell\open]
 [HKEY_CLASSES_ROOT\<proto>\shell\open\command]
 ; replace <yourpath> with your installation location
-@="\"<yourpath>\\protohand_SHORT.exe\" \"%%1\""
+@="\"<yourpath>\\ph.exe\" \"%%1\""
 
 ;; internet explorer will show a warning when this protocol is used, you can 
 ;; disable this warning site wide or per user
