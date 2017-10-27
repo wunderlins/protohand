@@ -111,11 +111,34 @@ will look for the following section in the ini file:
 
 Configuration directives:
 
-    cmd: the command to execute, see variable substitution
+    cmd: 
+        The command to execute. This is the main config value which does
+        define the full command line. Make sure to use absolute paths.
+        
+        Variable substitution is available for environment variables
+        and URI query parameters. The URI query parameters are represented 
+        in the following format in the cmd value: `${param_name}` which will
+        correspond to the query parameter `?param_name=value` and be expanded
+        to `value`. If the query variable cannot be found, the proram will 
+        abort.
+        
+        Environment variables can be inserted in the cmd configuration in the 
+        following format: `${env.APPDATA}`, where `APPDATA` must be a valid 
+        environment variable. If it cannot be found, the program will abort.
     
-    replace_file: file to run a regex agains
+    replace_regex: 
+        It is possible to run a regular expression search&replace against any 
+        file on this system. Regular expression are deifind in the following 
+        form /regex/replace/. Back references cane be used in the replace 
+        syntax and must be prepended by `$` (eg. `$1`).
+        
+        This program uses the Perl Compatible Regular Expresseion (PCRE) 
+        syntax. More on PCRE here: 
+        https://www.rexegg.com/pcre-doc/_latest/pcresyntax.html
     
-    replace_regex: regular expression in the form /regex/replace/
+    replace_file: 
+        File to run a regex against
+    
     
     default_path: deprecated
     
@@ -155,7 +178,9 @@ LIMITATIONS
 
     2. the authority and path part in the URI are restricted to the following 
        characters as per rfc3986: [a-zA-Z0-9-._~] and in the path part 
-       additionally '/' is allowed.
+       additionally '/' is allowed. This programm will parse any value but the 
+       shell might handle any other character in an unpredictable way, so avoid
+       them in ini sections.
 
     3. Fully qualified path's to executables must be used in the the ini file's 
        `exe` directive. You might get lucky by using relative paths, but this 
