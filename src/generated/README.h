@@ -214,4 +214,6 @@ const char* usage_str = ""
 "    BUILD.txt          for instructions on building for Windows, OSX and Linux\r\n"
 "    LICENSE.txt        BSD License\r\n"
 "    ph.reg             Example registry file\r\n"
+"    ph.ini             Configuration file\r\n"
+"    ph.dat             Encoded configuration file\r\n"
 "";
