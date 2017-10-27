@@ -4,6 +4,25 @@
 #include <string.h>
 #include "stringlib.h"
 
+int strcmp_lcase(char* str1, char* str2) {
+	int i;
+	char* lcase1 = (char*) malloc(sizeof(char) * (strlen(str1)+1));
+	char* lcase2 = (char*) malloc(sizeof(char) * (strlen(str2)+1));
+	
+	strcpy(lcase1, str1);
+	strcpy(lcase2, str2);
+	
+	for(i = 0; lcase1[i]; i++){
+		lcase1[i] = tolower(lcase1[i]);
+	}
+	
+	for(i = 0; lcase2[i]; i++){
+		lcase2[i] = tolower(lcase2[i]);
+	}
+	
+	return strcmp(lcase1, lcase2);
+}
+
 // Note: This function returns a pointer to a substring of the original string.
 // If the given string was allocated dynamically, the caller must not overwrite
 // that pointer with the returned value, since the original pointer must be

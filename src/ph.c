@@ -617,7 +617,7 @@ static int ini_callback(void* user, const char* section, const char* name,
 	//static char prev_section[50] = "";
 	configuration* pconfig = (configuration*)user;
 
-	#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+	#define MATCH(s, n) strcmp_lcase((char*)section, (char*)s) == 0 && strcmp_lcase((char*)name, (char*)n) == 0
 	if (strcmp(pconfig->section, section) == 0) {
 		#if DEBUG > 1
 		fprintf(logfile, "%s => %s: %s [%s]\n", section, name, value, pconfig->section);

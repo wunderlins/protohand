@@ -12,15 +12,21 @@ SYNOPSIS
 
 DESCRIPTION
 
-    PROGNAME_SHORT_EXT can be registered as protocol handler by shels that support 
+    PROGNAME_SHORT_EXT can be registered as protocol handler by shells that support 
     global custom protocol handlers. The program will expect a complete url as 
     first parameter. The authority and path parameter parts of the url are then
     used to look up a section in the configuration file which holds 
-    instructions what needs to be executed. The config file is written i nthe 
-    form of an ini file or it an be compiled into an encoded file to hide 
+    instructions what needs to be executed. The config file is written in the 
+    form of an ini file or it can be compiled into an encoded file to hide 
     sensitive information such as passwords.
     
-    Once the program is registered to handle a specific protocol sheme, it must 
+    If the optional [config_file] parameter is provided, the program will 
+    load the configuration from this location. This might be a UNC path
+    or local file. If parameter 2 is ommited, the programm will first look 
+    for a `PROGNAME_SHORT.dat` and then for `PROGNAME_SHORT.ini` in the same 
+    folder as the executable. See CONFIGURATION for mor information.
+    
+    Once the program is registered to handle a specific protocol scheme, it must
     be called by the shell with the full url as first parameter. As an example
     (assuming the program is registered with the protocol scheme `proto:`):
     
@@ -31,10 +37,10 @@ DESCRIPTION
         some_executable.exe --file="${param1}"
     
     where `${param1}` will b substitued by the value of the query parameter 
-    `value1`.
+    `value1`. Parameter names are case insensitive. 
     
     The mapping is done throug the `PROGNAME_SHORT.ini` file. Detailed information
-    on how to use the configuration file can be found in INSTALL.txt.
+    on how to use the configuration file can be found in INSTALLATION section.
     
     But in short, the following configuration would be needed to make the above
     example work:
@@ -42,9 +48,9 @@ DESCRIPTION
         [authority/path/dir] ; this is the mapping to the url
         cmd = some_executable.exe --file="${param1}"
 
-    Registering a protocol scheme can be donw trough a registry setting on 
+    Registering a protocol scheme can be done trough a registry setting on 
     windows. An example registrz file should come with this program if not 
-	run it in a folder without a configuration file and it will be created.
+    run it in a folder without a configuration file and it will be created.
 
 
 OPTIONS
@@ -55,6 +61,68 @@ OPTIONS
     
     -r /regex/replace/ will test the build in regex replace mechanism. Mone 
        information the usage of this option can be found in INSTALL.txt
+
+
+INSTALLATION
+
+The minimum installation requires the `PROGNAME_SHORT_EXT` being placed in your 
+desired installation directory. If the program is run once, it will produce an
+example `PROGNAME_SHORT.ini` file in the same folder which is the configuration
+file. It will also create a `PROGNAME_SHORT.log` file for debugging and a
+`PROGNAME_SHORT.reg` for registration as windows protocol handler.
+
+
+WINDOWS REGISTRY
+
+The `PROGNAME_SHORT.reg` file includes two place holders `<proto>` with your 
+desired protocol name. If, say, your shell shall route all calls to 
+`myprotocol://someuri` to `PROGNAME_SHORT_EXT`, then replace `<proto>` with
+`myprotocol`. You will need to replace `<yourpath>` with the path to the 
+`PROGNAME_SHORT_EXT` executable. Make sure to use double backslashes `\\` in 
+the path, a single backslash is interpreted as escape character.
+
+The example registry file includes 2 examples how to suppress the warning in 
+internet explorer. One for the user registry (per user), one for the local 
+machine (system wide).
+
+
+CONFIGURATION
+
+The program will first check if it is called with a 2nd parameter. If so, it 
+will search the configuration file in this locations. This might be a local 
+file path or an UNC. If parameter 2 is not provided, `PROGNAME_SHORT_EXT` will
+look in the isntallation directory for a file called `PROGNAME_SHORT.ini` 
+or `PROGNAME_SHORT.dat`. The latter is an obfuscated file which hides sensitive 
+data such as passwords.
+
+You can create an obfuscated file by running:
+
+    PROGNAME_SHORT_EXT -e <config_file> [out_file]
+
+if parameter 2 is omitted, the obfuscated file will be stored in the same 
+directory as the source file but with a `.dat` ending.
+
+The configuration file is in INI format and contains sections and name=value
+pairs. The sectiosn are enclosed in brackets and represent the authority
+and path part of an URI. If you, for example, run the following url 
+`proto://something/else` through `PROGNAME_SHORT_EXT`, the the program 
+will look for the following section in the ini file: 
+[something/else]. If found, all name value pairs are read and interpreted.
+
+Configuration directives:
+
+    cmd: the command to execute, see variable substitution
+    
+    replace_file: file to run a regex agains
+    
+    replace_regex: regular expression in the form /regex/replace/
+    
+    default_path: deprecated
+    
+    allowed_params: deprecated
+    
+    path_params: deprecated
+
 
 
 ENVIRONMENT
@@ -89,15 +157,11 @@ LIMITATIONS
        characters as per rfc3986: [a-zA-Z0-9-._~] and in the path part 
        additionally '/' is allowed.
 
-    3. url parts are matched with the ini section case sesitive. if you call
-       protohand://document/myapp but your section in the ini is called 
-       [document/MyApp], the section will not be found.
-
-    4. Fully qualified path's to executables must be used in the the ini file's 
+    3. Fully qualified path's to executables must be used in the the ini file's 
        `exe` directive. You might get lucky by using relative paths, but this 
        can be a security concern.
 
-    5. It is unclear how this program will behave on multibyte character sets 
+    4. It is unclear how this program will behave on multibyte character sets 
        coming from user input. It will probably crash and burn your computer 
        and desk down. Huzzah!
 
@@ -105,8 +169,8 @@ LIMITATIONS
 COPYRIGHT
 
     2017, Simon Wunderlin (BSD license)
-	2009, Ben Hoyt - Ini parser, https://github.com/benhoyt/inih (BSD license)
-	
+    2009, Ben Hoyt - Ini parser, https://github.com/benhoyt/inih (BSD license)
+    
     Regular expression support is provided by the PCRE library package,
     which is open source software, written by Philip Hazel, and copyright
     by the University of Cambridge, England.

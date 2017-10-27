@@ -1,24 +1,5 @@
 #include "cmd_parser.h"
 
-int strcmp_lcase(char* str1, char* str2) {
-	int i;
-	char* lcase1 = (char*) malloc(sizeof(char) * (strlen(str1)+1));
-	char* lcase2 = (char*) malloc(sizeof(char) * (strlen(str2)+1));
-	
-	strcpy(lcase1, str1);
-	strcpy(lcase2, str2);
-	
-	for(i = 0; lcase1[i]; i++){
-		lcase1[i] = tolower(lcase1[i]);
-	}
-	
-	for(i = 0; lcase2[i]; i++){
-		lcase2[i] = tolower(lcase2[i]);
-	}
-	
-	return strcmp(lcase1, lcase2);
-}
-
 int find_var_value(char* varname, struct nvlist_list* query, char** result) {
     int ii;
     

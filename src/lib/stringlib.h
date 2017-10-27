@@ -13,6 +13,7 @@ struct str_array {
     int length;
 };
 
+int strcmp_lcase(char* str1, char* str2);
 char *trim(char *str);
 char *trim2(char *str);
 int split(char* string, char* delim, char** result, int *count);
