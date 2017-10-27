@@ -1,232 +1,205 @@
-Usage: PROGNAME_EXT <url> [config file]
+NAME
 
-SYNOPSYS:
-
-This program implements a shell protocol handler. A shell might register this 
-program (through registry on windows for example) and pass the called URI 
-as parameter 1 to the program (input is also read from stdin).
-
-The url is then translated a command line call (program and parameters). 
-Programs need to be configured in PROGNAME.ini. This is a security measure 
-so that only intended programs can be called.
+    ph.exe - a shell protocol handler to run external programs
 
 
-USAGE:
+SYNOPSIS
 
-On many modern platforms it is possible to register custom protocol handlers 
-with the shell. This program is intended to map URIs to pre-confiured 
-programms and execute certain actions as well as doing limited input validation 
-for security reasons.
-
-Once the program is called, it expects a URI as first parameter.
-The URI is broken down into scheme, authority, path and query (see rfc3986,
-section 3 for details). Once the described parts are extracted from the URI it 
-is mapped to a local executable. The definition which URIs can be mapped to 
-which executable is defined in PROGNAME.ini.
-
-Due to the non-interactive nature of such a program, a debug log can be written 
-to PROGNAME.log.
-
-This a quick overview how url parts are mapped to an executable command line 
-string (see rfc3986, section 3 for details on URIs):
-
-         ph://example/over/there?-a=1&-b=2#nose
-        \_/   \______/\________/ \_______/ \__/
-         |        |         |           |    |____
-      scheme  authority     path        query   fragment
-         |     ___|____________|____    __|____    |_
-        / \   /                     \  /       \     |
-    [protocol]      example.exe        -a=1 -b=2    unused
-
-For this URI handler to work, it needs to be mapped to a protocol (foo in 
-the above example URI). This is done trough registering the protocol name to 
-the executable with your shell (in the registry for windows users).
+    ph.exe <url> [config_file]
+    ph.exe -e <config_file> [out_file]
+    ph.exe -r </regex/replace/> <file>
+    ph.exe -h 
 
 
-PASSING PARAMETERS:
+DESCRIPTION
 
-The query part of the URI will be converted into command line arguments. First
-parameter names will be translated to their command line argument equivalents 
-if the ini file derictive contains the parameter 'params_transform'. Typically
-command line arguments can be just one value or a name=value pair. This is also
-true for query parameters. Command line arguments are sperated by whitespace while 
-query arguments are spearated by '&'. If you wish to pass parameters with 
-values, then use the following query string notation:
-    ?name1=value1&name2=value2
-This woud be translated on the command line to:
-    name1=value1 name2=value2
+    ph.exe can be registered as protocol handler by shells that support 
+    global custom protocol handlers. The program will expect a complete url as 
+    first parameter. The authority and path parameter parts of the url are then
+    used to look up a section in the configuration file which holds 
+    instructions what needs to be executed. The config file is written in the 
+    form of an ini file or it can be compiled into an encoded file to hide 
+    sensitive information such as passwords.
+    
+    If the optional [config_file] parameter is provided, the program will 
+    load the configuration from this location. This might be a UNC path
+    or local file. If parameter 2 is ommited, the programm will first look 
+    for a `ph.dat` and then for `ph.ini` in the same 
+    folder as the executable. See CONFIGURATION for mor information.
+    
+    Once the program is registered to handle a specific protocol scheme, it must
+    be called by the shell with the full url as first parameter. As an example
+    (assuming the program is registered with the protocol scheme `proto:`):
+    
+        proto://authority/path/dir?param1=value1
+    
+    can be mapped to run the following program:
+        
+        some_executable.exe --file="${param1}"
+    
+    where `${param1}` will b substitued by the value of the query parameter 
+    `value1`. Parameter names are case insensitive. 
+    
+    The mapping is done throug the `ph.ini` file. Detailed 
+    information on how to use the configuration file can be found in 
+    INSTALLATION section.
+    
+    But in short, the following configuration would be needed to make the above
+    example work:
+    
+        [authority/path/dir] ; this is the mapping to the url
+        cmd = some_executable.exe --file="${param1}"
 
-If you wish to juts pass in values (without a name) then use the follwing URI 
-query syntax:
-    ?value1&value2
-which will translate on the command-line to the following parameters:
-    value1 value2
-
-
-CONFIGURATION:
-
-You need to register this progam with you shell so that it recognizes your 
-protocol name (Scheme) and redirects calls to thei executable. On Windows this 
-is done trough the registry.
-
-An example registry file would look like this. Replace <proto> with your 
-protocol name (scheme) and <path> with an absolute path to your executable.
-
-===[REG FILE]==================================================================
-Windows Registry Editor Version 5.00
-
-[HKEY_CLASSES_ROOT\<proto>]
-@="URL: <proto> Protocol"
-"URL Protocol"=""
-
-[HKEY_CLASSES_ROOT\<proto>\shell]
-[HKEY_CLASSES_ROOT\<proto>\shell\open]
-[HKEY_CLASSES_ROOT\<proto>\shell\open\command]
-@="\"C:\\<path>\\PROGNAME_EXT\" \"%1\""
-
-;; internet explorer will show a warning when this protocol is used, you can 
-;; disable this warning site wide or per user
-; per user setting
-;[HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\ProtocolExecute\<proto>]
-;"WarnOnOpen"=dword:00000000
-
-; computer setting
-[HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer\ProtocolExecute\<proto>]
-"WarnOnOpen"=dword:00000000
-===[EOF]=======================================================================
-
-Mappings between URIs and executables are defined in PROGNAME.ini. 
-If the ini file does not exist, it can be created by running the command once:
-	c:\> PROGNAME_EXT [--create]
-
-The authority part combined with the path are used to lookup a section in the 
-ini file. The URI
-  scheme://appname/exe/?-h
-would match the following section in the ini file:
-  [appname/exe]
-   
-Esample ini file:
-
-===[INI FILE]==================================================================
-;; NOTE: do not quote values
-
-[exe/notepad]
-; an example how to provide static command lin parameters, try it by running:
-; protohand.exe "protohand://exe/notepad"
-; result: 'c:\windows\notepad.exe /f c:\windows\OEMVer.txt'
-exe = c:\windows\notepad.exe
-params_prepend=/f c:\windows\OEMVer.txt
-
-[exe/notepad/pathparam1]
-; Example opening file from parameters, making suer the document is in a 
-; certain directory. Files outside of `default_path` will not be opened:
-; protohand.exe "protohand://exe/notepad/pathparam1?/f&c:\windows\OEMVer.txt"
-; result: 'c:\windows\notepad.exe /f c:\windows\OEMVer.txt'
-default_path=c:\windows\
-exe = c:\windows\notepad.exe
-allowed_params=/f
-path_params=/f
+    Registering a protocol scheme can be done trough a registry setting on 
+    windows. An example registrz file should come with this program if not 
+    run it in a folder without a configuration file and it will be created.
 
 
-[exe/notepad/pathparam2]
-; Example that fails because the requested file is outside the allowed
-; `default_path` folder:
-; protohand.exe "protohand://exe/notepad/pathparam2?/A&c:\windows\OEMVer.txt"
-; result: ERROR, will not open file because it is outside the base_path
-default_path=\\some_server\some_share
-allowed_params=/A,/U
-path_params=/A
-exe = c:\windows\notepad.exe
-params_prepend=
-params_append=
+OPTIONS
 
-[exe/dfrgui]
-; minimalistic config, just run a program
-; protohand.exe "protohand://exe/dfrgui"
-; FIXME: dfrgui.exe will not be launched, path is correct, permissions too 
-; (at home, W10)
-exe = C:\Windows\System32\dfrgui.exe
+    -e encode a plain text ini config file. the resulting file will be stored
+       in the same folder bit with a file extension of `.dat`. Mone information
+       the usage of this option can be found in INSTALL.txt
+    
+    -r /regex/replace/ will test the build in regex replace mechanism. Mone 
+       information the usage of this option can be found in INSTALL.txt
 
-[exe/ie]
-; launch internet explorer with an url provided in the query string:
-; protohand.exe "protohand://exe/ie?http://www.google.com"
-; result: '"C:\Program Files (x86)\Internet Explorer\iexplore.exe" 
-;          "http://www.google.com"'
-exe = C:\Program Files (x86)\Internet Explorer\iexplore.exe
-===[EOF]=======================================================================
+    -h This help documentation.
 
-exe:            
-     Path to the file which needs to be executed.
+INSTALLATION
 
-default_path (optional):   
-     Base directory in which documents must reside. If the caller tries to 
-     pass document paths outside of this directory, the program will abort 
-     and not execute the exe.
-
-path_params (optional):    
-     A coma separated list parameters which contain file paths that need to 
-     be checked.
-  
-alowed_params (optional):  
-     A comma separated list of parameters which can be passed in by the 
-     caller. This mechanism is white list based. If a caller passes parameters
-     not listed here, the program mwill not execute the exe.
-
-param_prepend (optiona):
-	 Add this string in after the exe and before the arguments which were 
-	 passed in the URIs query string. 
-
-param_append (optiona):
-	 Add this string at the endo of the command line. 
+    The minimum installation requires the `ph.exe` being placed in 
+    your desired installation directory. If the program is run once, it will 
+    produce an example `ph.ini` file in the same folder which is 
+    the configuration file. It will also create a `ph.log` file 
+    for debugging and a `ph.reg` for registration as windows 
+    protocol handler.
 
 
-FILES:
+WINDOWS REGISTRY
 
-	PROGNAME_EXT - This executable
-	PROGNAME.ini - Mapping between urls and executables. This file needs
-	               to be located in the same folder as the executable.
-	PROGNAME.log - (optional) enabled on compile time with the flag 
-	               -DDEBUG=1 The log will be written into the same 
-	               directory as the executable. Make sure the program has 
-	               write permission.
+    The `ph.reg` file includes two place holders `<proto>` with your
+    desired protocol name. If, say, your shell shall route all calls to 
+    `myprotocol://someuri` to `ph.exe`, then replace `<proto>` with
+    `myprotocol`. You will need to replace `<yourpath>` with the path to the 
+    `ph.exe` executable. Make sure to use double backslashes `\\` in
+    the path, a single backslash is interpreted as escape character.
 
-
-LIMITATIONS:
-
-1. The maximung length of an URI is limited to STDIN_MAX bytes 
-   (1024 by default).
-
-2. The maximung length of a command (with all it's parameters) is limited 
-   to MAX_CWD_LENGTH bytes (1024 by default).
-
-3. the authority and path part in the URI are restricted to the following 
-   characters as per rfc3986: [a-zA-Z0-9-._~] and in the path part 
-   additionally '/' is allowed.
-
-4. The length of the comma separated parameters list in the ini file is 
-   limited to 100 items.
-
-5. url parts are matched with the ini section case sesitive. if you call
-   protohand://document/myapp but your section in the ini is called 
-   [document/MyApp], the section will not be found.
-
-6. Fully qualified path's to executables must be used in the the ini file's 
-   `exe` directive. You might get lucky by using relative paths, but this can 
-   be a security concern.
-
-7. in any path that is passed in from query '.' and '..' are removed
-
-8. It is unclear how this program will behave on multibyte character sets 
-   coming from user input. It will probably crash and burn your computer and 
-   desk down. Huzzah!
+    The example registry file includes 2 examples how to suppress the warning in
+    internet explorer. One for the user registry (per user), one for the local 
+    machine (system wide).
 
 
-LICENSE:
+CONFIGURATION
 
-This software is licensed by the BSD license. See LICENSE.txt in the source 
-code for the full license text.
+    The program will first check if it is called with a 2nd parameter. If so, it
+    will search the configuration file in this locations. This might be a local 
+    file path or an UNC. If parameter 2 is not provided, `ph.exe` 
+    will     look in the isntallation directory for a file called 
+    `ph.ini` or `ph.dat`. The latter is an obfuscated 
+    file which hides sensitive data such as passwords.
 
-(c) 2017, Simon Wunderlin
+    You can create an obfuscated file by running:
 
-Please send pull requests to https://github.com/wunderlins/protohand.git, any
-fix and extension is appreciated!
+        ph.exe -e <config_file> [out_file]
+
+    if parameter 2 is omitted, the obfuscated file will be stored in the same 
+    directory as the source file but with a `.dat` ending.
+
+    The configuration file is in INI format and contains sections and 
+    name=value pairs. The sectiosn are enclosed in brackets and represent the 
+    authority and path part of an URI. If you, for example, run the following 
+    url `proto://something/else` through `ph.exe`, the the program 
+    will look for the following section in the ini file: 
+    [something/else]. If found, all name value pairs are read and interpreted.
+
+Configuration directives:
+
+    cmd: 
+        The command to execute. This is the main config value which does
+        define the full command line. Make sure to use absolute paths.
+        
+        Variable substitution is available for environment variables
+        and URI query parameters. The URI query parameters are represented 
+        in the following format in the cmd value: `${param_name}` which will
+        corespond to the query parameter `?param_name=value` and be expanded
+        to `value`. If the query variable cannot be found, the proram will 
+        abort.
+        
+        Environment variables can be inserted in the cmd configuration in the 
+        following format: `${env.APPDATA}`, where `APPDATA` must be a valid 
+        environment variable. If it cannot be found, the program will abort.
+    
+    replace_regex: 
+        It is possible to run a regular expression search&replace against any 
+        file on this system. Regular expression are deifind in the following 
+        form /regex/replace/. Back references cane be used in the replace 
+        syntax and must be prepended by `$` (eg. `$1`).
+        
+        This program uses the Perl Compatible Regular Expresseion (PCRE) 
+        syntax. More on PCRE here: 
+        https://www.rexegg.com/pcre-doc/_latest/pcresyntax.html
+    
+    replace_file: 
+        File to run a regex against
+    
+
+ENVIRONMENT
+
+    PH_HOME  is set upon startup of the program in it's own process and will 
+             point to the folder of the executable. This variable can be used 
+             in the configuration file to point to the application directory.
+
+
+FILES
+
+    $PH_HOME/ph.ini      The default location of the configration file. If the 
+                         2nd argument is not provided, `ph.exe`
+                         will search for the configuration file here.
+
+    $PH_HOME/ph.dat      The default location of the encoded configration file.
+                         To encode an `.ini` file into a `.dat` file see 
+                         the `-e` command line switch.
+
+    $PH_HOME/ph.log      Logfile f the program.
+
+    $PH_HOME/error.html  Error messages displayed in a browser when the 
+                         program encounters a problem.
+
+
+LIMITATIONS
+
+    1. The maximung length of a command (with all it's parameters) is limited 
+       to 260 bytes.
+
+    2. the authority and path part in the URI are restricted to the following 
+       characters as per rfc3986: [a-zA-Z0-9-._~] and in the path part 
+       additionally '/' is allowed. This programm will parse any value but the 
+       shell might handle any other character in an unpredictable way, so avoid
+       them in ini sections.
+
+    3. Fully qualified path's to executables must be used in the the ini file's 
+       `exe` directive. You might get lucky by using relative paths, but this 
+       can be a security concern.
+
+    4. It is unclear how this program will behave on multibyte character sets 
+       coming from user input. It will probably crash and burn your computer 
+       and desk down. Huzzah!
+
+
+COPYRIGHT
+
+    2017, Simon Wunderlin (BSD license)
+    2009, Ben Hoyt - Ini parser, https://github.com/benhoyt/inih (BSD license)
+    
+    Regular expression support is provided by the PCRE library package,
+    which is open source software, written by Philip Hazel, and copyright
+    by the University of Cambridge, England.
+
+
+SEE ALSO
+
+    INSTALL.txt        for installation and configuration instructions.
+    BUILD.txt          for instructions on building for Windows, OSX and Linux
+    LICENSE.txt        BSD License
+    ph.reg             Example registry file

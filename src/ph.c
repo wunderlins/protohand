@@ -412,8 +412,10 @@ int main(int argc, char** argv, char **envp) {
 	char *section = (char *) malloc(sizeof(char*) * l);
 	section[0] = 0;
 	strcat(section, uri_parsed.authority);
-	strcat(section, "/");
-	strcat(section, uri_parsed.path);
+	if (strcmp(uri_parsed.path, "") != 0) {
+		strcat(section, "/");
+		strcat(section, uri_parsed.path);
+	}
 
 	//printf("section: %s\n", section);
 	sprintf(logbuffer, "Reading ini section: %s", section);
