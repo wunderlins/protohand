@@ -290,9 +290,20 @@ int main(int argc, char** argv, char **envp) {
 	env[strlen(env)-1] = 0;
 	putenv(env);
 	
-	// open log file
-	strcpy(log_file, dir);
-	strcat(log_file, "ph.log");
+	// open log file, we check for APPDATA and HOME env variables
+	if (getenv("APPDATA") != NULL) {
+		strcpy(log_file, getenv("APPDATA"));
+		strcat(log_file, "\\");
+		strcat(log_file, str(PROGNAME_SHORT));
+		strcat(log_file, ".log");
+	} else if (getenv("HOME") != NULL) {
+		strcpy(log_file, getenv("HOME"));
+		strcat(log_file, "/.");
+		strcat(log_file, str(PROGNAME_SHORT));
+		strcat(log_file, ".log");
+	} else
+		return display_error(ERR_NO_USERDIR);
+	
 	logfile = fopen(log_file, "ab+");
 	
 	// logging uri

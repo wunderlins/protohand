@@ -161,9 +161,16 @@ FILES
                          To encode an `.ini` file into a `.dat` file see 
                          the `-e` command line switch.
 
-    $PH_HOME/ph.log      Logfile f the program.
+    ph.log               Logfile of the program. The location of the logfile is
+                         detiremined by two environment variables. if the 
+                         variable APPDATA can be resolved, it will be put there
+                         as `PROGNAME_SHORT.log` otherwise the program checks
+                         for `HOME` if found, the log file will be stored 
+                         as `.PROGNAME_SHORT.log`. If none of the two 
+                         environment variables is available we panic an 
+                         abort :-/
 
-    $PH_HOME/error.html  Error messages displayed in a browser when the 
+    $PH_HOME/error.html  Error messages for display in a browser when the 
                          program encounters a problem.
 
 

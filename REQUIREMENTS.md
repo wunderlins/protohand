@@ -90,8 +90,8 @@ Add additional parameters to the command line after the parameters that are pass
 - [x] implement regex parser
   - [x] replace text in config files
   - [ ] implement regex modifiers
-  - [ ] document regex syntax, capabilities, limitations
-- [ ] sanitize and check paths
+  - [x] document regex syntax, capabilities, limitations
+- ~~[ ] sanitize and check paths~~
 - [x] logging
   - [ ] configuable in ph.ini
 - [x] checking if parameter passed username equals ${USERNAME}

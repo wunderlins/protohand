@@ -29,6 +29,7 @@ void define_error_messages() {
 
 	errstr[16] = "Failed to delete log file.";
 	errstr[17] = "Failed to rename log file.";
+	errstr[18] = "Failed to find userdir (APPDATA/HOME) in environment variables.";
 	
 	errstr[33] = "No equal sign found in expression expansion.";
 	errstr[34] = "No colon found in expression expansion.";

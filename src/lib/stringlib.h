@@ -1,6 +1,9 @@
 #ifndef __STRINGLIB_H__
 #define __STRINGLIB_H__
 
+#define str(s) _str(s)
+#define _str(s) #s
+
 /* Make this header file easier to include in C++ code */
 #ifdef __cplusplus
 extern "C" {
