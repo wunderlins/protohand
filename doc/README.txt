@@ -210,3 +210,5 @@ SEE ALSO
     BUILD.txt          for instructions on building for Windows, OSX and Linux
     LICENSE.txt        BSD License
     PROGNAME_SHORT.reg             Example registry file
+    PROGNAME_SHORT.ini             Configuration file
+    PROGNAME_SHORT.dat             Encoded configuration file
