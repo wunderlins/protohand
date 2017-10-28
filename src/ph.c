@@ -313,7 +313,7 @@ int main(int argc, char** argv, char **envp) {
 		strcat(ini_file, INI_FILE_NAME);
 	}
 	
-	// FIXME: unencode file if encoded
+	// unencode file if encoded
 	FILE *f = fopen(ini_file, "rb");
 	if (f == NULL)
 		return 1;
@@ -597,10 +597,9 @@ int main(int argc, char** argv, char **envp) {
 			sprintf(logbuffer, "Missing regex.");
 			writelog(1, logbuffer);
 			fprintf(stderr, "%s\n", logbuffer);
-			return MISSING_REGEX;
+			return display_error(MISSING_REGEX);
 		}
 		
-		// FIXME: check if we find a sane way to handle quotes in filenames
 		cmdunquote((char**) &config.replace_file);
 		ret = replace(config.replace_file, config.replace_regex);
 		
@@ -609,8 +608,7 @@ int main(int argc, char** argv, char **envp) {
 			        config.replace_file, config.replace_regex);
 			writelog(1, logbuffer);
 			fprintf(stderr, "%s\n", logbuffer);
-			// FIXME: use display_error
-			return ret;
+			return display_error(ret);
 		}
 	}
 	
@@ -631,10 +629,6 @@ int main(int argc, char** argv, char **envp) {
 		writelog(2, logbuffer);
 	}
 	
-	// TODO: check path parameters
-	// TODO: run command, might have to split it
-	//printf("out: %s\n", cmd);
-	
 	char exe[4096] = "";
 	strcat(exe, getenv("windir"));
 	strcat(exe, "\\System32\\cmd.exe");
@@ -643,12 +637,9 @@ int main(int argc, char** argv, char **envp) {
 	myargs[0] = (char*) "/c";
 	myargs[1] = (char*) cmd;
 	myargs[2] = NULL;
-	
-	// FIXME: quoted paths with spaces are not run by 
-	//         cmd.exe
 	quote(&myargs[1]);
-	//printf("cmd: %s\n", myargs[1]);
-	// FIXME: for osx, ue posix_spawn:
+	
+	// FIXME: for osx, use posix_spawn:
 	// https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man2/posix_spawn.2.html
 	ret = spawnve(P_NOWAIT, exe, myargs, environ);
 	if (ret < 0) {

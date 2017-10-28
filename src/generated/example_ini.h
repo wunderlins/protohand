@@ -52,4 +52,5 @@ const char* ini_str = ""
 "; ph.exe \"ph://exe/dfrgui\"\r\n"
 "; FIXME: dfrgui.exe will not be launched, path is correct, permissions too (at home, W10)\r\n"
 "cmd = C:\\Windows\\System32\\dfrgui.exe\r\n"
+"\r\n"
 "";
