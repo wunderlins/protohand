@@ -272,7 +272,7 @@ int main(int argc, char** argv, char **envp) {
 	encodek[15] = '(';
 	encodek[16] = '3';
 	encodek[17] = 'l';
-	encodek[19] = 'd';
+	encodek[19] = 0;
 	
 	define_error_messages();
 	
