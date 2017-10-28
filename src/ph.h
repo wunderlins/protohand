@@ -95,7 +95,19 @@ typedef struct {
 	int found; // 1 if the section was found. initialize it to 0 otherwise
 } configuration;
 
+#define DEFAULT_GCONFIG {"_global", "", "0", "${env.windir}\\cmd.exe /c hh.exe -800", "${env.windir}\\cmd.exe /c", "10240000", 0}
+typedef struct {
+	const char* section; // the section we are searchin for
+	const char* log_path;
+	const char* log_level;
+	const char* prefix_help;
+	const char* prefix_cmd;
+	const char* max_log_size_bytes;
+	int found; // 1 if the section was found. initialize it to 0 otherwise
+} global_configuration;
+
 static int ini_callback(void* user, const char* section, const char* name, const char* value);
+static int global_callback(void* user, const char* section, const char* name, const char* value);
 int create_ini(char* ini_file);
 //void define_error_messages();
 void writelog(int level, char* str);

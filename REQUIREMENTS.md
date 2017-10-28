@@ -97,7 +97,7 @@ Add additional parameters to the command line after the parameters that are pass
 - [x] checking if parameter passed username equals ${USERNAME}
 - [x] display error messages if something goes south
 - [ ] global config (log path, log level)
-  - [ ] logging
+  - [x] logging
   - [ ] global exe wrappers (ie. prefix `cmd /c ...` for windows)
   - [ ] error display prefix (ie. `cmd /c hh.exe -800 ...`)
   - [x] make sure the logfile does not exceed a certain size

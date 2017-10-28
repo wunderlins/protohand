@@ -13,7 +13,7 @@ void usage(void) {
 /**
  * Logging to ph.log
  */
-int loglevel = 5; // 0 will disable logging
+int loglevel = 0; // 0 will disable logging
 char logbuffer[4096];
 char log_file[MAX_CWD_LENGTH];
 
@@ -252,6 +252,7 @@ int main(int argc, char** argv, char **envp) {
 	int l = 0;
 	int ret = 0;
 	int res;
+	int retp = 0;
 
 	encodek[0] = '3';
 	encodek[1] = 'f';
@@ -290,19 +291,82 @@ int main(int argc, char** argv, char **envp) {
 	env[strlen(env)-1] = 0;
 	putenv(env);
 	
-	// open log file, we check for APPDATA and HOME env variables
-	if (getenv("APPDATA") != NULL) {
-		strcpy(log_file, getenv("APPDATA"));
-		strcat(log_file, "\\");
-		strcat(log_file, str(PROGNAME_SHORT));
-		strcat(log_file, ".log");
-	} else if (getenv("HOME") != NULL) {
-		strcpy(log_file, getenv("HOME"));
-		strcat(log_file, "/.");
-		strcat(log_file, str(PROGNAME_SHORT));
-		strcat(log_file, ".log");
-	} else
-		return display_error(ERR_NO_USERDIR);
+	// use ini file from argv or in the exe folder ?
+	char ini_file[MAX_CWD_LENGTH];
+	// FIXME: search for ph.dat if no ph.ini is found
+	if (argc == 3) {
+		strcpy(ini_file, argv[2]);
+	} else {
+		strcpy(ini_file, dir);
+		strcat(ini_file, INI_FILE_NAME);
+	}
+	
+	// FIXME: unencode file if encoded
+	
+	// read the global configuration 
+	global_configuration cfg = DEFAULT_GCONFIG;
+	//cfg.section = "_global";
+	retp = ini_parse(ini_file, global_callback, &cfg);
+	
+	if (retp != 0) {
+		return display_error(INI_PARSE_ERR);
+	}
+	
+	// expand variables in the configuration
+	struct nvlist_list tmp_nvlist = nvlist_create(0);
+	char* tmp_log_path = (char*) malloc(sizeof(char*) * (strlen(cfg.log_path)+1));
+	strcpy(tmp_log_path, cfg.log_path);
+	ret = expand_vars(&tmp_log_path, &tmp_nvlist);
+	cfg.log_path = tmp_log_path;
+	
+	char* tmp_prefix_help = (char*) malloc(sizeof(char*) * (strlen(cfg.prefix_help)+1));
+	strcpy(tmp_prefix_help, cfg.prefix_help);
+	ret = expand_vars(&tmp_prefix_help, &tmp_nvlist);
+	cfg.prefix_help = tmp_prefix_help;
+	
+	char* tmp_prefix_cmd = (char*) malloc(sizeof(char*) * (strlen(cfg.prefix_cmd)+1));
+	strcpy(tmp_prefix_cmd, cfg.prefix_cmd);
+	ret = expand_vars(&tmp_prefix_cmd, &tmp_nvlist);
+	cfg.prefix_cmd = tmp_prefix_cmd;
+	
+	// validate and convert values
+	int log_length = LOG_LENGTH;
+	if (strcmp(cfg.max_log_size_bytes, "") != 0) {
+		log_length = atoi(cfg.max_log_size_bytes);
+		char buffer[50];
+		itoa(log_length, buffer, 10);
+		if (strcmp(buffer, cfg.max_log_size_bytes) != 0 || log_length <= 1024) {
+			log_length = LOG_LENGTH;
+			fprintf(stderr, "invalid value max_log_size_bytes in configuration, using default: %d\n", LOG_LENGTH);
+		}
+	}
+	
+	if (strcmp(cfg.log_level, "") != 0) {
+		loglevel = atoi(cfg.log_level);
+		char buffer[50];
+		itoa(loglevel, buffer, 10);
+		if (strcmp(buffer, cfg.log_level) != 0 || loglevel < 0) {
+			loglevel = 1;
+			fprintf(stderr, "invalid value log_level in configuration, using default: 1\n");
+		}
+	}
+	
+	// open log file. use ini value, if unset use the platform specific 
+	// defaults. we check for APPDATA and HOME env variables.
+	if (strcmp(tmp_log_path, "") == 0) {
+		if (getenv("APPDATA") != NULL) {
+			strcpy(log_file, getenv("APPDATA"));
+			strcat(log_file, "\\");
+			strcat(log_file, str(PROGNAME_SHORT));
+			strcat(log_file, ".log");
+		} else if (getenv("HOME") != NULL) {
+			strcpy(log_file, getenv("HOME"));
+			strcat(log_file, "/.");
+			strcat(log_file, str(PROGNAME_SHORT));
+			strcat(log_file, ".log");
+		} else
+			return display_error(ERR_NO_USERDIR);
+	}
 	
 	logfile = fopen(log_file, "ab+");
 	
@@ -313,23 +377,28 @@ int main(int argc, char** argv, char **envp) {
 	        tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, 
 			tm.tm_min, tm.tm_sec,  argv[1]);
 	writelog(1, logbuffer);
-
+	
+	if (loglevel > 2) {
+		sprintf(logbuffer, "section: %s", cfg.section); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "log_path: %s", cfg.log_path); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "log_level: %s", cfg.log_level); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "prefix_help: %s", cfg.prefix_help); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "prefix_cmd: %s", cfg.prefix_cmd); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "max_log_size_bytes: %s", cfg.max_log_size_bytes); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "found: %d", cfg.found); 
+		writelog(3, logbuffer);
+	}
 	sprintf(logbuffer, "Current working dir: %s", dir);
 	writelog(2, logbuffer);
-	
-	// use ini file from argv or in the exe folder ?
-	char ini_file[MAX_CWD_LENGTH];
-	if (argc == 3) {
-		strcpy(ini_file, argv[2]);
-	} else {
-		strcpy(ini_file, dir);
-		strcat(ini_file, INI_FILE_NAME);
-	}
-	
 	sprintf(logbuffer, "Current ini file:    %s", ini_file);
 	writelog(2, logbuffer);
 	
-
 	// check command line parameters for mode
 	// encode config file
 	// PROGNAME_SHORT_EXT -e <config_file> [out_file]
@@ -359,7 +428,6 @@ int main(int argc, char** argv, char **envp) {
 		usage();
 		return OK;
 	}
-		
 	
 	// check input
 	if(argc < 2) {
@@ -367,7 +435,6 @@ int main(int argc, char** argv, char **envp) {
 		usage();
 		return display_error(NO_INPUT);
 	}
-
 	
 	// parse uri
 	//struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
@@ -435,7 +502,7 @@ int main(int argc, char** argv, char **envp) {
 	// read the config 
 	configuration config = DEFAULT_CONFIG;
 	config.section = section;
-	int retp = ini_parse(ini_file, ini_callback, &config);
+	retp = ini_parse(ini_file, ini_callback, &config);
 	
 	sprintf(logbuffer, "ini_parse() return code: %d", retp);
 	writelog(2, logbuffer);
@@ -582,9 +649,9 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 	}
 
-	long newlen = (LOG_LENGTH-1024);
+	long newlen = (log_length-1024);
 	
-	if (fsize > LOG_LENGTH) {
+	if (fsize > log_length) {
 		if (loglevel > 2) {
 			sprintf(logbuffer, "Truncating logfile");
 			writelog(3, logbuffer);
@@ -635,16 +702,21 @@ int main(int argc, char** argv, char **envp) {
 }
 #endif // PH_NO_MAIN
 
+#define MATCH(s, n) strcmp_lcase((char*)section, (char*)s) == 0 && strcmp_lcase((char*)name, (char*)n) == 0
 /**
- * callback function for ini file parser
+ * callback url directives
+ * 
+ * [exe/replace]
+ * exe = "${USERPROFILE}\Projects\protohand\testcmd.exe"
+ * replace_file = ${USERPROFILE}\Projects\protohand\test\textreplacement.txt
+ * replace_regex = /e/E/
  */
 static int ini_callback(void* user, const char* section, const char* name,
                   const char* value) {
 	//static char prev_section[50] = "";
 	configuration* pconfig = (configuration*)user;
 
-	#define MATCH(s, n) strcmp_lcase((char*)section, (char*)s) == 0 && strcmp_lcase((char*)name, (char*)n) == 0
-	if (strcmp(pconfig->section, section) == 0) {
+	if (strcmp_lcase((char*) pconfig->section, (char*) section) == 0) {
 		#if DEBUG > 1
 		fprintf(logfile, "%s => %s: %s [%s]\n", section, name, value, pconfig->section);
 		#endif
@@ -680,6 +752,57 @@ static int ini_callback(void* user, const char* section, const char* name,
 
 	return 1;
 }
+
+
+/**
+ * callback for the global config
+ * 
+ * [_golbal]
+ * log_path = ${env.APPDATA}\ph.log
+ * log_level = 1
+ * prefix_help = ${env.windir}\cmd.exe /c hh.exe -800
+ * prefix_cmd = ${env.windir}\cmd.exe /c
+ * max_log_size_bytes = 10240000
+ */
+static int global_callback(void* user, const char* section, const char* name,
+                  const char* value) {
+	//static char prev_section[50] = "";
+	global_configuration* pconfig = (global_configuration*)user;
+
+	//#define MATCH(s, n) strcmp_lcase((char*)section, (char*)s) == 0 && strcmp_lcase((char*)name, (char*)n) == 0
+	//printf("section: %d '%s' = '%s'\n", strcmp(pconfig->section, section), section, pconfig->section);
+	if (strcmp_lcase((char*) pconfig->section, (char*) section) == 0) {
+		//fprintf(logfile, "%s => %s: %s [%s]\n", section, name, value, pconfig->section);
+
+		if (MATCH(section, "log_path")) {
+			pconfig->log_path = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "log_level")) {
+			pconfig->log_level = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "prefix_help")) {
+			pconfig->prefix_help = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "prefix_cmd")) {
+			pconfig->prefix_cmd = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "max_log_size_bytes")) {
+			pconfig->max_log_size_bytes = strdup(value);
+			pconfig->found = 1;
+		} else {
+			sprintf(logbuffer, "Found unknown directive '%s' with value '%s' "
+			                   "in ini file.", name, value); 
+			writelog(1, logbuffer);
+			fprintf(stderr, "%s\n", logbuffer);
+			return 0;
+		}
+		
+	}
+	// printf("search section: %s\n", (const char *) pconfig->section);
+
+	return 1;
+}
+
 
 /**
  * Create an example ini file
