@@ -197,7 +197,7 @@ int encode_file(int argc, char** argv) {
 	transcode_str(string, &fsize, &result, encodek);
 	
 	f = fopen(outfile, "wb");
-	fwrite(result, 1, fsize, f);
+	fwrite(result, 1, fsize-4, f);
 	if (f == NULL)
 		return 2;
 	
@@ -253,6 +253,7 @@ int main(int argc, char** argv, char **envp) {
 	int ret = 0;
 	int res;
 	int retp = 0;
+	long fsize;
 
 	encodek[0] = '3';
 	encodek[1] = 'f';
@@ -291,6 +292,17 @@ int main(int argc, char** argv, char **envp) {
 	env[strlen(env)-1] = 0;
 	putenv(env);
 	
+	// check command line parameters for mode
+	// encode config file
+	// PROGNAME_SHORT_EXT -e <config_file> [out_file]
+	if (argc > 1 && strcmp(argv[1], "-e") == 0)
+		return encode_file(argc, argv);
+	
+	// test regex
+	// PROGNAME_SHORT_EXT -r </regex/replace/> <file>
+	if (argc > 1 && strcmp(argv[1], "-r") == 0)
+		return test_regex(argc, argv);
+
 	// use ini file from argv or in the exe folder ?
 	char ini_file[MAX_CWD_LENGTH];
 	// FIXME: search for ph.dat if no ph.ini is found
@@ -302,11 +314,28 @@ int main(int argc, char** argv, char **envp) {
 	}
 	
 	// FIXME: unencode file if encoded
+	FILE *f = fopen(ini_file, "rb");
+	if (f == NULL)
+		return 1;
+	fseek(f, 0, SEEK_END);
+	fsize = ftell(f);
+	fseek(f, 0, SEEK_SET);  //same as rewind(f);
+	//printf("%ld\n", fsize);
+	char *string = (char*) malloc(fsize);
+	fread(string, fsize, 1, f);
+	//string[fsize] = 0;
+	fclose(f);
+	
+	char *ini_content;
+	res = transcode_str(string, &fsize, &ini_content, encodek);
 	
 	// read the global configuration 
 	global_configuration cfg = DEFAULT_GCONFIG;
 	//cfg.section = "_global";
-	retp = ini_parse(ini_file, global_callback, &cfg);
+	//retp = ini_parse(ini_file, global_callback, &cfg);
+	retp = ini_parse_string(ini_content, global_callback, &cfg);
+	//printf("%d\n", retp); return OK;
+	//printf("%s\n", ini_content); return OK;
 	
 	if (retp != 0) {
 		return display_error(INI_PARSE_ERR);
@@ -399,17 +428,6 @@ int main(int argc, char** argv, char **envp) {
 	sprintf(logbuffer, "Current ini file:    %s", ini_file);
 	writelog(2, logbuffer);
 	
-	// check command line parameters for mode
-	// encode config file
-	// PROGNAME_SHORT_EXT -e <config_file> [out_file]
-	if (argc > 1 && strcmp(argv[1], "-e") == 0)
-		return encode_file(argc, argv);
-	
-	// test regex
-	// PROGNAME_SHORT_EXT -r </regex/replace/> <file>
-	if (argc > 1 && strcmp(argv[1], "-r") == 0)
-		return test_regex(argc, argv);
-
 	// check if we have an ini file, if not, create it
 	if( access(ini_file, F_OK) == -1 ) {
 		// file doesn't exist, create it
@@ -502,7 +520,9 @@ int main(int argc, char** argv, char **envp) {
 	// read the config 
 	configuration config = DEFAULT_CONFIG;
 	config.section = section;
-	retp = ini_parse(ini_file, ini_callback, &config);
+	printf("section %s\n", config.section);
+	//retp = ini_parse(ini_file, ini_callback, &config);
+	retp = ini_parse_string(ini_content, ini_callback, &config);
 	
 	sprintf(logbuffer, "ini_parse() return code: %d", retp);
 	writelog(2, logbuffer);
@@ -641,7 +661,7 @@ int main(int argc, char** argv, char **envp) {
 	writelog(1, logbuffer);
 	
 	fseek(logfile, 0, SEEK_END);
-	long fsize = ftell(logfile);
+	fsize = ftell(logfile);
 	fseek(logfile, 0, SEEK_SET);  //same as rewind(f);
 
 	if (loglevel > 2) {
@@ -717,6 +737,7 @@ static int ini_callback(void* user, const char* section, const char* name,
 	configuration* pconfig = (configuration*)user;
 
 	if (strcmp_lcase((char*) pconfig->section, (char*) section) == 0) {
+		//fprintf(stdout, "%s => %s: %s [%s]\n", section, name, value, pconfig->section);
 		#if DEBUG > 1
 		fprintf(logfile, "%s => %s: %s [%s]\n", section, name, value, pconfig->section);
 		#endif
