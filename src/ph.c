@@ -374,6 +374,8 @@ int main(int argc, char** argv, char **envp) {
 	//printf("%s\n", ini_content); return OK;
 	
 	if (retp != 0) {
+		sprintf(logbuffer, "error parsing ini file at line %d.", retp); 
+		writelog(1, logbuffer);
 		return display_error(INI_PARSE_ERR);
 	}
 	
@@ -696,9 +698,13 @@ int main(int argc, char** argv, char **envp) {
 		sprintf(logbuffer, "logfile size: %ld", fsize); 
 		writelog(3, logbuffer);
 	}
-
-	long newlen = (log_length-1024);
 	
+	// skip log shortening if we do not log
+	if (loglevel == 0)
+		return OK;
+	
+	// keep the logfile at a certain size configured in the ini file
+	long newlen = (log_length-1024);
 	if (fsize > log_length) {
 		if (loglevel > 2) {
 			sprintf(logbuffer, "Truncating logfile");
