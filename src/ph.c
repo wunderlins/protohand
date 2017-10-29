@@ -469,9 +469,9 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 	}
 	sprintf(logbuffer, "Current working dir: %s", dir);
-	writelog(2, logbuffer);
+	writelog(1, logbuffer);
 	sprintf(logbuffer, "Current ini file:    %s", ini_file);
-	writelog(2, logbuffer);
+	writelog(1, logbuffer);
 	
 	// display help
 	if (argc > 1 && 
@@ -552,7 +552,7 @@ int main(int argc, char** argv, char **envp) {
 	}
 
 	//printf("section: %s\n", section);
-	sprintf(logbuffer, "Reading ini section: %s", section);
+	sprintf(logbuffer, "Reading ini section: [%s]", section);
 	writelog(1, logbuffer);
 	
 	// read the config 
