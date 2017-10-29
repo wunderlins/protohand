@@ -316,10 +316,10 @@ test_ph: ph
 	$(PROGNAME_SHORT)$(_EXT) 'proto:auth?query=value%201&param2&param3 '
 
 uriparse: stringlib
-	$(CC) $(CFLAGS) -c -o test/nvlist.o test/nvlist.c
-	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
-	$(CC) $(CFLAGS) -o lib/uriparse.exe test/nvlist.o lib/stringlib.o lib/uriparse.o
-	lib/uriparse.exe
+	$(CC) $(CFLAGS) -c -o lib/nvlist.o lib/nvlist.c
+	$(CC) $(CFLAGS) -DDEBUG=0 -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
+	$(CC) $(CFLAGS) -o ../test/uriparse$(_EXT) lib/nvlist.o lib/stringlib.o lib/uriparse.o
+	../test/uriparse$(_EXT)
 
 ini_test:
 	$(CC) $(CFLAGS) -c ini.c

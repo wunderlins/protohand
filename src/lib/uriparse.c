@@ -55,7 +55,7 @@ int parse_query(char* query, struct nvlist_list* nvquery) {
 			//strcpy(newkey, parts.items[i]);
 			urldecode2(newkey, parts.items[i]);
 			nvlist_addpair(nvquery, newkey, empty);
-			printf("added\n");
+			//printf("added\n");
 			continue; // work on next pair
 		}
 		
@@ -183,10 +183,14 @@ int uriparse_parse(char* uri, struct t_uri* uri_parsed) {
 	strncpy(uri_parsed->authority, 
 	        uri_parsed->uri+(uri_parsed->pos[FOUND_PROTO]+doubleslash+1), 
 	        uri_parsed->pos[FOUND_AUTHORITY]-uri_parsed->pos[FOUND_PROTO]-doubleslash-1);
+	
 	uri_parsed->authority[uri_parsed->pos[FOUND_AUTHORITY]-uri_parsed->pos[FOUND_PROTO]-doubleslash-1] = '\0';
+	//printf("==> %c\n", uri_parsed->authority[uri_parsed->pos[FOUND_AUTHORITY]-uri_parsed->pos[FOUND_PROTO]-doubleslash]-1);
+	if (uri_parsed->authority[strlen(uri_parsed->authority)-1] == '/')
+		uri_parsed->authority[strlen(uri_parsed->authority)-1] = 0;
 	
 	int len;
-	if (uri_parsed->pos[FOUND_PATH] != -1) {
+	if (uri_parsed->pos[FOUND_PATH] != -1 && uri_parsed->pos[FOUND_PATH] != uri_parsed->pos[FOUND_END]) {
 		
 		if (uri_parsed->pos[FOUND_QUERY] != -1)
 			len = uri_parsed->pos[FOUND_QUERY] - uri_parsed->pos[FOUND_PATH];
@@ -254,7 +258,7 @@ int uriparse_parse(char* uri, struct t_uri* uri_parsed) {
 		printf("  [%d] '%s'='%s'\n", i, uri_parsed->nvquery.items[i].key, uri_parsed->nvquery.items[i].value);
 	}
 	#endif
-	*/ 
+	*/
 	
 	return 0;	
 }
@@ -309,14 +313,16 @@ int main(int argc, char *argv[]) {
 	
 	// unit testing of the uri parser
 	uriparse_test("proto:authority", "proto", "authority", empty, empty, empty);
+	uriparse_test("proto://authority", "proto", "authority", empty, empty, empty);
 	uriparse_test("proto:authority/p", "proto", "authority", "p", empty, empty);
+	uriparse_test("proto:authority/", "proto", "authority", empty, empty, empty);
+	uriparse_test("proto:authority/?q=1", "proto", "authority", empty, "q=1", empty);
 	uriparse_test("proto:authority?q", "proto", "authority", empty, "q", empty);
 	uriparse_test("proto:authority#f", "proto", "authority", empty, empty, "f");
 	uriparse_test("proto:authority?q#f", "proto", "authority", empty, "q", "f");
 	uriparse_test("proto:authority/p#f", "proto", "authority", "p", empty, "f");
 	uriparse_test("proto:authority/p?q+1", "proto", "authority", "p", "q+1", empty);
 	uriparse_test("proto://authority/p?a=1&b=2&c=3#f", "proto", "authority", "p", "a=1&b=2&c=3", "f");
-	
 }
 #endif
 #endif
