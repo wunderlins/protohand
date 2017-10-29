@@ -434,6 +434,8 @@ int main(int argc, char** argv, char **envp) {
 	}
 	
 	// from here on we have a log file we can log to
+	//printf("argv[1]  : %s\n", argv[1]);
+	//printf("log_file : %s\n", log_file);
 	// if (loglevel > 0) { // FIXME: replace all code that accesses log_file with writelog() before not opening he file on loglevel 0
 		logfile = fopen(log_file, "ab+");
 		if (logfile == NULL)
@@ -489,7 +491,6 @@ int main(int argc, char** argv, char **envp) {
 	}
 	
 	// parse uri
-	//struct t_uri uri_parsed = {uri, empty, empty, empty, empty, empty, {-1, -1, -1, -1, -1, -1, -1}};
 	struct t_uri uri_parsed = uriparse_create(argv[1]);
 	res = uriparse_parse(argv[1], &uri_parsed);
 	//printf("res: %d\n", res);
@@ -541,6 +542,7 @@ int main(int argc, char** argv, char **envp) {
 	l = strlen(uri_parsed.authority) + strlen(uri_parsed.path) + 2;
 	char *section = (char *) malloc(sizeof(char*) * l);
 	section[0] = 0;
+	// FIXME: when we have no path, we get a strange section
 	strcat(section, uri_parsed.authority);
 	if (strcmp(uri_parsed.path, "") != 0) {
 		strcat(section, "/");
