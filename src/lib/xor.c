@@ -15,6 +15,15 @@ char* _xor(char *string, const char *key, long l) {
 	return out;
 }
 
+int is_encoded(char* string) {
+	if (string[0] == xor_magic[0] && 
+		string[1] == xor_magic[1] && 
+		string[2] == xor_magic[2] && 
+		string[3] == xor_magic[3])
+		return 1;
+	return 0;
+}
+
 int transcode_file(char* fin, char* fout, char* key) {
 	
 	xormode_t mode = ENCODE;

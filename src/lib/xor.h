@@ -8,6 +8,7 @@ extern "C" {
 
 typedef enum {DECODE, ENCODE} xormode_t;
 
+int is_encoded(char* string);
 char* _xor(char *string, const char *key, long l);
 int transcode_file(char* fin, char* fout, char* key);
 int transcode_str(char* strin, long* fsize, char** strout, char* key);

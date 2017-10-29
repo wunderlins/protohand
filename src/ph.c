@@ -40,7 +40,7 @@ void writelog(int level, char* str) {
 }
 
 int file_exists(char* file) {
-	if( access(file, F_OK) == -1 )
+if( access(file, F_OK) != -1 )
 		return 0;
 	return 1;
 }
@@ -342,6 +342,7 @@ int main(int argc, char** argv, char **envp) {
 	}
 	
 	// unencode file if encoded
+	//printf("Cfg: %s\n", ini_file);
 	FILE *f = fopen(ini_file, "rb");
 	if (f == NULL)
 		return display_error(FAILED_TO_OPEN_CONFIG);
@@ -356,7 +357,13 @@ int main(int argc, char** argv, char **envp) {
 	fclose(f);
 	
 	char *ini_content;
-	res = transcode_str(string, &fsize, &ini_content, encodek);
+	//printf(string);
+	if (is_encoded(string) == 1) {
+		printf("encoded\n");
+		res = transcode_str(string, &fsize, &ini_content, encodek);
+	} else {
+		ini_content = string;
+	}
 	
 	// read the global configuration 
 	global_configuration cfg = DEFAULT_GCONFIG;
@@ -427,11 +434,11 @@ int main(int argc, char** argv, char **envp) {
 	}
 	
 	// from here on we have a log file we can log to
-	if (loglevel > 0) {
+	// if (loglevel > 0) { // FIXME: replace all code that accesses log_file with writelog() before not opening he file on loglevel 0
 		logfile = fopen(log_file, "ab+");
 		if (logfile == NULL)
 			return display_error(FAILED_TO_OPEN_LOGFILE);
-	}
+	//}
 	
 	// logging uri
 	time_t t = time(NULL);
@@ -547,8 +554,9 @@ int main(int argc, char** argv, char **envp) {
 	// read the config 
 	configuration config = DEFAULT_CONFIG;
 	config.section = section;
-	printf("section %s\n", config.section);
+	//printf("section %s\n", config.section);
 	//retp = ini_parse(ini_file, ini_callback, &config);
+	//printf("loglevel: %d\n", loglevel); return 0;
 	retp = ini_parse_string(ini_content, ini_callback, &config);
 	
 	sprintf(logbuffer, "ini_parse() return code: %d", retp);
@@ -756,9 +764,8 @@ static int ini_callback(void* user, const char* section, const char* name,
 
 	if (strcmp_lcase((char*) pconfig->section, (char*) section) == 0) {
 		//fprintf(stdout, "%s => %s: %s [%s]\n", section, name, value, pconfig->section);
-		#if DEBUG > 1
-		fprintf(logfile, "%s => %s: %s [%s]\n", section, name, value, pconfig->section);
-		#endif
+		sprintf(logbuffer, "%s => %s: %s [%s]\n", section, name, value, pconfig->section);
+		writelog(3, logbuffer);
 
 		if (MATCH(section, "default_path")) {
 			pconfig->default_path = strdup(value);
@@ -811,7 +818,8 @@ static int global_callback(void* user, const char* section, const char* name,
 	//#define MATCH(s, n) strcmp_lcase((char*)section, (char*)s) == 0 && strcmp_lcase((char*)name, (char*)n) == 0
 	//printf("section: %d '%s' = '%s'\n", strcmp(pconfig->section, section), section, pconfig->section);
 	if (strcmp_lcase((char*) pconfig->section, (char*) section) == 0) {
-		//fprintf(logfile, "%s => %s: %s [%s]\n", section, name, value, pconfig->section);
+		sprintf(logbuffer, "%s => %s: %s [%s]\n", section, name, value, pconfig->section);
+		writelog(3, logbuffer);
 
 		if (MATCH(section, "log_path")) {
 			pconfig->log_path = strdup(value);
