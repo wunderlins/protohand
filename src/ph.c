@@ -20,6 +20,8 @@ char log_file[MAX_CWD_LENGTH];
 char encodek[20];
 
 void writelog(int level, char* str) {
+	if (level == 0)
+		return;
 	
 	char prefix[20] = "";
 	int i = 1;
@@ -30,7 +32,17 @@ void writelog(int level, char* str) {
 	
 	if (loglevel < level)
 		return;
-	fprintf(logfile, "%s%s\r\n", prefix, str);
+
+	if (logfile != NULL)
+		fprintf(logfile, "%s%s\r\n", prefix, str);
+	else
+		fprintf(stderr, "%s%s\r\n", prefix, str);
+}
+
+int file_exists(char* file) {
+	if( access(file, F_OK) == -1 )
+		return 0;
+	return 1;
 }
 
 int display_error(int code) {
@@ -51,9 +63,10 @@ int display_error(int code) {
 	
 	//define_error_messages();
 	//fprintf(stderr, "%s\n", errstr[code]);
-	fprintf(stderr, "Error: %d, %s\n", code, errstr[code]);
 	sprintf(logbuffer, "Error: %d, %s", code, errstr[code]);
-	writelog(1, logbuffer);
+	fprintf(stderr, logbuffer);
+	if (logfile != NULL)
+		writelog(1, logbuffer);
 	
 	return code;
 }
@@ -246,6 +259,7 @@ int test_regex(int argc, char** argv) {
 //char **environ;
 int main(int argc, char** argv, char **envp) {
 	environ = envp;
+	logfile = NULL;
 	
 	int i = 0;
 	//int ii = 0;
@@ -310,13 +324,28 @@ int main(int argc, char** argv, char **envp) {
 		strcpy(ini_file, argv[2]);
 	} else {
 		strcpy(ini_file, dir);
-		strcat(ini_file, INI_FILE_NAME);
+		strcat(ini_file, str(PROGNAME_SHORT));
+		strcat(ini_file, ".dat");
+		
+		if (file_exists(ini_file) != 0) {
+			strcpy(ini_file, dir);
+			strcat(ini_file, str(PROGNAME_SHORT));
+			strcat(ini_file, ".ini");
+			
+			// check if we have an ini file, if not, create it
+			if(file_exists(ini_file) != 0) {
+				ret = create_ini(ini_file);
+				printf("Example configuration file created in: %s\n", ini_file);
+				return OK;
+			}
+		}
 	}
 	
 	// unencode file if encoded
 	FILE *f = fopen(ini_file, "rb");
 	if (f == NULL)
-		return 1;
+		return display_error(FAILED_TO_OPEN_CONFIG);
+	
 	fseek(f, 0, SEEK_END);
 	fsize = ftell(f);
 	fseek(f, 0, SEEK_SET);  //same as rewind(f);
@@ -397,7 +426,12 @@ int main(int argc, char** argv, char **envp) {
 			return display_error(ERR_NO_USERDIR);
 	}
 	
-	logfile = fopen(log_file, "ab+");
+	// from here on we have a log file we can log to
+	if (loglevel > 0) {
+		logfile = fopen(log_file, "ab+");
+		if (logfile == NULL)
+			return display_error(FAILED_TO_OPEN_LOGFILE);
+	}
 	
 	// logging uri
 	time_t t = time(NULL);
@@ -427,13 +461,6 @@ int main(int argc, char** argv, char **envp) {
 	writelog(2, logbuffer);
 	sprintf(logbuffer, "Current ini file:    %s", ini_file);
 	writelog(2, logbuffer);
-	
-	// check if we have an ini file, if not, create it
-	if( access(ini_file, F_OK) == -1 ) {
-		// file doesn't exist, create it
-		ret = create_ini(ini_file);
-		return OK;
-	}
 	
 	// display help
 	if (argc > 1 && 
