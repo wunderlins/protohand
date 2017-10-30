@@ -23,6 +23,11 @@ way it would expect it.
 - [INSTALL](doc/INSTALL.txt)
 - [BUILD](doc/BUILD.txt)
 - [LICENSE](doc/LICENSE.txt)
+- if you want to call custom protocol handlers from your application (w32):
+  - [C++](doc/integration/cplusplus.cpp)
+  - [C#](doc/integration/csharp.cs)
+  - [PowerShell](doc/integration/powershell.ps1)
+  - [CMD](doc/integration/batch.cmd)
 
 ## Credits
 
