@@ -50,7 +50,7 @@ int display_error(int code) {
 	
 	sprintf(params, "%s/error.html?%d", getenv("PH_HOME"), code);
 	const char* myargs[5] = {
-		"/c"
+		"/C"
 		"hh.exe",
 		"-800",
 		params,
@@ -59,7 +59,7 @@ int display_error(int code) {
 	char exe[4096] = "";
 	strcat(exe, getenv("windir"));
 	strcat(exe, "\\System32\\cmd.exe");
-	spawnve(P_NOWAIT, exe, (char* const*) myargs, (char* const*) environ);
+	spawnve(P_DETACH, exe, (char* const*) myargs, (char* const*) environ);
 	
 	//define_error_messages();
 	//fprintf(stderr, "%s\n", errstr[code]);
@@ -673,22 +673,26 @@ int main(int argc, char** argv, char **envp) {
 	strcat(exe, "\\System32\\cmd.exe");
 
 	char* myargs[3];
-	myargs[0] = (char*) "/c";
+	myargs[0] = (char*) "/C";
 	myargs[1] = (char*) cmd;
 	myargs[2] = NULL;
 	quote(&myargs[1]);
 	
 	// FIXME: for osx, use posix_spawn:
 	// https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man2/posix_spawn.2.html
-	ret = spawnve(P_NOWAIT, exe, myargs, environ);
+	ret = spawnve(P_DETACH, exe, myargs, environ);
 	if (ret < 0) {
 		sprintf(logbuffer, "spawnve() returned error: %d", ret);
 		writelog(1, logbuffer);
 		fprintf(stderr, "%s\n", logbuffer);
 	}
 	
-	sprintf(logbuffer, "Success: %s /c %s", exe, myargs[1]);
+	sprintf(logbuffer, "Success: %s /C %s", exe, myargs[1]);
 	writelog(1, logbuffer);
+	
+	// skip log shortening if we do not log
+	if (loglevel == 0)
+		return OK;
 	
 	fseek(logfile, 0, SEEK_END);
 	fsize = ftell(logfile);
@@ -698,10 +702,6 @@ int main(int argc, char** argv, char **envp) {
 		sprintf(logbuffer, "logfile size: %ld", fsize); 
 		writelog(3, logbuffer);
 	}
-	
-	// skip log shortening if we do not log
-	if (loglevel == 0)
-		return OK;
 	
 	// keep the logfile at a certain size configured in the ini file
 	long newlen = (log_length-1024);
@@ -814,8 +814,8 @@ static int ini_callback(void* user, const char* section, const char* name,
  * [_golbal]
  * log_path = ${env.APPDATA}\ph.log
  * log_level = 1
- * prefix_help = ${env.windir}\cmd.exe /c hh.exe -800
- * prefix_cmd = ${env.windir}\cmd.exe /c
+ * prefix_help = ${env.windir}\cmd.exe /C hh.exe -800
+ * prefix_cmd = ${env.windir}\cmd.exe /C
  * max_log_size_bytes = 10240000
  */
 static int global_callback(void* user, const char* section, const char* name,
