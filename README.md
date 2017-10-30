@@ -43,3 +43,5 @@ https://blogs.msdn.microsoft.com/ieinternals/2011/07/13/understanding-protocols/
 
 PCRE (Perl Compatible Regular Expressions):
 https://www.rexegg.com/pcre-doc/_latest/pcresyntax.html
+
+Cross-Platform: https://support.shotgunsoftware.com/hc/en-us/articles/219031308-Launching-applications-using-custom-browser-protocols
