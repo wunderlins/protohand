@@ -19,10 +19,10 @@ way it would expect it.
 
 ## Documentation
 
-- [README](blob/master/doc/INSTALL.txt)
-- [INSTALL](blob/master/doc/INSTALL.txt)
-- [BUILD](blob/master/doc/BUILD.txt)
-- [LICENSE](blob/master/doc/LICENSE.txt)
+- [README](doc/INSTALL.txt)
+- [INSTALL](doc/INSTALL.txt)
+- [BUILD](doc/BUILD.txt)
+- [LICENSE](doc/LICENSE.txt)
 
 ## Credits
 
