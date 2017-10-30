@@ -18,14 +18,16 @@ way it would expect it.
 	query:     parameters for executable
 
 ## Documentation
-	- [README](tree/master/doc/README.txt)
-	- [INSTALL](tree/master/doc/INSTALL.txt)
-	- [BUILD](tree/master/doc/BUILD.txt)
-	- [LICENSE](tree/master/doc/LICENSE.txt)
+
+- [README](tree/master/doc/README.txt)
+- [INSTALL](tree/master/doc/INSTALL.txt)
+- [BUILD](tree/master/doc/BUILD.txt)
+- [LICENSE](tree/master/doc/LICENSE.txt)
 
 ## Credits
-	- ini parser from https://github.com/benhoyt/inih (BSD license)
-	- Regular expression support is provided by the PCRE library package http://pcre.org/
+
+- ini parser from https://github.com/benhoyt/inih (BSD license)
+- Regular expression support is provided by the PCRE library package http://pcre.org/
 
 
 ## References
