@@ -39,7 +39,7 @@ parameters in the form of ${paramname} will also be epxanded.
 
 - Environment variable expansion: yes
 
-### default_path
+### ~~default_path~~
 All paths passed in as parameter must be within this base path. If a relative 
 path is passed as parameter the base path will be treated as `cwd`. Relative 
 paths may not start with `..`. A path which does not start with `[^A-Z:]`, 
@@ -93,7 +93,7 @@ Add additional parameters to the command line after the parameters that are pass
   - [x] document regex syntax, capabilities, limitations
 - ~~[ ] sanitize and check paths~~
 - [x] logging
-  - [ ] configuable in ph.ini
+  - [x] configuable in ph.ini
 - [x] checking if parameter passed username equals ${USERNAME}
 - [x] display error messages if something goes south
 - [ ] global config (log path, log level)
@@ -105,11 +105,12 @@ Add additional parameters to the command line after the parameters that are pass
   - [x] document program execution steps
   - [x] update example reg file
   - [x] create documented ini file with example. compile it in
-  - [ ] complete list of error messages, update error.html. compile error.html in.
+  - [x] complete list of error messages, update error.html. compile error.html in.
   - [x] update README.txt, this is the program manual
-  - [ ] update README.md, this is the build and programming manual
+  - [x] update README.md, this is the build and programming manual
   - [ ] document limitations
 - [x] implement unit tests
+- [ ] implement code samples for C++, C#, VBA, VBS, Python, Java
 
 [1]: https://tools.ietf.org/html/rfc3986
 [2]: https://www.gnu.org/software/libc/manual/html_node/Regular-Expressions.html#Regular-Expressions
