@@ -19,7 +19,7 @@ way it would expect it.
 
 ## Documentation
 
-- [README](doc/INSTALL.txt)
+- [README](doc/README.txt)
 - [INSTALL](doc/INSTALL.txt)
 - [BUILD](doc/BUILD.txt)
 - [LICENSE](doc/LICENSE.txt)
