@@ -28,6 +28,7 @@ way it would expect it.
   - [C#](doc/integration/csharp.cs)
   - [PowerShell](doc/integration/powershell.ps1)
   - [CMD](doc/integration/batch.cmd)
+  - [HTML](doc/integration/html.html)
 
 ## Credits
 
