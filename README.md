@@ -1,40 +1,34 @@
-# protohand
+# protohand - a protocol handler
 
-minimal implementation of an rfc3986 uri handler. supported format:
-scheme:[//]authority[/path[?query]]
+minimalistic implementation of an rfc3986 uri handler. supported format:
+`scheme:[//]authority[/path[?query]]`
 
-The goal is to map an uri to a windows protocol hndler.
-scheme:    handler (this exe, regiter with registry)
-authority: mapped to exe file in ini file
-path:      ??
-query:     parameters for executable
+The program will map an uri to a windows protocol handler. The `authority` and 
+`path` are then matched against an ini file section in the configuration file 
+which is called `[authority/path]`. This ini section contains instructions how 
+to run a program.
 
-NOTE: The current implementation reads URIs from stdin. might have to change 
-this for the windows protocol handler, since itm ight pass it in via argv[1].
+In short, this program makes it possible to launch many external programs 
+trough one mechanism. It is able to pass parameters to the called program in a 
+way it would expect it.
 
-LIMITATIONS
-- max 1024 chars length of URIs
-- only scheme:authority:path:query parts parsed
+	scheme:    handler (this exe, regiter with registry)
+	authority: mapped to exe file in ini file
+	path:      optional additional mapping options to authority
+	query:     parameters for executable
 
+## Documentation
+	- [README](tree/master/doc/README.txt)
+	- [INSTALL](tree/master/doc/INSTALL.txt)
+	- [BUILD](tree/master/doc/BUILD.txt)
+	- [LICENSE](tree/master/doc/LICENSE.txt)
 
-## environment
-- install mingw from https://nuwen.net/files/mingw/history/mingw-15.1.exe
-- edit `c:\<installdir>\open_distro_paths.bat` and add the following line after `doskey`: `start git\git-bash.exe && exit`
-- add the following line to `c:\<installdir>\git\etc\fstab`: `c:\<installdir> /mingw` 
-- start the build environment by running `open_distro_window.bat`
-- cd to your desired project directory and chout the source: `git clone git@github.com:wunderlins/protohand.git`
-- set proper crlf handling `git config --global core.autocrlf false`
-- checkout this repo next to mingw. you should have two folders in the base directroy called `mingw-15` and `prtohand`
-
-## build
-
-	make all
-	make test
-
-ini parser from https://github.com/benhoyt/inih (BSD license)
+## Credits
+	- ini parser from https://github.com/benhoyt/inih (BSD license)
+	- Regular expression support is provided by the PCRE library package http://pcre.org/
 
 
-## referemces
+## References
 
 Registering an Application to a URI Scheme:
 https://msdn.microsoft.com/en-us/library/aa767914(v=vs.85).aspx
@@ -44,3 +38,6 @@ https://msdn.microsoft.com/en-us/library/aa767916(v=vs.85).aspx
 
 A primer for windows:
 https://blogs.msdn.microsoft.com/ieinternals/2011/07/13/understanding-protocols/
+
+PCRE (Perl Compatible Regular Expressions):
+https://www.rexegg.com/pcre-doc/_latest/pcresyntax.html
