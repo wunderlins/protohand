@@ -55,6 +55,12 @@ else
 	_EXT=
 endif
 
+COMPILE_PCRE=
+COMPILE_LIBPCRE=../pcre/lib/libpcre.a
+ifneq ($(shell test -e $(COMPILE_LIBPCRE) && echo -n yes),yes)
+    COMPILE_PCRE=pcre
+endif
+
 # create release name: OS_VERSION_TIMESTAMP
 timestamp=$(shell date "+%Y%m%d%H%M")
 rel = $(operating_system)_$(VERSION)_$(timestamp)
@@ -64,7 +70,7 @@ export
 CFLAGS += -I ../pcre/include -L$(pwd)/../pcre/lib
 
 # build everything including 3rd party libs
-all: pcre app
+all: $(COMPILE_PCRE) app
 
 # build all without deps
 app: clean create_error max_path doc $(BUILD_ICONS) dep ph testcmd testregex
