@@ -288,6 +288,9 @@ int main(int argc, char*argv[]) {
 	char* cmd; 
 	char* expect;
 	
+	putenv("windir=C:\\WINDOWS");
+	putenv("USERNAME=wus");
+	
 	// match with spaces in expression
 	uri = (char*) "proto:auth/path?name1=vaue1&name2=xxx";
 	cmd = (char*) "${env.windir}\\notepad.exe /A \"${name1}\" ${name2} ${ env.USERNAME != name2 :--debug}";

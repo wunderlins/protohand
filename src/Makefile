@@ -22,7 +22,7 @@ endif
 
 # limits
 STDIN_MAX = 1024
-MAX_CWD_LENGTH = $(shell sh -c './bin/MAX_CWD_LENGTH.exe')
+MAX_CWD_LENGTH = $(shell sh -c './bin/MAX_CWD_LENGTH$(_EXT)')
 
 # cflags, strip if debuggign is disabled
 CFLAGS = -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) # -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
@@ -110,8 +110,8 @@ ph:
 	g++ $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/xor.o lib/regcpp.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o lib/cmd_parser.o lib/errstr.o ph.c $(APP_ICO) -lpcrecpp -lpcre -DPCRE_STATIC 
 
 max_path:
-	$(CC) $(CFLAGS) -o bin/MAX_CWD_LENGTH.exe bin/MAX_CWD_LENGTH.c
-	$(eval MAX_CWD_LENGTH := $(shell sh -c './bin/MAX_CWD_LENGTH.exe'))
+	$(CC) $(CFLAGS) -o bin/MAX_CWD_LENGTH$(_EXT) bin/MAX_CWD_LENGTH.c
+	$(eval MAX_CWD_LENGTH := $(shell sh -c './bin/MAX_CWD_LENGTH$(_EXT)'))
 
 # generate a simple cmd utility that will print all parameters
 testcmd:
