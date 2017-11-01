@@ -25,7 +25,7 @@ STDIN_MAX = 1024
 MAX_CWD_LENGTH = $(shell sh -c './bin/MAX_CWD_LENGTH$(_EXT)')
 
 # cflags, strip if debuggign is disabled
-CFLAGS = -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) # -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
+CFLAGS = -g -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) # -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
 ifeq ($(DEBUG),0) 
 	CFLAGS += -s
 endif
@@ -357,8 +357,9 @@ ini_example:
 	$(CC) $(CFLAGS) -o ini/ini_example$(_EXT) ini.o ini/ini_example.c
 
 nvlist:
-	$(CC) $(CFLAGS) -c stringlib.c
-	$(CC) $(CFLAGS) -D NVLIST_MAIN -o test/nvlist$(_EXT) stringlib.o test/nvlist.c
+	#$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
+	$(CC) $(CFLAGS) -D NVLIST_MAIN -o ../test/nvlist$(_EXT) lib/stringlib.o lib/nvlist.c
+	../test/nvlist$(_EXT)
 
 compare:
 	$(CC) $(CFLAGS) -o test/compare$(_EXT) test/compare.c

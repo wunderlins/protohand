@@ -225,7 +225,7 @@ int expand_vars(char** str, struct nvlist_list* query) {
 			} else { // variable
 				//printf("Resolving variable\n");
 				ret = find_var_value(varname, query, &result);
-				//printf("result: %d, result: %s\n", ret, result);
+				printf("var: %s, result: %d, result: %s\n", varname, ret, result);
 				if (ret == 1) {
 					//printf("Var value Result: %s, ret: %d\n", result, ret);
 					expandvar_err_var_name = varname;
@@ -287,6 +287,25 @@ int cmdparser_test(char* uri, char** cmd, char* expect) {
 		printf("Parser Error %d, %s\n", ret, uri);
 		return ret;
 	}
+	/*
+	printf("Start      [%d]\n", uri_parsed.pos[FOUND_START]);
+	printf("Proto      [%d]\n", uri_parsed.pos[FOUND_PROTO]);
+	printf("Authority  [%d]\n", uri_parsed.pos[FOUND_AUTHORITY]);
+	printf("Path       [%d]\n", uri_parsed.pos[FOUND_PATH]);
+	printf("Query      [%d]\n", uri_parsed.pos[FOUND_QUERY]);
+	printf("Fragment   [%d]\n", uri_parsed.pos[FOUND_FRAGMENT]);
+	printf("End        [%d]\n", uri_parsed.pos[FOUND_END]);
+
+	printf("proto:     '%s'\n", uri_parsed.proto);
+	printf("authority: '%s'\n", uri_parsed.authority);
+	printf("path:      '%s'\n", uri_parsed.path);
+	printf("query:     '%s'\n", uri_parsed.query);
+	printf("fragment:  '%s'\n", uri_parsed.fragment);
+	int i = 0;
+	for(i=0; i<uri_parsed.nvquery.length; i++) {
+		printf("  [%d] '%s'='%s'\n", i, uri_parsed.nvquery.items[i].key, uri_parsed.nvquery.items[i].value);
+	}
+	*/
 	
 	ret = expand_vars(cmd, &uri_parsed.nvquery);
 	res = asserts(*cmd, expect);

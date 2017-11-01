@@ -9,7 +9,7 @@ int nvlist_addpair(struct nvlist_list *rep, char* key, char* value) {
 	p.key = key;
 	p.value = value;
 	
-	if (rep->length+1 >= rep->max)
+	if (rep->length+1 > rep->max)
 		nvlist_resize(rep, rep->max+rep->_step);
 	
 	rep->items[rep->length++] = p;
@@ -42,6 +42,8 @@ struct nvlist_list nvlist_create(int size) {
 	rep.length = 0;
 	rep.max = size;
 	rep._step = size;
+	if (size == 0)
+		rep._step = 10;
 	return rep;
 }
 
@@ -62,7 +64,8 @@ int nvlist_resize(struct nvlist_list* rep, int size) {
 	if (size <= rep->max)
 		return -2;
 	
-	struct nvlist_pair* tmp = realloc(rep->items, sizeof(struct nvlist_pair*) * size);
+	// FIXME: we have an error in allocating new memory here which results in a segfault
+	struct nvlist_pair* tmp = realloc(rep->items, sizeof(struct nvlist_pair*) * (size+1));
 	//printf("realloc ret: %d\n", tmp);
 	if (!tmp)
 		return -1;
@@ -94,7 +97,7 @@ int nvlist_find_parts(char* string, char search) {
 #ifdef NVLIST_MAIN
 int main(int argc, char** argv, char **envp) {
 	
-	struct nvlist_list rep = nvlist_create(50);
+	struct nvlist_list rep = nvlist_create(2);
 	
 	nvlist_addpair(&rep, "k1", "v1");
 	nvlist_addpair(&rep, "k2", "v2");
