@@ -317,7 +317,8 @@ test_mydir:
 	$(CC) $(CFLAGS) -o ../test/mydir$(_EXT) lib/stringlib.o $(REALPATH) -DMYDIR_MAIN lib/mydir.c
 	
 test_cmdparser:
-	$(CC) $(CFLAGS) -DCMD_PARSER_MAIN -o ../test/cmd_parser$(_EXT) lib/stringlib.o lib/nvlist.o lib/uriparse.o lib/cmd_parser.c 
+	$(CC) $(CFLAGS) -g -DCMD_PARSER_MAIN -o ../test/cmd_parser$(_EXT) lib/stringlib.o lib/nvlist.o lib/uriparse.o lib/cmd_parser.c 
+	../test/cmd_parser$(_EXT)
 	
 test_ph: ph
 	$(PROGNAME_SHORT)$(_EXT) 'proto:auth?query=value%201&param2&param3 '

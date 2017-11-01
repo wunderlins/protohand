@@ -9,10 +9,10 @@ int nvlist_addpair(struct nvlist_list *rep, char* key, char* value) {
 	p.key = key;
 	p.value = value;
 	
-	if (rep->length+1 > rep->max)
+	if (rep->length+1 >= rep->max)
 		nvlist_resize(rep, rep->max+rep->_step);
 	
-	rep->items[rep->length++] = p;
+	rep->items[rep->length] = p;
 	return rep->length;
 }
 
