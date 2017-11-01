@@ -191,8 +191,8 @@ release_doc:
 	cp ../doc/LICENSE.txt "$(B_DIR)/doc/"
 	cp ../doc/INSTALL.txt "$(B_DIR)/doc/"
 	cp ../doc/BUILD.txt "$(B_DIR)/doc/"
-	cp example.reg "$(B_DIR)/doc/ph.reg"
-	cp example.ini "$(B_DIR)/doc/ph.ini"
+	cp example.reg "$(B_DIR)/ph.reg"
+	cp example.ini "$(B_DIR)/ph.ini"
 	
 	# subsitute all keywords in the README.txt file
 	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' $(B_DIR)/doc/README.txt
@@ -213,11 +213,11 @@ release_doc:
 	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' $(B_DIR)/doc/BUILD.txt
 	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' $(B_DIR)/doc/BUILD.txt
 	
-	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' $(B_DIR)/doc/ph.reg
-	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' $(B_DIR)/doc/ph.reg
-	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' $(B_DIR)/doc/ph.reg
-	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' $(B_DIR)/doc/ph.reg
-	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' $(B_DIR)/doc/ph.reg
+	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' $(B_DIR)/ph.reg
+	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' $(B_DIR)/ph.reg
+	sed -i $(SEDI_EXT) 's/STDIN_MAX/$(STDIN_MAX)/g' $(B_DIR)/ph.reg
+	sed -i $(SEDI_EXT) 's/MAX_CWD_LENGTH/$(MAX_CWD_LENGTH)/g' $(B_DIR)/ph.reg
+	sed -i $(SEDI_EXT) 's/_EXT/$(_EXT)/g' $(B_DIR)/ph.reg
 	
 	
 	# windows line endings
@@ -225,8 +225,8 @@ release_doc:
 	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/doc/INSTALL.txt
 	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/doc/BUILD.txt
 	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/doc/LICENSE.txt
-	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/doc/ph.ini
-	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/doc/ph.reg
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/ph.ini
+	sed -i $(SEDI_EXT) 's/$$/\r/' $(B_DIR)/ph.reg
 
 
 # create a release
@@ -250,9 +250,9 @@ release: release_doc
 	cp testregex$(_EXT) "$(B_DIR)/"
 	strip "$(B_DIR)/testcmd$(_EXT)"
 	strip "$(B_DIR)/testregex$(_EXT)"
-	
+		
 	# create zip file
-	cd $(B_DIR)/; ../src/bin/zip.exe "../$(rel).zip" * 
+	cd $(B_DIR)/; ../src/bin/zip.exe -r "../$(rel).zip" * 
 	mv "../$(rel).zip" ../release
 	
 	#cp $(R_DIR)/$(rel)/* ../build
