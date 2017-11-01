@@ -278,7 +278,8 @@ int asserts(char* str1, char* str2) {
 }
 
 int cmdparser_test(char* uri, char** cmd, char* expect) {
-	int ret, res = 0;
+	int ret = 0;
+	int res = 0;
 	
 	struct t_uri uri_parsed = uriparse_create(uri);
 	ret = uriparse_parse(uri, &uri_parsed);
@@ -289,7 +290,7 @@ int cmdparser_test(char* uri, char** cmd, char* expect) {
 	
 	ret = expand_vars(cmd, &uri_parsed.nvquery);
 	res = asserts(*cmd, expect);
-	printf("r: %d: out: %s, exp: %s\n", res, *cmd, expect);
+	printf("res %d, ret: %d, out: %s, exp: %s\n", res, ret, *cmd, expect);
 	
 	return res;
 }
@@ -312,18 +313,19 @@ int main(int argc, char*argv[]) {
 	
 	// match without spaces in expression
 	ret = cmdparser_test(uri, &cmd, expect);
-	printf("ret: %d\n");
+	//printf("ret: %d\n", ret);
 	
-	/*
 	cmd = (char*) "${env.windir}\\notepad.exe /A \"${name1}\" ${name2} ${env.USERNAME!=name2:--debug}";
 	ret = cmdparser_test(uri, &cmd, expect);
 	res += ret;
+	//printf("ret: %d\n", ret);
 	
 	// no match
 	cmd = (char*) "${env.windir}\\notepad.exe /A \"${name1}\" ${name2} ${env.USERNAME=name2:--debug}";
 	expect = (char*) "C:\\WINDOWS\\notepad.exe /A \"vaue1\" xxx ";
 	ret = cmdparser_test(uri, &cmd, expect);
 	res += ret;
+	//printf("ret: %d\n", ret);
 	
 	// case insensitive comparison
 	uri = (char*) "proto:auth/path?name1=vaue1&name2=xxx";
@@ -332,7 +334,7 @@ int main(int argc, char*argv[]) {
 	expect = (char*) "C:\\WINDOWS\\notepad.exe /A \"vaue1\" xxx --debug";
 	ret = cmdparser_test(uri, &cmd, expect);
 	res += ret;
-	*/
+	//printf("ret: %d\n", ret);
 	
 	return res;
 }
