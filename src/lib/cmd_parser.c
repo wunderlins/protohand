@@ -18,12 +18,13 @@ int find_var_value(char* varname, struct nvlist_list* query, char** result) {
         if (value == NULL)
             return 1;
         
-        //printf("value:   %s\n", value);
+        //printf("--> %s value:   %s\n", varname, value);
         *result = value;
         return 0;
     }
     
     // query variables
+    //printf("l: %d\n", query->length);
     for (ii=0; ii<query->length; ii++) {
         //printf("--> key: %s\n", query->items[ii].key);
         if(strcmp(query->items[ii].key, varname) == 0) {
@@ -165,8 +166,10 @@ int expand_vars(char** str, struct nvlist_list* query) {
 	t_conditional cond = {(char*) "", (char*) "", 0, (char*) "", -1};
 	
 	char* out = (char*) malloc(sizeof(char*) * BLOCKSIZE);
-	if (out == NULL)
+	if (out == NULL) {
+		//printf("Failed malloc 1\n");
 		return EXP_ERR_MALLOC;
+	}
 	buffer_length = BLOCKSIZE;
 	out[0] = 0;
 	
@@ -190,8 +193,10 @@ int expand_vars(char** str, struct nvlist_list* query) {
 			
 			//printf("len: %d\n", len);
 			char* varname = (char *) malloc(sizeof(char*) * (len+1));
-			if (varname == NULL)
+			if (varname == NULL) {
+				//printf("Failed malloc 2\n");
 				return EXP_ERR_MALLOC;
+			}
 			
 			strncpy(varname, *(str)+start+1, len);
 			varname[len] = 0;
@@ -208,8 +213,10 @@ int expand_vars(char** str, struct nvlist_list* query) {
 				
 				if (cond.match == 1) {
 					ret = append_resize(out, cond.replace, buffer_length, BLOCKSIZE);
-					if (ret == 0)
+					if (ret == 0) {
+						//printf("Failed remalloc \n");
 						return EXP_ERR_REALLOC;
+					}
 					
 					buffer_length = ret;
 				}
@@ -218,14 +225,19 @@ int expand_vars(char** str, struct nvlist_list* query) {
 			} else { // variable
 				//printf("Resolving variable\n");
 				ret = find_var_value(varname, query, &result);
+				//printf("result: %d, result: %s\n", ret, result);
 				if (ret == 1) {
-					//printf("Result: %s\n", result);
+					//printf("Var value Result: %s, ret: %d\n", result, ret);
 					expandvar_err_var_name = varname;
 					return EXP_ERR_QUERYNVVAR_NOT_FOUND;
 				}
+				
 				ret = append_resize(out, result, buffer_length, BLOCKSIZE);
-				if (ret == 0)
+				//printf("--> out: %s\n", out);
+				if (ret == 0) {
+					//printf("Failed remalloc \n");
 					return EXP_ERR_REALLOC;
+				}
 				
 				buffer_length = ret;
 			}
@@ -243,8 +255,10 @@ int expand_vars(char** str, struct nvlist_list* query) {
 			append[0] = str[0][i];
 			append[1] = 0;
 			ret = append_resize(out, append, buffer_length, BLOCKSIZE);
-			if (ret == 0)
+			if (ret == 0) {
+				//printf("Failed remalloc \n");
 				return EXP_ERR_REALLOC;
+			}
 			buffer_length = ret;
 		}
 	}
@@ -298,6 +312,9 @@ int main(int argc, char*argv[]) {
 	
 	// match without spaces in expression
 	ret = cmdparser_test(uri, &cmd, expect);
+	printf("ret: %d\n");
+	
+	/*
 	cmd = (char*) "${env.windir}\\notepad.exe /A \"${name1}\" ${name2} ${env.USERNAME!=name2:--debug}";
 	ret = cmdparser_test(uri, &cmd, expect);
 	res += ret;
@@ -315,6 +332,7 @@ int main(int argc, char*argv[]) {
 	expect = (char*) "C:\\WINDOWS\\notepad.exe /A \"vaue1\" xxx --debug";
 	ret = cmdparser_test(uri, &cmd, expect);
 	res += ret;
+	*/
 	
 	return res;
 }
