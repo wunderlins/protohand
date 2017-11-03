@@ -64,6 +64,10 @@ int exedir(char *argv0, char *exedir) {
 	
 	strcpy(exedir, cleaned);
 	
+	if (exedir[strlen(exedir)-1] != '/')
+		strcat(exedir, "/");
+
+	
 	//printf("cwd:   %s\nargv0: %s\nres:   %s\nclean: %s\n", cwd, argv0, res, cleaned);
 	
 	return 0;
@@ -103,6 +107,9 @@ int main(int argc, char* argv[]) {
 			break;
 		}
 	}
+	
+	if (path[strlen(path)-1] != '/')
+		strcat(path, "/");
 	
 	int ret = strcmp(path, dir);
 	printf("r: %d, %s, %s\n", ret, dir, path);
