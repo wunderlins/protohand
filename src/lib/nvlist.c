@@ -66,7 +66,7 @@ void nvlist_destroy(struct nvlist_list *rep) {
 }
 
 int nvlist_resize(struct nvlist_list* rep, int size) {
-	//printf(" -> size: %d, max: %d\n", size, rep->max);
+	printf(" -> size: %d, max: %d, length %d\n", size, rep->max, rep->length);
 	if (size <= rep->max)
 		return -2;
 	
@@ -78,11 +78,16 @@ int nvlist_resize(struct nvlist_list* rep, int size) {
 		return -1;
 	
 	//printf(" -> copy items (%d)\n", rep->length);
+	/*
 	int i;
 	for(i=0; i < rep->length; i++) {
-		//printf(" -> %d: \n", i);
-		tmp[i] = rep->items[i];
+		printf(" -> %d: \n", i);
+		struct nvlist_pair p;
+		p.key = rep->items[i].key;
+		p.value = rep->items[i].value;
+		tmp[i] = p;
 	}
+	*/
 	
 	rep->items = tmp;
 	
@@ -159,7 +164,7 @@ int main(int argc, char** argv, char **envp) {
 	ret = strcmp(rep.items[3].value, "v+4"); res += ret;
 	printf("r: %d value, %s, %s\n", ret, rep.items[3].value, "v+4");
 	
-	free(rep.items);
+	//free(rep.items);
 	
 	return res;
 }
