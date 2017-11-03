@@ -297,8 +297,8 @@ clearlog:
 
 
 ## TEST ########################################################################
-test: dep test_cmdparser $(TEST_REALPATH) test_mydir test_nvlist
-	g++ -std=c++11 $(CFLAGS) -o ../test/regcpp$(_EXT) lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
+test: dep test_cmdparser $(TEST_REALPATH) test_mydir test_nvlist test_regcpp
+	#g++ -std=c++11 $(CFLAGS) -o ../test/regcpp$(_EXT) lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -o ../test/uriparse$(_EXT) lib/nvlist.o lib/stringlib.o lib/uriparse.o
 	
@@ -364,3 +364,6 @@ nvlist:
 compare:
 	$(CC) $(CFLAGS) -o test/compare$(_EXT) test/compare.c
 
+test_regcpp:
+	#g++ -o regcpp.exe reg.cpp -lpcrecpp -lpcre -DPCRE_STATIC -DCPPMAIN
+	g++ $(CFLAGS) -static -DCPPMAIN -DPCRE_STATIC -o ../test/regcpp$(_EXT) lib/reg.cpp -lpcrecpp -lpcre 

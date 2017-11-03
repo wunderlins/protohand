@@ -121,7 +121,6 @@ reg:      %s\n\
 replace:  %s\n\
 modifier: %s\n", pre, reg, replace, modifier);
 	*/
-	
 	// execute regex
 	string res;
 	try {
@@ -138,7 +137,10 @@ modifier: %s\n", pre, reg, replace, modifier);
 	//strcpy(ret, res.c_str());
 	//*result = (char*) res.c_str();
 	
-	return res.c_str();
+	char *r = (char*) malloc(sizeof(char) * (res.length()+1));
+	strcpy(r, res.c_str());
+	
+	return r;
 }
 
 #ifdef CPPMAIN

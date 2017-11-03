@@ -76,7 +76,11 @@ int main(int argc, char* argv[]) {
 	
 	FILE *fp; char path[1035];
 	char* cmd = malloc(sizeof(char*) * 1024);
+	#if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
 	strcpy(cmd, "realpath ../test/mydir.exe");
+	#else
+	strcpy(cmd, "realpath ../test/mydir");
+	#endif
 	//strcat(cmd, argv[0]);
 	//printf("cmd: %s\n", cmd);
 	fp = popen(cmd, "r");
@@ -86,19 +90,19 @@ int main(int argc, char* argv[]) {
 	}
 	fgets(path, sizeof(path)-1, fp);
 	trim(path);
+	#if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
 	path[0] = 'C'; path[1] = ':';
+	#endif
 	pclose(fp);
 	
 	int l = strlen(path);
 	int i = 0;
 	for(i=l; i>0; i--) {
 		if (path[i] == '/') {
-			path[i+1] = '\0';
+			path[i] = '\0';
 			break;
 		}
 	}
-	//printf("path: %s\n", path);
-	//printf("exedir: %s\nargv[0]: %s\n", dir, argv[0]);
 	
 	int ret = strcmp(path, dir);
 	printf("r: %d, %s, %s\n", ret, dir, path);
