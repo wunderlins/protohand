@@ -99,7 +99,7 @@ cmdparser:
 	$(CC) $(CFLAGS) -c lib/cmd_parser.c -o lib/cmd_parser.o
 	
 regexcpp:
-	g++ -std=c++11 $(CFLAGS) -lpcrecpp -lpcre -c -o lib/regcpp.o lib/reg.cpp
+	g++ -static -DPCRE_STATIC -std=c++11 $(CFLAGS) -lpcrecpp -lpcre -c -o lib/regcpp.o lib/reg.cpp
 
 icon:
 	$(MAKE) -C ico
