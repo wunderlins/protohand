@@ -16,7 +16,7 @@ int nvlist_addpair(struct nvlist_list *rep, char* key, char* value) {
 	
 	rep->items[rep->length] = p;
 	
-	printf("k: '%s', v: '%s'\n", rep->items[rep->length].key, rep->items[rep->length].value);
+	//printf("k: '%s', v: '%s'\n", rep->items[rep->length].key, rep->items[rep->length].value);
 	
 	rep->length++;
 	return rep->length;
@@ -66,30 +66,14 @@ void nvlist_destroy(struct nvlist_list *rep) {
 }
 
 int nvlist_resize(struct nvlist_list* rep, int size) {
-	printf(" -> size: %d, max: %d, length %d\n", size, rep->max, rep->length);
+	//printf(" -> size: %d, max: %d, length %d\n", size, rep->max, rep->length);
 	if (size <= rep->max)
 		return -2;
 	
-	// FIXME: we have an error in allocating new memory here which results in a segfault
-	//printf("size of nvlist_pair: %I64d\n", sizeof(struct nvlist_pair*));
-	struct nvlist_pair* tmp = realloc(rep->items, sizeof(struct nvlist_pair) * size);
+	rep->items = realloc(rep->items, sizeof(struct nvlist_pair) * size);
 	//printf("realloc ret: %d\n", tmp);
-	if (tmp == NULL)
+	if (rep->items == NULL)
 		return -1;
-	
-	//printf(" -> copy items (%d)\n", rep->length);
-	/*
-	int i;
-	for(i=0; i < rep->length; i++) {
-		printf(" -> %d: \n", i);
-		struct nvlist_pair p;
-		p.key = rep->items[i].key;
-		p.value = rep->items[i].value;
-		tmp[i] = p;
-	}
-	*/
-	
-	rep->items = tmp;
 	
 	rep->max = size;
 	return rep->max;
@@ -106,27 +90,12 @@ int nvlist_find_parts(char* string, char search) {
 	return found+1;
 }
 
-#define _nvlist_create(name, size) (\
-	struct nvlist_list #name; \
-	)
-	/*
-	##name.items = malloc(sizeof(struct nvlist_pair) * size); \
-	##name.length = 0; \
-	##name.max = size; \
-	##name._step = size; \
-	if (size == 0) \
-		##name._step = 10; \
-	)
-	*/
-
-
 #ifdef NVLIST_MAIN
 int main(int argc, char** argv, char **envp) {
 	
 	int ret = 0;
 	int res = 0;
 	
-	// FIXME: weh nusing size=2, the first 2 values of the nvlist are mangled.
 	struct nvlist_list rep = nvlist_create(2);
 	
 	nvlist_addpair(&rep, "k1", "v1");
@@ -134,9 +103,6 @@ int main(int argc, char** argv, char **envp) {
 	nvlist_addstr(&rep, "k3&v3", '&');
 	nvlist_addstr(&rep, "k4&v+4", '&');
 	nvlist_addstr(&rep, "k5&v+5", '&');
-	
-	// FIXME: umlauts don't work on W10 msys with a us codepage
-	//printf("ö\n"); // works if file uses CP 'OEM 852' 
 	
 	/*
 	int i;
