@@ -19,7 +19,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stddef.h>
-#ifdef _MSC_VER
+
+#ifdef __MINGW32__
 	#include <process.h>
 #else
 	#include <spawn.h>
