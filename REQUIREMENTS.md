@@ -110,7 +110,8 @@ Add additional parameters to the command line after the parameters that are pass
   - [x] update README.md, this is the build and programming manual
   - [ ] document limitations
 - [x] implement unit tests
-- [ ] implement code samples for C++, C#, VBA, VBS, Python, Java
+- [ ] implement code samples for ~~C++, C#,~~ VBA, VBS, Python, Java
+- [ ] implement simple ${user=varname?expr_true:expr_false}
 
 [1]: https://tools.ietf.org/html/rfc3986
 [2]: https://www.gnu.org/software/libc/manual/html_node/Regular-Expressions.html#Regular-Expressions
