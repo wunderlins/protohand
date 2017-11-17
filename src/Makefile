@@ -61,16 +61,28 @@ ifneq ($(shell test -e $(COMPILE_LIBPCRE) && echo -n yes),yes)
     COMPILE_PCRE=pcre
 endif
 
+COMPILE_CURL=
+COMPILE_LIBCURL=../curl/lib/libcurl.a
+ifneq ($(shell test -e $(COMPILE_LIBCURL) && echo -n yes),yes)
+    COMPILE_CURL=curl
+endif
+
+COMPILE_OPENSSL=
+COMPILE_LIBOPENSSL=../curl/lib/
+ifneq ($(shell test -e $(COMPILE_LIBOPENSSL) && echo -n yes),yes)
+    COMPILE_CURL=openssl
+endif
+
 # create release name: OS_VERSION_TIMESTAMP
 timestamp=$(shell date "+%Y%m%d%H%M")
 rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 export
 
-CFLAGS += -I ../pcre/include -L$(pwd)/../pcre/lib
+CFLAGS += -I $(pwd)../usr/include -L$(pwd)/../usr/lib
 
 # build everything including 3rd party libs
-all: $(COMPILE_PCRE) app
+all: $(COMPILE_PCRE) $(COMPILE_OPENSSL) $(COMPILE_CURL) app
 
 # build all without deps
 app: clean create_error max_path doc $(BUILD_ICONS) dep ph testcmd testregex
@@ -78,19 +90,27 @@ app: clean create_error max_path doc $(BUILD_ICONS) dep ph testcmd testregex
 ## DEPENDENCIES ################################################################
 PCRE_VERSION=8.41
 pcre:
-	mkdir ../pcre | true
+	mkdir ../usr | true
 	tar xfj pcre-$(PCRE_VERSION).tar.bz2 -C ..
-	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $(pwd)/../pcre
+	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $(pwd)/../usr
 	cd ../pcre-$(PCRE_VERSION) && make
 	cd ../pcre-$(PCRE_VERSION) && make install
 
+OPENSSL_VERSION=1.0.2m
+openssl:
+	mkdir ../usr | true
+	tar xfz openssl-$(OPENSSL_VERSION).tar.gz -C ..
+	cd ../openssl-$(OPENSSL_VERSION) && ./configure --prefix=$(shell realpath $(pwd)/../usr) mingw64
+	cd ../openssl-$(OPENSSL_VERSION) && make
+	cd ../openssl-$(OPENSSL_VERSION) && make install
+	
 CURL_VERSION=7.56.1
 curl:
-	mkdir ../curl | true
+	mkdir ../usr | true
 	tar xfz curl-$(CURL_VERSION).tar.gz -C ..
-	cd ../curl-$(CURL_VERSION) && ./configure --prefix $(pwd)/../curl --with-ssl --disable-shared --disable-manual --disable-unix-sockets --disable-verbose --disable-versioned-symbols --enable-hidden-symbols --without-librtmp
+	cd ../curl-$(CURL_VERSION) && ./configure --prefix $(pwd)/../usr --with-ssl=$(pwd)/../usr --disable-shared --disable-manual --disable-unix-sockets --disable-verbose --disable-versioned-symbols --enable-hidden-symbols --without-librtmp
 	cd ../curl-$(CURL_VERSION) && make
-	cd ../curl-$(CURL_VERSION) && make install
+	cd ../curl-$(CURL_VERSION) && make install | true
 
 dep: regexcpp errstr cmdparser $(DEP_REALPATH)
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
