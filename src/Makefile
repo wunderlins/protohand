@@ -84,6 +84,14 @@ pcre:
 	cd ../pcre-$(PCRE_VERSION) && make
 	cd ../pcre-$(PCRE_VERSION) && make install
 
+CURL_VERSION=7.56.1
+curl:
+	mkdir ../curl | true
+	tar xfz curl-$(CURL_VERSION).tar.gz -C ..
+	cd ../curl-$(CURL_VERSION) && ./configure --prefix $(pwd)/../curl --with-ssl --disable-shared --disable-manual --disable-unix-sockets --disable-verbose --disable-versioned-symbols --enable-hidden-symbols --without-librtmp
+	cd ../curl-$(CURL_VERSION) && make
+	cd ../curl-$(CURL_VERSION) && make install
+
 dep: regexcpp errstr cmdparser $(DEP_REALPATH)
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
