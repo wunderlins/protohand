@@ -198,11 +198,15 @@ COPYRIGHT
 
     2017, Simon Wunderlin (BSD license)
     2009, Ben Hoyt - Ini parser, https://github.com/benhoyt/inih (BSD license)
+	1996 - 2017 Daniel Stenberg, daniel@haxx.se - cURL (BSD license)
     
     Regular expression support is provided by the PCRE library package,
     which is open source software, written by Philip Hazel, and copyright
     by the University of Cambridge, England.
 
+    Copyright OpenSSL 2017
+    Contents licensed under the terms of the OpenSSL license
+    See http://www.openssl.org/source/license.html for details
 
 SEE ALSO
 
