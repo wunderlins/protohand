@@ -278,7 +278,7 @@ release_doc:
 
 
 # create a release
-release: release_doc
+release: release_doc test_httpget
 	# get latest code
 	#git pull
 	
@@ -292,12 +292,15 @@ release: release_doc
 	
 	# copy files to release directory
 	cp $(PROGNAME_SHORT)$(_EXT) "$(B_DIR)/"
-	strip "$(B_DIR)/$(PROGNAME_SHORT)$(_EXT)"
 	cp generated/error.html "$(B_DIR)/"
 	cp testcmd$(_EXT) "$(B_DIR)/"
 	cp testregex$(_EXT) "$(B_DIR)/"
+	cp ../test/httpget$(_EXT) "$(B_DIR)/testhttp$(_EXT)"
 	strip "$(B_DIR)/testcmd$(_EXT)"
 	strip "$(B_DIR)/testregex$(_EXT)"
+	strip "$(B_DIR)/testregex$(_EXT)"
+	strip "$(B_DIR)/$(PROGNAME_SHORT)$(_EXT)"
+	strip "$(B_DIR)/testhttp$(_EXT)"
 		
 	# create zip file
 	cd $(B_DIR)/; ../src/bin/zip.exe -r "../$(rel).zip" * 

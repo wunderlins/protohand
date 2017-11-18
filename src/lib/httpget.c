@@ -89,6 +89,10 @@ int getfile(char* url) {
 	if (ret != CURLE_OK)
 		return 1;
 	
+	#ifdef MAIN_GETFILE
+	printf("Output stored in: %s\n", tempfile);
+	#endif
+	
 	return 0;
 }
 
