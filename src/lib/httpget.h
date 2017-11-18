@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+void tempfilepath(char** tempfile);
 int getfile(char* url);
 
 #ifdef __cplusplus
