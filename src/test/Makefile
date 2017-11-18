@@ -3,6 +3,8 @@
 CC=gcc 
 CFLAGS=-Wall -DEBUG=1 -DURIPARSE_DEBUG=1 -DNVLIST_MAIN=1
 CFLAGS=-Wall -DEBUG=1 -DURIPARSE_DEBUG=0 
+W32_USR=$(shell realpath $(pwd)/../../usr | sed -e 's|/c/|c:|' -)
+CFLAGS += -I $(W32_USR)/include -L$(W32_USR)/lib
 
 # use our own realpath on windows
 ifeq ($(OS),Windows_NT)
@@ -57,3 +59,12 @@ xor:
 
 unc:
 	$(CC) $(CFLAGS) -o unc$(_EXT) unc.c -DXOR_MAIN
+
+curl:
+	
+	$(CC) \
+		curl.c -o curl.exe \
+		$(shell ../../usr/bin/curl-config --cflags | sed -e 's|/c/|c:/|') \
+		$(shell ../../usr/bin/curl-config --libs | sed -e 's|/c/|c:/|') 
+		
+
