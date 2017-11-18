@@ -2,7 +2,7 @@
 
 CC=gcc 
 CFLAGS=-Wall -DEBUG=1 -DURIPARSE_DEBUG=1 -DNVLIST_MAIN=1
-CFLAGS=-Wall -DEBUG=1 -DURIPARSE_DEBUG=0 
+CFLAGS=-Wall -DEBUG=1 -DURIPARSE_DEBUG=0 -DCURL_STATICLIB -I../../usr/include -L../../usr/lib
 W32_USR=$(shell realpath $(pwd)/../../usr | sed -e 's|/c/|c:|' -)
 CFLAGS += -I $(W32_USR)/include -L$(W32_USR)/lib
 
@@ -66,5 +66,12 @@ curl:
 		curl.c -o curl.exe \
 		$(shell ../../usr/bin/curl-config --cflags | sed -e 's|/c/|c:/|') \
 		$(shell ../../usr/bin/curl-config --libs | sed -e 's|/c/|c:/|') 
+
+https:	
+	$(CC) $(CFLAGS) \
+		https.c -o https.exe \
+		-DSKIP_PEER_VERIFICATION \
+		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
+		
 		
 
