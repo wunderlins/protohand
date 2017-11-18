@@ -82,7 +82,7 @@ rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 export
 
-CFLAGS += -I $(W32_USR)/include -L$(W32_USR)/lib
+#CFLAGS += -I $(W32_USR)/include -L$(W32_USR)/lib
 
 # build everything including 3rd party libs
 all: $(COMPILE_PCRE) $(COMPILE_OPENSSL) $(COMPILE_CURL) app
@@ -345,7 +345,7 @@ clearlog:
 
 
 ## TEST ########################################################################
-test: dep test_cmdparser $(TEST_REALPATH) test_mydir test_nvlist test_regcpp
+test: dep test_cmdparser $(TEST_REALPATH) test_mydir test_nvlist test_regcpp test_httpget
 	#g++ -std=c++11 $(CFLAGS) -o ../test/regcpp$(_EXT) lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -o ../test/uriparse$(_EXT) lib/nvlist.o lib/stringlib.o lib/uriparse.o
@@ -356,6 +356,7 @@ test: dep test_cmdparser $(TEST_REALPATH) test_mydir test_nvlist test_regcpp
 	../test/nvlist$(_EXT)
 	../test/regcpp$(_EXT)
 	../test/uriparse$(_EXT)
+	../test/httpget$(_EXT) "https://www.example.com"
 
 test_nvlist:
 	$(CC) $(CFLAGS) -D NVLIST_MAIN -o ../test/nvlist$(_EXT) lib/stringlib.o lib/nvlist.c
@@ -366,7 +367,7 @@ test_mydir:
 	
 test_cmdparser:
 	$(CC) $(CFLAGS) -g -DCMD_PARSER_MAIN -o ../test/cmd_parser$(_EXT) lib/stringlib.o lib/nvlist.o lib/uriparse.o lib/cmd_parser.c 
-	../test/cmd_parser$(_EXT)
+	#../test/cmd_parser$(_EXT)
 	
 test_ph: ph
 	$(PROGNAME_SHORT)$(_EXT) 'proto:auth?query=value%201&param2&param3 '
@@ -381,6 +382,12 @@ ini_test:
 	$(CC) $(CFLAGS) -c ini.c
 	$(CC) $(CFLAGS) -o test/ini_test$(_EXT) ini.o test/ini_test.c
 
+test_httpget:	
+	$(CC) $(CFLAGS) \
+		lib/httpget.c -o ../test/httpget.exe \
+		-DSKIP_PEER_VERIFICATION -DCURL_STATICLIB -DMAIN_GETFILE  \
+		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
+	
 # example programs for library test
 find_param:
 	$(CC) $(CFLAGS) -c lib/stringlib.c

@@ -2,13 +2,13 @@
 // 'make ini' to update this documentation!
 
 const char* ini_str = ""
-";; NOTE: do not quote values\r\n"
-"\r\n"
-";; this is the global configuration. you may use environment variables in paths\r\n"
+";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;\r\n"
+";; this is the global configuration. you may use environment variables        ;;\r\n"
 "[_global]\r\n"
 "log_level = 1\r\n"
 ";log_path = ${env.APPDATA}\\ph.log\r\n"
 ";max_log_size_bytes = 10240000\r\n"
+";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;\r\n"
 "\r\n"
 "[ph.ini]\r\n"
 "cmd = C:\\Windows\\notepad.exe /A \"${env.PH_HOME}\\ph.ini\"\r\n"
