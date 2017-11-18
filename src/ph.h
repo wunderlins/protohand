@@ -43,6 +43,8 @@
 #include "lib/mydir.h"
 #include "lib/errstr.h"
 
+#include "lib/httpget.h"
+
 // error codes
 #define OK 0
 #define NO_INPUT 1

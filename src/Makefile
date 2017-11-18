@@ -29,6 +29,7 @@ CFLAGS = -g -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DPROGNAME_SHORT=$(PROGNAME_SHORT
 ifeq ($(DEBUG),0) 
 	CFLAGS += -s
 endif
+CFLAGS += -I../usr/include -L../usr/lib
 
 #CFLAGS += -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
 
@@ -114,13 +115,19 @@ curl:
 	cd ../curl-$(CURL_VERSION) && make
 	-cd ../curl-$(CURL_VERSION) && make install
 
-dep: regexcpp errstr cmdparser $(DEP_REALPATH)
+dep: regexcpp errstr cmdparser $(DEP_REALPATH) dep_httpget
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
 	$(CC) $(CFLAGS) -c lib/xor.c -o lib/xor.o
+
+dep_httpget:
+	$(CC) $(CFLAGS) \
+		-c lib/httpget.c -o lib/httpget.o \
+		-DSKIP_PEER_VERIFICATION -DCURL_STATICLIB \
+		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
 
 dep_realpath:
 	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o

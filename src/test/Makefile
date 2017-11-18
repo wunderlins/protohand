@@ -73,5 +73,10 @@ https:
 		-DSKIP_PEER_VERIFICATION \
 		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
 		
+httpget:	
+	$(CC) $(CFLAGS) \
+		../lib/httpget.c -o ../lib/httpget.exe \
+		-DSKIP_PEER_VERIFICATION -DMAIN_GETFILE \
+		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
 		
 
