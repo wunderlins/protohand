@@ -319,9 +319,28 @@ int main(int argc, char** argv, char **envp) {
 
 	// use ini file from argv or in the exe folder ?
 	char ini_file[MAX_CWD_LENGTH];
+	int remote_config = 0;
 	// FIXME: search for ph.dat if no ph.ini is found
 	if (argc == 3) {
 		strcpy(ini_file, argv[2]);
+		
+		// check if this is a remote file
+		if ( (ini_file[0] == 'h' && ini_file[1] == 't' && ini_file[2] == 't' && ini_file[3] == 'p') ||
+			 (ini_file[0] == 'f' && ini_file[1] == 't' && ini_file[2] == 'p')) {
+			
+			// download http/https/ftp/ftps
+			remote_config = 1;
+			res = getfile(argv[2]);
+			
+			if (res != 0) {
+				return display_error(FAILED_TO_DOWNLOAD_CONFIG);
+			}
+			
+			// get the location of the downloaded file
+			char* tempfile;
+			tempfilepath(&tempfile);
+			strcpy(ini_file, tempfile);
+		}
 	} else {
 		strcpy(ini_file, dir);
 		strcat(ini_file, str(PROGNAME_SHORT));
@@ -470,7 +489,10 @@ int main(int argc, char** argv, char **envp) {
 	}
 	sprintf(logbuffer, "Current working dir: %s", dir);
 	writelog(1, logbuffer);
-	sprintf(logbuffer, "Current ini file:    %s", ini_file);
+	if (remote_config)
+		sprintf(logbuffer, "Current ini file:    %s", argv[2]);
+	else
+		sprintf(logbuffer, "Current ini file:    %s", ini_file);
 	writelog(1, logbuffer);
 	
 	// display help

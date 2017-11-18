@@ -22,10 +22,11 @@ DESCRIPTION
     sensitive information such as passwords.
     
     If the optional [config_file] parameter is provided, the program will 
-    load the configuration from this location. This might be a UNC path
-    or local file. If parameter 2 is ommited, the programm will first look 
-    for a `PROGNAME_SHORT.dat` and then for `PROGNAME_SHORT.ini` in the same 
-    folder as the executable. See CONFIGURATION for mor information.
+    load the configuration from this location. This might be a UNC path, 
+    a local file or a remote file from an http/ftp server. If parameter 2 is 
+	ommited, the programm will first look for a `PROGNAME_SHORT.dat` and then 
+	for `PROGNAME_SHORT.ini` in the same folder as the executable. See 
+	CONFIGURATION for mor information.
     
     Once the program is registered to handle a specific protocol scheme, it must
     be called by the shell with the full url as first parameter. As an example
@@ -93,11 +94,11 @@ WINDOWS REGISTRY
 CONFIGURATION
 
     The program will first check if it is called with a 2nd parameter. If so, it
-    will search the configuration file in this locations. This might be a local 
-    file path or an UNC. If parameter 2 is not provided, `PROGNAME_SHORT_EXT` 
-    will     look in the isntallation directory for a file called 
-    `PROGNAME_SHORT.ini` or `PROGNAME_SHORT.dat`. The latter is an obfuscated 
-    file which hides sensitive data such as passwords.
+    will search the configuration file in this location. This might be a local 
+    file, an UNC path rl an http/ftp url. If parameter 2 is not provided, 
+	`PROGNAME_SHORT_EXT` will look in the isntallation directory for a file 
+	called `PROGNAME_SHORT.ini` or `PROGNAME_SHORT.dat`. The latter is an 
+	obfuscated file which hides sensitive data such as passwords.
 
     You can create an obfuscated file by running:
 

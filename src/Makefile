@@ -144,7 +144,18 @@ icon:
 
 ## APPLICATIONS ################################################################
 ph:
-	g++ $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) lib/xor.o lib/regcpp.o lib/mydir.o lib/nvlist.o $(REALPATH) lib/stringlib.o lib/ini.o lib/uriparse.o lib/cmd_parser.o lib/errstr.o ph.c $(APP_ICO) -lpcrecpp -lpcre -DPCRE_STATIC 
+	g++ $(CFLAGS) -o $(PROGNAME_SHORT)$(_EXT) \
+		lib/httpget.o \
+		lib/xor.o \
+		lib/regcpp.o \
+		lib/mydir.o \
+		lib/nvlist.o $(REALPATH) \
+		lib/stringlib.o \
+		lib/ini.o lib/uriparse.o \
+		lib/cmd_parser.o \
+		lib/errstr.o \
+		ph.c $(APP_ICO) -lpcrecpp -lpcre -DPCRE_STATIC  \
+		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
 
 max_path:
 	$(CC) $(CFLAGS) -o bin/MAX_CWD_LENGTH$(_EXT) bin/MAX_CWD_LENGTH.c

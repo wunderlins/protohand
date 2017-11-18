@@ -32,6 +32,7 @@ void define_error_messages() {
 	errstr[18] = "Failed to find userdir (APPDATA/HOME) in environment variables.";
 	errstr[19] = "Failed to open config file.";
 	errstr[20] = "Failed to open log file.";
+	errstr[21] = "Failed to download config file.";
 	
 	errstr[33] = "No equal sign found in expression expansion.";
 	errstr[34] = "No colon found in expression expansion.";

@@ -225,7 +225,7 @@ int expand_vars(char** str, struct nvlist_list* query) {
 			} else { // variable
 				//printf("Resolving variable\n");
 				ret = find_var_value(varname, query, &result);
-				printf("var: %s, result: %d, result: %s\n", varname, ret, result);
+				//printf("var: %s, result: %d, result: %s\n", varname, ret, result);
 				if (ret == 1) {
 					//printf("Var value Result: %s, ret: %d\n", result, ret);
 					expandvar_err_var_name = varname;
