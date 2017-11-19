@@ -1,5 +1,10 @@
 .PHONY: ini usage test param_test release puh ph
 
+## library versions
+PCRE_VERSION=8.41
+OPENSSL_VERSION=1.0.2m
+CURL_VERSION=7.56.1
+
 # DUBUG=0 disables debugging, other levels from 1-3
 # LOG_TO_FILE=1 will send dbg output to stdout, else to protohand.log
 DEBUG=3
@@ -91,7 +96,6 @@ all: $(COMPILE_PCRE) $(COMPILE_OPENSSL) $(COMPILE_CURL) app
 app: clean create_error max_path doc $(BUILD_ICONS) dep ph testcmd testregex
 
 ## DEPENDENCIES ################################################################
-PCRE_VERSION=8.41
 pcre:
 	mkdir $(W32_USR) | true
 	tar xfj pcre-$(PCRE_VERSION).tar.bz2 -C ..
@@ -99,7 +103,6 @@ pcre:
 	cd ../pcre-$(PCRE_VERSION) && make
 	cd ../pcre-$(PCRE_VERSION) && make install
 
-OPENSSL_VERSION=1.0.2m
 openssl:
 	mkdir $(W32_USR) | true
 	tar xfz openssl-$(OPENSSL_VERSION).tar.gz -C ..
@@ -107,7 +110,6 @@ openssl:
 	cd ../openssl-$(OPENSSL_VERSION) && make
 	cd ../openssl-$(OPENSSL_VERSION) && make install
 	
-CURL_VERSION=7.56.1
 curl:
 	mkdir $(W32_USR) | true
 	tar xfz curl-$(CURL_VERSION).tar.gz -C ..

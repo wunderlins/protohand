@@ -18,3 +18,29 @@ BUILD
 
     make all
     make test
+
+
+LIBRARIES
+
+This Repoitory comes with pre-built W64 libraries for openssl, curl and pcre
+in `usr/lib`. The sources are also shipped in archived files under `src/`.
+
+If you need to rebuild one of the libraries you'll have to do the following:
+- remove the corresponding lib file in `usr/lib/lib*.a`. The build system 
+  will then extract the sources and rebuild the library from scratch. Remove
+  - libpcre.a to rebuild pcre
+  - libcurl.a to rebuild pcre
+  - libssl.a to rebuild pcre
+- if you want to build a newer version of a library, download the source 
+  archive into the src/ folder 
+- open `src/Makefile`. look for a `*_VERSION` variable at the beginning of 
+  the file. Replace the version number with the one used in your download 
+  file name.
+- go back into the main folder and run `make`. If you have delete the 
+  `usr/lib/lib*.a` file, the library will be rebuilt from scratch.
+  - you may also just build the library by running from `src/`
+    - `make pcre`
+    - `make openssl`
+    - `make curl`
+  - then got back into the root directory and run make to build the app with 
+    the new library
