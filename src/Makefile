@@ -29,12 +29,14 @@ endif
 STDIN_MAX = 1024
 MAX_CWD_LENGTH = $(shell sh -c './bin/MAX_CWD_LENGTH$(_EXT)')
 
-# cflags, strip if debuggign is disabled
+W32_USR=$(shell realpath $(pwd)/../usr | sed -s 's,/\([a-zA-Z]\)/,\1:/,')
+
+# cflags, strip if debugging is disabled
 CFLAGS = -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) # -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
 ifeq ($(DEBUG),0) 
 	CFLAGS += -s
 endif
-CFLAGS += -I../usr/include -L../usr/lib
+CFLAGS += -I$(W32_USR)/include -L$(W32_USR)/lib
 
 #if DEBUG > 0
 	CFLAGS += -g
@@ -66,8 +68,6 @@ else
 	TEST_REALPATH=
 	_EXT=
 endif
-
-W32_USR=$(shell realpath $(pwd)/../usr)
 
 COMPILE_PCRE=
 COMPILE_LIBPCRE=$(W32_USR)/lib/libpcre.a

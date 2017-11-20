@@ -21,7 +21,7 @@
 #
 ###########################################################################
 
-prefix=/c/Users/wus/Projects/protohand/usr
+prefix=c:/Users/WunderlinS/Projects/protohand/usr
 exec_prefix=${prefix}
 includedir=${prefix}/include
 cppflag_curl_staticlib=-DCURL_STATICLIB
@@ -156,7 +156,7 @@ while test $# -gt 0; do
 
     --static-libs)
         if test "Xyes" != "Xno" ; then
-          echo ${exec_prefix}/lib/libcurl.a -L/c/Users/wus/Projects/protohand/usr/lib -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
+          echo ${exec_prefix}/lib/libcurl.a -Lc:/Users/WunderlinS/Projects/protohand/usr/lib -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
         else
           echo "curl was built with static libraries disabled" >&2
           exit 1
@@ -164,7 +164,7 @@ while test $# -gt 0; do
         ;;
 
     --configure)
-        echo " '--prefix' '/c/Users/wus/Projects/protohand/usr' '--with-ssl=/c/Users/wus/Projects/protohand/usr' '--disable-shared' '--disable-manual' '--disable-unix-sockets' '--disable-verbose' '--disable-versioned-symbols' '--enable-hidden-symbols' '--without-librtmp' 'CC=gcc' 'CFLAGS=-g -DLOG_TO_FILE=1 -Wall -DPROGNAME_SHORT=ph -DDEBUG=3 -DPROGNAME=protohand  -I /c/Users/wus/Projects/protohand/usr/include -L/c/Users/wus/Projects/protohand/usr/lib'"
+        echo " '--prefix' 'c:/Users/WunderlinS/Projects/protohand/usr' '--with-ssl=c:/Users/WunderlinS/Projects/protohand/usr' '--disable-shared' '--disable-manual' '--disable-unix-sockets' '--disable-verbose' '--disable-versioned-symbols' '--enable-hidden-symbols' '--without-librtmp' 'CC=gcc' 'CFLAGS=-DLOG_TO_FILE=1 -Wall -DPROGNAME_SHORT=ph -DDEBUG=0 -DPROGNAME=protohand  -s -Ic:/Users/WunderlinS/Projects/protohand/usr/include -Lc:/Users/WunderlinS/Projects/protohand/usr/lib -g -O3'"
         ;;
 
     *)
