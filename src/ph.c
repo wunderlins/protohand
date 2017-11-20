@@ -258,6 +258,8 @@ int test_regex(int argc, char** argv) {
 #ifndef PH_NO_MAIN
 //char **environ;
 int main(int argc, char** argv, char **envp) {
+	
+	// setup globals
 	environ = envp;
 	logfile = NULL;
 	
@@ -268,7 +270,8 @@ int main(int argc, char** argv, char **envp) {
 	int res;
 	int retp = 0;
 	long fsize;
-
+	
+	// key for encoding the config file
 	encodek[0] = '3';
 	encodek[1] = 'f';
 	encodek[2] = 'J';
@@ -289,9 +292,26 @@ int main(int argc, char** argv, char **envp) {
 	encodek[17] = 'l';
 	encodek[19] = 0;
 	
+	/**
+	 * define error strings
+	 *
+	 * an aray with all error strings corepsonding to error codes 
+	 * is defined in lib/errstr.c. These strings are used to throw 
+	 * a bit more meaningful error messages in case we need to abort
+	 * the program. The program will always also use the error code as exit 
+	 * code bit will send theses error strings to stderr.
+	 */
 	define_error_messages();
 	
-	// find the current directory of the executable
+	/**
+	 * find the current directory of the executable.
+	 *
+	 * This is a cross platform way to find the installation directory of 
+	 * the executable. It is tested on Mingw64, Linux and OSX (gcc/clang).
+	 *
+	 * The installation directory is used to find a configuration file if
+	 * there is none provided via argv[2]. 
+	 */
 	char *dir = (char*) malloc(sizeof(char*) * (MAX_CWD_LENGTH+1));
 	int r = exedir(argv[0], dir);
 	if (r != 0) {
@@ -299,25 +319,66 @@ int main(int argc, char** argv, char **envp) {
 		return display_error(NO_CURRENTDIR);
 	}
 	
-	// set an environment Variable with our directroy path
+	/**
+	 * set an environment Variable with our directroy path
+	 *
+	 * This environment variable can be used in the config file in the form of 
+	 * ${env.PH_HOME}. It is also used to find the error.html file when 
+	 * displaying error mesages to the user. error.html should be installed in 
+	 * the same folder as tis executable.
+	 */
 	char env[strlen(dir)+9] = {0};
 	strcat(env, "PH_HOME=");
 	strcat(env, dir);
 	env[strlen(env)-1] = 0;
 	putenv(env);
 	
+	
 	// check command line parameters for mode
-	// encode config file
-	// PROGNAME_SHORT_EXT -e <config_file> [out_file]
+	
+	/**
+	 * encode config file
+	 *
+	 * PROGNAME_SHORT_EXT -e <config_file> [out_file]
+	 *
+	 * encode the config file. if parameter 2 is missing, the encoded file 
+	 * will be stored in the same folder as the original file with a file 
+	 * ending `.dat`.
+	 */
 	if (argc > 1 && strcmp(argv[1], "-e") == 0)
 		return encode_file(argc, argv);
 	
-	// test regex
-	// PROGNAME_SHORT_EXT -r </regex/replace/> <file>
+	/**
+	 * test regex
+	 *
+	 * PROGNAME_SHORT_EXT -r </regex/replace/> <file>
+	 *
+	 * it can be useful to test a regular expression before putting it into the 
+	 * config file. This command line switch will allow to do this.
+	 *
+	 * be careful, in your shell, you might need to use escape characters not 
+	 * needed in the config file. in a bas, you must escape '$' with '\$', 
+	 * however you do not have to escape it in the config file.
+	 */
 	if (argc > 1 && strcmp(argv[1], "-r") == 0)
 		return test_regex(argc, argv);
 
-	// use ini file from argv or in the exe folder ?
+	/**
+	 * figure out where to config file is
+	 *
+	 * we take several options into account
+	 * 1. if argv[2] is present, read the config file from this location
+	 *    a. check if the file name starts with `http|ftp', if so use the cURL 
+	 *       client to download it into a temp folder
+	 *    b. if it is a local file remeber it's location
+	 * 2. else read it from the program folder.
+	 *    a. check if there is a `.dat` file present. if so use it
+	 *       the `.dat` file is an encoded config file
+	 *    b. else check if there is a `.ini` file present,  if so read it
+	 *
+	 * Whatever prooves to be true, the filename of the config file is stored 
+	 * in the `ini_file` variable for later read.
+	 */
 	char ini_file[MAX_CWD_LENGTH];
 	int remote_config = 0;
 	// FIXME: search for ph.dat if no ph.ini is found
@@ -360,8 +421,15 @@ int main(int argc, char** argv, char **envp) {
 		}
 	}
 	
-	// unencode file if encoded
-	//printf("Cfg: %s\n", ini_file);
+	/**
+	 * Read the config file
+	 * 
+	 * - read it from disk. Check if it is encoded. If so unencode it.
+	 * - Then read the global application configuration found in [_global] 
+	 *   in the ini file.
+	 * - Expand env varibles in the global configuration.
+	 * - validate values (sizes must be sane integer values, etc.)
+	 */
 	FILE *f = fopen(ini_file, "rb");
 	if (f == NULL)
 		return display_error(FAILED_TO_OPEN_CONFIG);
@@ -369,14 +437,12 @@ int main(int argc, char** argv, char **envp) {
 	fseek(f, 0, SEEK_END);
 	fsize = ftell(f);
 	fseek(f, 0, SEEK_SET);  //same as rewind(f);
-	//printf("%ld\n", fsize);
 	char *string = (char*) malloc(fsize);
 	fread(string, fsize, 1, f);
-	//string[fsize] = 0;
 	fclose(f);
 	
+	// read and unencode file if encoded
 	char *ini_content;
-	//printf(string);
 	if (is_encoded(string) == 1) {
 		printf("encoded\n");
 		res = transcode_str(string, &fsize, &ini_content, encodek);
@@ -386,11 +452,7 @@ int main(int argc, char** argv, char **envp) {
 	
 	// read the global configuration 
 	global_configuration cfg = DEFAULT_GCONFIG;
-	//cfg.section = "_global";
-	//retp = ini_parse(ini_file, global_callback, &cfg);
 	retp = ini_parse_string(ini_content, global_callback, &cfg);
-	//printf("%d\n", retp); return OK;
-	//printf("%s\n", ini_content); return OK;
 	
 	if (retp != 0) {
 		sprintf(logbuffer, "error parsing ini file at line %d.", retp); 
@@ -437,8 +499,14 @@ int main(int argc, char** argv, char **envp) {
 		}
 	}
 	
-	// open log file. use ini value, if unset use the platform specific 
-	// defaults. we check for APPDATA and HOME env variables.
+	/** 
+	 * open log file. 
+	 *
+	 * use ini value.
+	 *
+	 * if unset use the platform specific defaults. we check 
+	 * for $APPDATA on windows and $HOME on other platforms (env variables).
+	 */
 	if (strcmp(tmp_log_path, "") == 0) {
 		if (getenv("APPDATA") != NULL) {
 			strcpy(log_file, getenv("APPDATA"));
@@ -455,15 +523,17 @@ int main(int argc, char** argv, char **envp) {
 	}
 	
 	// from here on we have a log file we can log to
-	//printf("argv[1]  : %s\n", argv[1]);
-	//printf("log_file : %s\n", log_file);
 	// if (loglevel > 0) { // FIXME: replace all code that accesses log_file with writelog() before not opening he file on loglevel 0
 		logfile = fopen(log_file, "ab+");
 		if (logfile == NULL)
 			return display_error(FAILED_TO_OPEN_LOGFILE);
 	//}
 	
-	// logging uri
+	/**
+	 * start logging
+	 *
+	 * we start with logging our startup information like paths, timestamp, etc.
+	 */
 	time_t t = time(NULL);
 	struct tm tm = *localtime(&t);
 	sprintf(logbuffer, "\r\n===> %d-%02d-%02d %02d:%02d:%02d, URI: '%s'", 
@@ -514,7 +584,19 @@ int main(int argc, char** argv, char **envp) {
 		return display_error(NO_INPUT);
 	}
 	
-	// parse uri
+	/**
+	 * parse uri
+	 *
+	 * The uri passed in as argv[1] is broken down into the following 
+	 * components:
+	 * - scheme
+	 * - authority
+	 * - path
+	 * - query
+	 * - fragment
+	 *
+	 * ie.: scheme://authority/path/?query#fragment
+	 */
 	struct t_uri uri_parsed = uriparse_create(argv[1]);
 	res = uriparse_parse(argv[1], &uri_parsed);
 	//printf("res: %d\n", res);
@@ -562,27 +644,32 @@ int main(int argc, char** argv, char **envp) {
 		}
 	}
 	
-	// parse ini file
+	/**
+	 * parse ini file
+	 *
+	 * Lookup the ini file. Use authority+path to find a corresponding section
+	 * in the ini file.
+	 *
+	 * if the following uri was called `ph://someapp/path?param=3`, then we'll
+	 * check if we can find a section called `[someapp/path]` in the ini file.
+	 * On succes, we'll use it's configuration. On failure, we'll abort any 
+	 * further processing.
+	 */
 	l = strlen(uri_parsed.authority) + strlen(uri_parsed.path) + 2;
 	char *section = (char *) malloc(sizeof(char*) * l);
 	section[0] = 0;
-	// FIXME: when we have no path, we get a strange section
 	strcat(section, uri_parsed.authority);
 	if (strcmp(uri_parsed.path, "") != 0) {
 		strcat(section, "/");
 		strcat(section, uri_parsed.path);
 	}
 
-	//printf("section: %s\n", section);
 	sprintf(logbuffer, "Reading ini section: [%s]", section);
 	writelog(1, logbuffer);
 	
 	// read the config 
 	configuration config = DEFAULT_CONFIG;
 	config.section = section;
-	//printf("section %s\n", config.section);
-	//retp = ini_parse(ini_file, ini_callback, &config);
-	//printf("loglevel: %d\n", loglevel); return 0;
 	retp = ini_parse_string(ini_content, ini_callback, &config);
 	
 	sprintf(logbuffer, "ini_parse() return code: %d", retp);
@@ -621,7 +708,16 @@ int main(int argc, char** argv, char **envp) {
 	if (strcmp(config.cmd, "") == 0)
 		return display_error(NO_CMD_DIRECTIVE);
 	
-	// expand environment variables
+	/**
+	 * expand variables
+	 *
+	 * The ini file might use variables in the form of ${varname} in some 
+	 * values. There correspond to query parameters passed in in the original 
+	 * uri (argv[1]). 
+	 *
+	 * Also, environment variables are substituted (eg. ${env.HOME}).
+	 *
+	 */
 	char* default_path = (char*) malloc(sizeof(char*) * (strlen(config.default_path)+1));
 	strcpy(default_path, config.default_path);
 	ret = expand_vars(&default_path, &uri_parsed.nvquery);
@@ -646,7 +742,16 @@ int main(int argc, char** argv, char **envp) {
 		writelog(2, logbuffer);
 	}
 	
-	// do file content replacement
+	/** 
+	 * do file content replacement
+	 *
+	 * This application can do manipulations on tect files. if the config 
+	 * parameters replace_file and replace_regex are present, the regex will 
+	 * be run against the file.
+	 * 
+	 * This can be useful if you need to switch (for example) host names before 
+	 * launching certain programs in certain configurations.
+	 */
 	if (strcmp(config.replace_file, "") != 0) {
 		if (loglevel > 1) {
 			sprintf(logbuffer, "Regex replace in: %s", config.replace_file); 
@@ -673,7 +778,7 @@ int main(int argc, char** argv, char **envp) {
 		}
 	}
 	
-	// expand variables
+	// expand variables on cmd
 	char* cmd = (char*) malloc(sizeof(char*) * (strlen(config.cmd)+1));
 	strcpy(cmd, config.cmd);
 	ret = expand_vars(&cmd, &uri_parsed.nvquery);
@@ -690,6 +795,17 @@ int main(int argc, char** argv, char **envp) {
 		writelog(2, logbuffer);
 	}
 	
+	/**
+	 * create the command
+	 *
+	 * create a command line object that can be passed to spawnve. We always
+	 * run cmd.exe /c to make sure the command is run in a clean environment.
+	 *
+	 * We never wait for the program to exit. The exit code of the run 
+	 * program will therefore never be logged. This is a design decision because
+	 * it will be unclear if a non zero exit code is cuase by unclean start 
+	 * or later on due to user action or a bug in the called program.
+	 */
 	char exe[4096] = "";
 	strcat(exe, getenv("windir"));
 	strcat(exe, "\\System32\\cmd.exe");
@@ -725,7 +841,14 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 	}
 	
-	// keep the logfile at a certain size configured in the ini file
+	/**
+	 * log cleaning
+	 *
+	 * keep the logfile at a certain size configured in the ini file.
+	 *
+	 * whenever the size is exceeded, we remove some log entries fro mthe 
+	 * beginning of the file (oldest) to make room for new ones.
+	 */
 	long newlen = (log_length-1024);
 	if (fsize > log_length) {
 		if (loglevel > 2) {
