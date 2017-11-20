@@ -7,9 +7,9 @@ CURL_VERSION=7.56.1
 
 # DUBUG=0 disables debugging, other levels from 1-3
 # LOG_TO_FILE=1 will send dbg output to stdout, else to protohand.log
-DEBUG=3
+DEBUG=0
 LOG_TO_FILE=1
-VERSION=0.6.0
+VERSION=0.6.1
 # naming
 PROGNAME = protohand
 PROGNAME_SHORT = ph
@@ -30,11 +30,17 @@ STDIN_MAX = 1024
 MAX_CWD_LENGTH = $(shell sh -c './bin/MAX_CWD_LENGTH$(_EXT)')
 
 # cflags, strip if debuggign is disabled
-CFLAGS = -g -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) # -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
+CFLAGS = -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) # -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
 ifeq ($(DEBUG),0) 
 	CFLAGS += -s
 endif
 CFLAGS += -I../usr/include -L../usr/lib
+
+#if DEBUG > 0
+	CFLAGS += -g
+#else
+	CFLAGS += -O3
+#endif
 
 #CFLAGS += -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
 
