@@ -53,8 +53,11 @@
 
 	</div>
 	<br/>
+	<small>
+	<div id="date"></div>
 	<hr size="1"/>
-	<em><small>Check the error log for more information.</small></em>
+	<em>Check the error log for more information.</em>
+	</small>
 	
 </body>
 <script type="text/javascript">
@@ -63,5 +66,7 @@ document.getElementById("code").innerHTML = code;
 try {
 	document.getElementById("err"+code).style.display = "block";
 } catch (e) {;}
+var d = new Date();
+document.getElementById("date").innerHTML = d;
 </script>
 </html>
