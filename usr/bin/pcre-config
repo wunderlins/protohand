@@ -1,6 +1,6 @@
 #!/bin/sh
 
-prefix=/c/Users/wus/Projects/protohand/usr
+prefix=/c/Users/WunderlinS/Projects/protohand/usr
 exec_prefix=${prefix}
 exec_prefix_set=no
 

@@ -121,8 +121,8 @@ extern "C" {
 
 #if !(defined(VMS) || defined(__VMS)) /* VMS uses logical names instead */
 #if defined(HEADER_CRYPTLIB_H) && !defined(OPENSSLDIR)
-#define ENGINESDIR "/c/Users/wus/Projects/protohand/usr/lib/engines"
-#define OPENSSLDIR "/c/Users/wus/Projects/protohand/usr/ssl"
+#define ENGINESDIR "/c/Users/WunderlinS/Projects/protohand/usr/lib/engines"
+#define OPENSSLDIR "/c/Users/WunderlinS/Projects/protohand/usr/ssl"
 #endif
 #endif
 
