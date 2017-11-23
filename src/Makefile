@@ -29,14 +29,14 @@ endif
 STDIN_MAX = 1024
 MAX_CWD_LENGTH = $(shell sh -c './bin/MAX_CWD_LENGTH$(_EXT)')
 
-W32_USR=$(shell realpath $(pwd)/../usr | sed -s 's,/\([a-zA-Z]\)/,\1:/,')
+USR=$(shell realpath $(pwd)/../usr | sed -s 's,/\([a-zA-Z]\)/,\1:/,')-$(operating_system)
 
 # cflags, strip if debugging is disabled
 CFLAGS = -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) # -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
 ifeq ($(DEBUG),0) 
 	CFLAGS += -s
 endif
-CFLAGS += -I$(W32_USR)/include -L$(W32_USR)/lib
+CFLAGS += -I$(USR)/include -L$(USR)/lib
 
 #if DEBUG > 0
 	CFLAGS += -g
@@ -70,19 +70,19 @@ else
 endif
 
 COMPILE_PCRE=
-COMPILE_LIBPCRE=$(W32_USR)/lib/libpcre.a
+COMPILE_LIBPCRE=$(USR)/lib/libpcre.a
 ifneq ($(shell test -e $(COMPILE_LIBPCRE) && echo -n yes),yes)
     COMPILE_PCRE=pcre
 endif
 
 COMPILE_CURL=
-COMPILE_LIBCURL=$(W32_USR)/lib/libcurl.a
+COMPILE_LIBCURL=$(USR)/lib/libcurl.a
 ifneq ($(shell test -e $(COMPILE_LIBCURL) && echo -n yes),yes)
     COMPILE_CURL=curl
 endif
 
 COMPILE_OPENSSL=
-COMPILE_LIBOPENSSL=$(W32_USR)/lib/libssl.a
+COMPILE_LIBOPENSSL=$(USR)/lib/libssl.a
 ifneq ($(shell test -e $(COMPILE_LIBOPENSSL) && echo -n yes),yes)
     COMPILE_CURL=openssl
 endif
@@ -93,7 +93,7 @@ rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 export
 
-#CFLAGS += -I $(W32_USR)/include -L$(W32_USR)/lib
+#CFLAGS += -I $(USR)/include -L$(USR)/lib
 
 # build everything including 3rd party libs
 all: $(COMPILE_PCRE) $(COMPILE_OPENSSL) $(COMPILE_CURL) app
@@ -103,23 +103,23 @@ app: clean create_error max_path doc $(BUILD_ICONS) dep ph testcmd testregex
 
 ## DEPENDENCIES ################################################################
 pcre:
-	mkdir $(W32_USR) | true
+	mkdir $(USR) | true
 	tar xfj pcre-$(PCRE_VERSION).tar.bz2 -C ..
-	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $(W32_USR)
+	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $(USR)
 	cd ../pcre-$(PCRE_VERSION) && make
 	cd ../pcre-$(PCRE_VERSION) && make install
 
 openssl:
-	mkdir $(W32_USR) | true
+	mkdir $(USR) | true
 	tar xfz openssl-$(OPENSSL_VERSION).tar.gz -C ..
-	cd ../openssl-$(OPENSSL_VERSION) && ./configure --prefix=$(W32_USR)/ mingw64
+	cd ../openssl-$(OPENSSL_VERSION) && ./configure --prefix=$(USR)/ mingw64
 	cd ../openssl-$(OPENSSL_VERSION) && make
 	cd ../openssl-$(OPENSSL_VERSION) && make install
 	
 curl:
-	mkdir $(W32_USR) | true
+	mkdir $(USR) | true
 	tar xfz curl-$(CURL_VERSION).tar.gz -C ..
-	cd ../curl-$(CURL_VERSION) && ./configure --prefix $(W32_USR) --with-ssl=$(W32_USR) --disable-shared --disable-manual --disable-unix-sockets --disable-verbose --disable-versioned-symbols --enable-hidden-symbols --without-librtmp
+	cd ../curl-$(CURL_VERSION) && ./configure --prefix $(USR) --with-ssl=$(USR) --disable-shared --disable-manual --disable-unix-sockets --disable-verbose --disable-versioned-symbols --enable-hidden-symbols --without-librtmp
 	cd ../curl-$(CURL_VERSION) && make
 	-cd ../curl-$(CURL_VERSION) && make install
 
