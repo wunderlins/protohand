@@ -14,8 +14,11 @@ static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream) {
 void tempfilepath(char** tempfile) {
 	char* temp = getenv("TEMP");
 	//char tempfile[PATH_MAX] = {0};
+	if (temp == NULL || strcmp(temp, "") == 0)
+		temp = "/tmp";
 	*tempfile = malloc(sizeof(char*) * (PATH_MAX+1));
 	tempfile[0][0] = 0;
+	//printf("yay, '%s'\n", temp); return;
 	strcat(*tempfile, temp);
 	strcat(*tempfile, "/ph.dat");
 }
@@ -24,7 +27,7 @@ int getfile(char* url) {
 	
 	char* tempfile;
 	tempfilepath(&tempfile);
-	//printf("TEMP: %s\n", tempfile);
+	// printf("TEMP: %s\n", tempfile); return 0;
 	
 	FILE* fp;
 	fp = fopen(tempfile, "wb");
@@ -103,7 +106,8 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 	
-	int res = getfile(argv[1]);
+	int res = 0;
+	res = getfile(argv[1]);
 	
 	return res;
 }

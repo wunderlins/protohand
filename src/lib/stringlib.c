@@ -399,6 +399,22 @@ int quote(char** str) {
 	return 0;
 }
 
+int quote2(char** str, char q) {
+	int l = strlen(*str);
+	char *result = malloc(sizeof(char*) * (l+3));
+	if (result == NULL)
+		return 1;
+	
+	char quot[2] = {q, 0};
+	strcpy(result, quot);
+	strcat(result, *str);
+	strcat(result, quot);
+	
+	*str = result;
+	
+	return 0;
+}
+
 /**
  * Quote a string to be used on cmd.exe
  *

@@ -29,14 +29,14 @@ endif
 STDIN_MAX = 1024
 MAX_CWD_LENGTH = $(shell sh -c './bin/MAX_CWD_LENGTH$(_EXT)')
 
-W32_USR=$(shell realpath $(pwd)/../usr | sed -s 's,/\([a-zA-Z]\)/,\1:/,')
+USR=$(shell realpath $(pwd)/../usr | sed -s 's,/\([a-zA-Z]\)/,\1:/,')-$(operating_system)
 
 # cflags, strip if debugging is disabled
 CFLAGS = -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) # -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
 ifeq ($(DEBUG),0) 
 	CFLAGS += -s
 endif
-CFLAGS += -I$(W32_USR)/include -L$(W32_USR)/lib
+CFLAGS += -I$(USR)/include -L$(USR)/lib
 
 #if DEBUG > 0
 	CFLAGS += -g
@@ -58,6 +58,10 @@ ifeq ($(OS),Windows_NT)
 	DEP_REALPATH=dep_realpath
 	TEST_REALPATH=realpath
 	_EXT = .exe
+	SSLOPT=mingw64
+	REPLACE=-win
+	RN=\r
+	LIBS=-lgdi32 -lwldap32 -lz -lws2_32
 else
 	REALPATH=
 	APP_ICO=
@@ -67,22 +71,29 @@ else
 	DEP_REALPATH=
 	TEST_REALPATH=
 	_EXT=
+	SSLOPT=linux-x86_64
+	REPLACE=
+	RN=
+	LIBS=-pthread
+endif
+ifeq ($(UNAME_S),Darwin)
+	SSLOPT=darwin64-x86_64-cc
 endif
 
 COMPILE_PCRE=
-COMPILE_LIBPCRE=$(W32_USR)/lib/libpcre.a
+COMPILE_LIBPCRE=$(USR)/lib/libpcre.a
 ifneq ($(shell test -e $(COMPILE_LIBPCRE) && echo -n yes),yes)
     COMPILE_PCRE=pcre
 endif
 
 COMPILE_CURL=
-COMPILE_LIBCURL=$(W32_USR)/lib/libcurl.a
+COMPILE_LIBCURL=$(USR)/lib/libcurl.a
 ifneq ($(shell test -e $(COMPILE_LIBCURL) && echo -n yes),yes)
     COMPILE_CURL=curl
 endif
 
 COMPILE_OPENSSL=
-COMPILE_LIBOPENSSL=$(W32_USR)/lib/libssl.a
+COMPILE_LIBOPENSSL=$(USR)/lib/libssl.a
 ifneq ($(shell test -e $(COMPILE_LIBOPENSSL) && echo -n yes),yes)
     COMPILE_CURL=openssl
 endif
@@ -93,7 +104,7 @@ rel = $(operating_system)_$(VERSION)_$(timestamp)
 
 export
 
-#CFLAGS += -I $(W32_USR)/include -L$(W32_USR)/lib
+#CFLAGS += -I $(USR)/include -L$(USR)/lib
 
 # build everything including 3rd party libs
 all: $(COMPILE_PCRE) $(COMPILE_OPENSSL) $(COMPILE_CURL) app
@@ -103,23 +114,23 @@ app: clean create_error max_path doc $(BUILD_ICONS) dep ph testcmd testregex
 
 ## DEPENDENCIES ################################################################
 pcre:
-	mkdir $(W32_USR) | true
+	-mkdir $(USR) | true
 	tar xfj pcre-$(PCRE_VERSION).tar.bz2 -C ..
-	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $(W32_USR)
+	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $(USR) --disable-shared --enable-static --disable-cpp
 	cd ../pcre-$(PCRE_VERSION) && make
 	cd ../pcre-$(PCRE_VERSION) && make install
 
 openssl:
-	mkdir $(W32_USR) | true
+	-mkdir $(USR) | true
 	tar xfz openssl-$(OPENSSL_VERSION).tar.gz -C ..
-	cd ../openssl-$(OPENSSL_VERSION) && ./configure --prefix=$(W32_USR)/ mingw64
+	cd ../openssl-$(OPENSSL_VERSION) && ./Configure --prefix=$(USR)/ $(SSLOPT)
 	cd ../openssl-$(OPENSSL_VERSION) && make
 	cd ../openssl-$(OPENSSL_VERSION) && make install
-	
+
 curl:
-	mkdir $(W32_USR) | true
+	-mkdir $(USR) | true
 	tar xfz curl-$(CURL_VERSION).tar.gz -C ..
-	cd ../curl-$(CURL_VERSION) && ./configure --prefix $(W32_USR) --with-ssl=$(W32_USR) --disable-shared --disable-manual --disable-unix-sockets --disable-verbose --disable-versioned-symbols --enable-hidden-symbols --without-librtmp
+	cd ../curl-$(CURL_VERSION) && ./configure --prefix $(USR) --with-ssl=$(USR) --disable-shared --enable-static --disable-manual --disable-unix-sockets --disable-verbose --disable-versioned-symbols --enable-hidden-symbols --without-librtmp
 	cd ../curl-$(CURL_VERSION) && make
 	-cd ../curl-$(CURL_VERSION) && make install
 
@@ -163,7 +174,8 @@ ph:
 		lib/cmd_parser.o \
 		lib/errstr.o \
 		ph.c $(APP_ICO) -lpcrecpp -lpcre -DPCRE_STATIC  \
-		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
+		-lcurl -lssl -lcrypto \
+		$(LIBS) -static -static-libgcc
 
 max_path:
 	$(CC) $(CFLAGS) -o bin/MAX_CWD_LENGTH$(_EXT) bin/MAX_CWD_LENGTH.c
@@ -195,21 +207,18 @@ create_error: errstr
 usage:
 	echo "// Automatically generated file. Edit README.txt and run " > generated/README.h
 	echo "// 'make usage' to update this documentation!" >> generated/README.h
-	echo -en "\r\n" >> generated/README.h
+	$(shell echo -en "$(RN)\n" >> generated/README.h)
 	echo "const char* usage_str = \"\"" >> generated/README.h
-	#sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' README.txt >> generated/README.h
-	#sed -i 's/"/\\"/g;' generated/README.h
-	#sed -i 's/$$/\\n"/g' generated/README.h
-	sed -f bin/replace.sed "$(B_DIR)/doc/README.txt" >> generated/README.h
+	sed -f bin/replace$(REPLACE).sed "$(B_DIR)/doc/README.txt" >> generated/README.h
 	echo \""\";" >> generated/README.h
 
 # create example ini content header file generated/example_ini.h from example.ini
 ini:
 	echo "// Automatically generated file. Edit example.ini and run " > generated/example_ini.h
 	echo "// 'make ini' to update this documentation!" >> generated/example_ini.h
-	echo -en "\r\n" >> generated/example_ini.h
+	$(shell echo -en "$(RN)\n" >> generated/example_ini.h)
 	echo "const char* ini_str = \"\"" >> generated/example_ini.h
-	sed -f bin/replace.sed example.ini >> generated/example_ini.h
+	sed -f bin/replace$(REPLACE).sed example.ini >> generated/example_ini.h
 	echo \""\";" >> generated/example_ini.h
 	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' generated/example_ini.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/example_ini.h
@@ -220,9 +229,9 @@ ini:
 error:
 	echo "// Automatically generated file. Edit generated/error.html and run " > generated/error.h
 	echo "// 'make ini' to update this documentation!" >> generated/error.h
-	echo -en "\r\n" >> generated/error.h
+	$(shell echo -en "$(RN)\n" >> generated/error.h)
 	echo "const char* error_str = \"\"" >> generated/error.h
-	sed -f bin/replace.sed generated/error.html >> generated/error.h
+	sed -f bin/replace$(REPLACE).sed generated/error.html >> generated/error.h
 	echo \""\";" >> generated/error.h
 	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' generated/error.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/error.h
@@ -232,7 +241,7 @@ error:
 
 reg:
 	echo "const char* reg_str = \"\"" > generated/reg.h
-	sed -f bin/replace.sed example.reg >> generated/reg.h
+	sed -f bin/replace$(REPLACE).sed example.reg >> generated/reg.h
 	echo \""\";" >> generated/reg.h
 	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' generated/reg.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/reg.h
@@ -395,9 +404,10 @@ ini_test:
 
 test_httpget:	
 	$(CC) $(CFLAGS) \
-		lib/httpget.c -o ../test/httpget.exe \
+		lib/httpget.c -o ../test/httpget$(_EXT) \
 		-DSKIP_PEER_VERIFICATION -DCURL_STATICLIB -DMAIN_GETFILE  \
-		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
+		-lcurl -lssl -lcrypto $(LIBS)
+#		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
 	
 # example programs for library test
 find_param:

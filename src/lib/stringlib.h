@@ -40,6 +40,7 @@ void hex_dump(char *desc, void *addr, int len);
 
 char isquoted(char* str);
 int quote(char** str);
+int quote2(char** str, char q);
 int cmdquote(char** str);
 int cmdunquote(char** str);
 

@@ -19,6 +19,12 @@ char log_file[MAX_CWD_LENGTH];
 
 char encodek[20];
 
+char * my_itoa(int i) {
+  char * res = (char*) malloc(8*sizeof(int));
+  sprintf(res, "%d", i);
+  return res;
+}
+ 
 void writelog(int level, char* str) {
 	if (level == 0)
 		return;
@@ -56,10 +62,17 @@ int display_error(int code) {
 		params,
 		NULL
 	};
+	
+#ifdef __MINGW32__
 	char exe[4096] = "";
 	strcat(exe, getenv("windir"));
 	strcat(exe, "\\System32\\cmd.exe");
 	spawnve(P_DETACH, exe, (char* const*) myargs, (char* const*) environ);
+	
+#else
+	// FIXME: add global handling
+	printf("We would isplay an error here\n");
+#endif
 	
 	//define_error_messages();
 	//fprintf(stderr, "%s\n", errstr[code]);
@@ -482,7 +495,7 @@ int main(int argc, char** argv, char **envp) {
 	if (strcmp(cfg.max_log_size_bytes, "") != 0) {
 		log_length = atoi(cfg.max_log_size_bytes);
 		char buffer[50];
-		itoa(log_length, buffer, 10);
+		strcat(buffer, my_itoa(loglevel));
 		if (strcmp(buffer, cfg.max_log_size_bytes) != 0 || log_length <= 1024) {
 			log_length = LOG_LENGTH;
 			fprintf(stderr, "invalid value max_log_size_bytes in configuration, using default: %d\n", LOG_LENGTH);
@@ -492,7 +505,7 @@ int main(int argc, char** argv, char **envp) {
 	if (strcmp(cfg.log_level, "") != 0) {
 		loglevel = atoi(cfg.log_level);
 		char buffer[50];
-		itoa(loglevel, buffer, 10);
+		strcat(buffer, my_itoa(loglevel));
 		if (strcmp(buffer, cfg.log_level) != 0 || loglevel < 0) {
 			loglevel = 1;
 			fprintf(stderr, "invalid value log_level in configuration, using default: 1\n");
@@ -806,6 +819,7 @@ int main(int argc, char** argv, char **envp) {
 	 * it will be unclear if a non zero exit code is cuase by unclean start 
 	 * or later on due to user action or a bug in the called program.
 	 */
+#ifdef __MINGW32__
 	char exe[4096] = "";
 	strcat(exe, getenv("windir"));
 	strcat(exe, "\\System32\\cmd.exe");
@@ -827,6 +841,43 @@ int main(int argc, char** argv, char **envp) {
 	
 	sprintf(logbuffer, "Success: %s /C %s", exe, myargs[1]);
 	writelog(1, logbuffer);
+	
+#else
+	// Here be dragons
+	char exe[4096] = "/usr/bin/env sh -c '";
+	strcat(exe, cmd);
+	strcat(exe, "' &");
+	/*
+	char* myargs[5];
+	//myargs[0] = (char*) "sh";
+	myargs[0] = (char*) "-c";
+	myargs[1] = (char*) cmd;
+	myargs[2] = (char*) 0;
+	//quote2(&myargs[1], '\'');
+	
+	printf("command: /bin/sh ");
+	for (i=0; i<2; i++) {
+		printf("%s ", myargs[i]);
+	}
+	printf("\n");
+	
+	pid_t pid;
+	int status;
+	status = posix_spawn(&pid, "/bin/sh", NULL, NULL, myargs, environ);
+	if (status == 0) {
+		printf("Child pid: %i\n", pid);
+		if (waitpid(pid, &status, 0) != -1) {
+			printf("Child exited with status %i\n", status);
+		} else {
+			perror("waitpid");
+		}
+	} else {
+		printf("posix_spawn: %s\n", strerror(status));
+	}
+	*/
+	system(exe);
+	printf("exe: %s\n", exe);
+#endif
 	
 	// skip log shortening if we do not log
 	if (loglevel == 0)
