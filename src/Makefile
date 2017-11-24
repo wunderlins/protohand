@@ -61,6 +61,7 @@ ifeq ($(OS),Windows_NT)
 	SSLOPT=mingw64
 	REPLACE=-win
 	RN=\r
+	LIBS=-lgdi32 -lwldap32 -lz -lws2_32
 else
 	REALPATH=
 	APP_ICO=
@@ -73,6 +74,7 @@ else
 	SSLOPT=linux-x86_64
 	REPLACE=
 	RN=
+	LIBS=-pthread
 endif
 
 COMPILE_PCRE=
@@ -169,7 +171,8 @@ ph:
 		lib/cmd_parser.o \
 		lib/errstr.o \
 		ph.c $(APP_ICO) -lpcrecpp -lpcre -DPCRE_STATIC  \
-		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
+		-lcurl -lssl -lcrypto \
+		$(LIBS)
 
 max_path:
 	$(CC) $(CFLAGS) -o bin/MAX_CWD_LENGTH$(_EXT) bin/MAX_CWD_LENGTH.c
@@ -400,7 +403,8 @@ test_httpget:
 	$(CC) $(CFLAGS) \
 		lib/httpget.c -o ../test/httpget.exe \
 		-DSKIP_PEER_VERIFICATION -DCURL_STATICLIB -DMAIN_GETFILE  \
-		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
+		-pthread -lcurl -lssl -lcrypto $(LIBS)
+#		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
 	
 # example programs for library test
 find_param:
