@@ -59,6 +59,8 @@ ifeq ($(OS),Windows_NT)
 	TEST_REALPATH=realpath
 	_EXT = .exe
 	SSLOPT=mingw64
+	REPLACE=-win
+	RN=\r
 else
 	REALPATH=
 	APP_ICO=
@@ -69,6 +71,8 @@ else
 	TEST_REALPATH=
 	_EXT=
 	SSLOPT=linux-x86_64
+	REPLACE=
+	RN=
 endif
 
 COMPILE_PCRE=
@@ -197,21 +201,18 @@ create_error: errstr
 usage:
 	echo "// Automatically generated file. Edit README.txt and run " > generated/README.h
 	echo "// 'make usage' to update this documentation!" >> generated/README.h
-	echo -en "\r\n" >> generated/README.h
+	$(shell echo -en "$(RN)\n" >> generated/README.h)
 	echo "const char* usage_str = \"\"" >> generated/README.h
-	#sed -e 's/%/%%/g; s/\\/\\\\/g; s/"/\\"/g; s/^/"/g; s/$$/\\n"/g' README.txt >> generated/README.h
-	#sed -i 's/"/\\"/g;' generated/README.h
-	#sed -i 's/$$/\\n"/g' generated/README.h
-	sed -f bin/replace.sed "$(B_DIR)/doc/README.txt" >> generated/README.h
+	sed -f bin/replace$(REPLACE).sed "$(B_DIR)/doc/README.txt" >> generated/README.h
 	echo \""\";" >> generated/README.h
 
 # create example ini content header file generated/example_ini.h from example.ini
 ini:
 	echo "// Automatically generated file. Edit example.ini and run " > generated/example_ini.h
 	echo "// 'make ini' to update this documentation!" >> generated/example_ini.h
-	echo -en "\r\n" >> generated/example_ini.h
+	$(shell echo -en "$(RN)\n" >> generated/example_ini.h)
 	echo "const char* ini_str = \"\"" >> generated/example_ini.h
-	sed -f bin/replace.sed example.ini >> generated/example_ini.h
+	sed -f bin/replace$(REPLACE).sed example.ini >> generated/example_ini.h
 	echo \""\";" >> generated/example_ini.h
 	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' generated/example_ini.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/example_ini.h
@@ -222,9 +223,9 @@ ini:
 error:
 	echo "// Automatically generated file. Edit generated/error.html and run " > generated/error.h
 	echo "// 'make ini' to update this documentation!" >> generated/error.h
-	echo -en "\r\n" >> generated/error.h
+	$(shell echo -en "$(RN)\n" >> generated/error.h)
 	echo "const char* error_str = \"\"" >> generated/error.h
-	sed -f bin/replace.sed generated/error.html >> generated/error.h
+	sed -f bin/replace$(REPLACE).sed generated/error.html >> generated/error.h
 	echo \""\";" >> generated/error.h
 	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' generated/error.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/error.h
@@ -234,7 +235,7 @@ error:
 
 reg:
 	echo "const char* reg_str = \"\"" > generated/reg.h
-	sed -f bin/replace.sed example.reg >> generated/reg.h
+	sed -f bin/replace$(REPLACE).sed example.reg >> generated/reg.h
 	echo \""\";" >> generated/reg.h
 	sed -i $(SEDI_EXT) 's/PROGNAME_SHORT/$(PROGNAME_SHORT)/g' generated/reg.h
 	sed -i $(SEDI_EXT) 's/PROGNAME/$(PROGNAME)/g' generated/reg.h
