@@ -3,8 +3,8 @@
 # Perl c_rehash script, scan all files in a directory
 # and add symbolic links to their hash values.
 
-my $dir = "/c/Users/WunderlinS/Projects/protohand/usr/ssl";
-my $prefix = "/c/Users/WunderlinS/Projects/protohand/usr";
+my $dir = "c:/Users/wus/Projects/protohand/usr/ssl";
+my $prefix = "c:/Users/wus/Projects/protohand/usr";
 
 my $openssl = $ENV{OPENSSL} || "openssl";
 my $pwd;
