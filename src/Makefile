@@ -58,6 +58,7 @@ ifeq ($(OS),Windows_NT)
 	DEP_REALPATH=dep_realpath
 	TEST_REALPATH=realpath
 	_EXT = .exe
+	SSLOPT=mingw64
 else
 	REALPATH=
 	APP_ICO=
@@ -67,6 +68,7 @@ else
 	DEP_REALPATH=
 	TEST_REALPATH=
 	_EXT=
+	SSLOPT=linux-x86_64
 endif
 
 COMPILE_PCRE=
@@ -103,21 +105,21 @@ app: clean create_error max_path doc $(BUILD_ICONS) dep ph testcmd testregex
 
 ## DEPENDENCIES ################################################################
 pcre:
-	mkdir $(USR) | true
+	-mkdir $(USR) | true
 	tar xfj pcre-$(PCRE_VERSION).tar.bz2 -C ..
 	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $(USR)
 	cd ../pcre-$(PCRE_VERSION) && make
 	cd ../pcre-$(PCRE_VERSION) && make install
 
 openssl:
-	mkdir $(USR) | true
+	-mkdir $(USR) | true
 	tar xfz openssl-$(OPENSSL_VERSION).tar.gz -C ..
-	cd ../openssl-$(OPENSSL_VERSION) && ./configure --prefix=$(USR)/ mingw64
+	cd ../openssl-$(OPENSSL_VERSION) && ./Configure --prefix=$(USR)/ $(SSLOPT)
 	cd ../openssl-$(OPENSSL_VERSION) && make
 	cd ../openssl-$(OPENSSL_VERSION) && make install
-	
+
 curl:
-	mkdir $(USR) | true
+	-mkdir $(USR) | true
 	tar xfz curl-$(CURL_VERSION).tar.gz -C ..
 	cd ../curl-$(CURL_VERSION) && ./configure --prefix $(USR) --with-ssl=$(USR) --disable-shared --disable-manual --disable-unix-sockets --disable-verbose --disable-versioned-symbols --enable-hidden-symbols --without-librtmp
 	cd ../curl-$(CURL_VERSION) && make
