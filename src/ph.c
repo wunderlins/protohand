@@ -848,6 +848,21 @@ int main(int argc, char** argv, char **envp) {
 	strcat(exe, cmd);
 	strcat(exe, "'");
 	
+	pid_t pid;
+	int status;
+	status = posix_spawn(&pid, "/bin/sh", NULL, NULL, argv, environ);
+	if (status == 0) {
+		printf("Child pid: %i\n", pid);
+		if (waitpid(pid, &status, 0) != -1) {
+			printf("Child exited with status %i\n", status);
+		} else {
+			perror("waitpid");
+		}
+	} else {
+		printf("posix_spawn: %s\n", strerror(status));
+	}
+	
+	
 	printf("exe: %s\n", exe);
 #endif
 	

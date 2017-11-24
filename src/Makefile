@@ -76,6 +76,9 @@ else
 	RN=
 	LIBS=-pthread
 endif
+ifeq ($(UNAME_S),Darwin)
+	SSLOPT=darwin64-x86_64-cc
+endif
 
 COMPILE_PCRE=
 COMPILE_LIBPCRE=$(USR)/lib/libpcre.a
@@ -401,7 +404,7 @@ ini_test:
 
 test_httpget:	
 	$(CC) $(CFLAGS) \
-		lib/httpget.c -o ../test/httpget.exe \
+		lib/httpget.c -o ../test/httpget$(_EXT) \
 		-DSKIP_PEER_VERIFICATION -DCURL_STATICLIB -DMAIN_GETFILE  \
 		-pthread -lcurl -lssl -lcrypto $(LIBS)
 #		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32

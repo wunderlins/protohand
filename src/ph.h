@@ -24,6 +24,7 @@
 	#include <process.h>
 #else
 	#include <spawn.h>
+	#include <sys/wait.h>
 #endif
 
 #include "lib/ini.h"
