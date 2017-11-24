@@ -846,7 +846,7 @@ int main(int argc, char** argv, char **envp) {
 	// Here be dragons
 	char exe[4096] = "/usr/bin/env sh -c '";
 	strcat(exe, cmd);
-	strcat(exe, "'");
+	strcat(exe, "' &");
 	/*
 	char* myargs[5];
 	//myargs[0] = (char*) "sh";
