@@ -847,10 +847,23 @@ int main(int argc, char** argv, char **envp) {
 	char exe[4096] = "/usr/bin/env sh -c '";
 	strcat(exe, cmd);
 	strcat(exe, "'");
+	/*
+	char* myargs[5];
+	//myargs[0] = (char*) "sh";
+	myargs[0] = (char*) "-c";
+	myargs[1] = (char*) cmd;
+	myargs[2] = (char*) 0;
+	//quote2(&myargs[1], '\'');
+	
+	printf("command: /bin/sh ");
+	for (i=0; i<2; i++) {
+		printf("%s ", myargs[i]);
+	}
+	printf("\n");
 	
 	pid_t pid;
 	int status;
-	status = posix_spawn(&pid, "/bin/sh", NULL, NULL, argv, environ);
+	status = posix_spawn(&pid, "/bin/sh", NULL, NULL, myargs, environ);
 	if (status == 0) {
 		printf("Child pid: %i\n", pid);
 		if (waitpid(pid, &status, 0) != -1) {
@@ -861,8 +874,8 @@ int main(int argc, char** argv, char **envp) {
 	} else {
 		printf("posix_spawn: %s\n", strerror(status));
 	}
-	
-	
+	*/
+	system(exe);
 	printf("exe: %s\n", exe);
 #endif
 	

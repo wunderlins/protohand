@@ -116,7 +116,7 @@ app: clean create_error max_path doc $(BUILD_ICONS) dep ph testcmd testregex
 pcre:
 	-mkdir $(USR) | true
 	tar xfj pcre-$(PCRE_VERSION).tar.bz2 -C ..
-	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $(USR)
+	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $(USR) --disable-shared --enable-static --disable-cpp
 	cd ../pcre-$(PCRE_VERSION) && make
 	cd ../pcre-$(PCRE_VERSION) && make install
 
@@ -130,7 +130,7 @@ openssl:
 curl:
 	-mkdir $(USR) | true
 	tar xfz curl-$(CURL_VERSION).tar.gz -C ..
-	cd ../curl-$(CURL_VERSION) && ./configure --prefix $(USR) --with-ssl=$(USR) --disable-shared --disable-manual --disable-unix-sockets --disable-verbose --disable-versioned-symbols --enable-hidden-symbols --without-librtmp
+	cd ../curl-$(CURL_VERSION) && ./configure --prefix $(USR) --with-ssl=$(USR) --disable-shared --enable-static --disable-manual --disable-unix-sockets --disable-verbose --disable-versioned-symbols --enable-hidden-symbols --without-librtmp
 	cd ../curl-$(CURL_VERSION) && make
 	-cd ../curl-$(CURL_VERSION) && make install
 
@@ -175,7 +175,7 @@ ph:
 		lib/errstr.o \
 		ph.c $(APP_ICO) -lpcrecpp -lpcre -DPCRE_STATIC  \
 		-lcurl -lssl -lcrypto \
-		$(LIBS)
+		$(LIBS) -static -static-libgcc
 
 max_path:
 	$(CC) $(CFLAGS) -o bin/MAX_CWD_LENGTH$(_EXT) bin/MAX_CWD_LENGTH.c
@@ -406,7 +406,7 @@ test_httpget:
 	$(CC) $(CFLAGS) \
 		lib/httpget.c -o ../test/httpget$(_EXT) \
 		-DSKIP_PEER_VERIFICATION -DCURL_STATICLIB -DMAIN_GETFILE  \
-		-pthread -lcurl -lssl -lcrypto $(LIBS)
+		-lcurl -lssl -lcrypto $(LIBS)
 #		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
 	
 # example programs for library test
