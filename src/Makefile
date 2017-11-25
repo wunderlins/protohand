@@ -1,5 +1,7 @@
 .PHONY: ini usage test param_test release puh ph
 
+PATH := $(PATH):$(PWD)/bin
+
 ## library versions
 PCRE_VERSION=8.41
 OPENSSL_VERSION=1.0.2m
@@ -15,6 +17,7 @@ PROGNAME = protohand
 PROGNAME_SHORT = ph
 CC = gcc
 
+#export PATH := ./bin:$(PATH)
 R_DIR=../release
 B_DIR=../build
 
@@ -29,7 +32,8 @@ endif
 STDIN_MAX = 1024
 MAX_CWD_LENGTH = $(shell sh -c './bin/MAX_CWD_LENGTH$(_EXT)')
 
-USR=$(shell realpath $(pwd)/../usr | sed -s 's,/\([a-zA-Z]\)/,\1:/,')-$(operating_system)
+include os.mk
+USR=$(shell ./bin/realpath $(pwd)/../usr | sed -e 's,/\([a-zA-Z]\)/,\1:/,')-$(operating_system)
 
 # cflags, strip if debugging is disabled
 CFLAGS = -DLOG_TO_FILE=$(LOG_TO_FILE) -Wall -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DDEBUG=$(DEBUG) -DPROGNAME=$(PROGNAME) # -DSTDIN_MAX=$(STDIN_MAX) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
@@ -42,8 +46,6 @@ endif
 CFLAGS += -I$(USR)/include -L$(USR)/lib
 
 #CFLAGS += -DPROGNAME_SHORT=$(PROGNAME_SHORT) -DMAX_CWD_LENGTH=$(MAX_CWD_LENGTH)
-
-include os.mk
 
 # use our own realpath on windows
 ifeq ($(OS),Windows_NT)
@@ -103,6 +105,9 @@ export
 
 #CFLAGS += -I $(USR)/include -L$(USR)/lib
 
+os:
+	@echo $(operating_system)
+
 # build everything including 3rd party libs
 all: $(COMPILE_PCRE) $(COMPILE_OPENSSL) $(COMPILE_CURL) app
 
@@ -113,7 +118,7 @@ app: clean create_error max_path doc $(BUILD_ICONS) dep ph testcmd testregex
 pcre:
 	-mkdir $(USR) | true
 	tar xfj pcre-$(PCRE_VERSION).tar.bz2 -C ..
-	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $(USR) --disable-shared --enable-static --disable-cpp
+	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $(USR) --disable-shared --enable-static # --disable-cpp
 	cd ../pcre-$(PCRE_VERSION) && make
 	cd ../pcre-$(PCRE_VERSION) && make install
 
@@ -127,7 +132,7 @@ openssl:
 curl:
 	-mkdir $(USR) | true
 	tar xfz curl-$(CURL_VERSION).tar.gz -C ..
-	cd ../curl-$(CURL_VERSION) && ./configure --prefix $(USR) --with-ssl=$(USR) --disable-shared --enable-static --disable-manual --disable-unix-sockets --disable-verbose --disable-versioned-symbols --enable-hidden-symbols --without-librtmp
+	cd ../curl-$(CURL_VERSION) && ./configure --prefix $(USR) --with-ssl=$(USR) --disable-shared --enable-static # --disable-manual --disable-unix-sockets --disable-verbose --disable-versioned-symbols --enable-hidden-symbols --without-librtmp
 	cd ../curl-$(CURL_VERSION) && make
 	-cd ../curl-$(CURL_VERSION) && make install
 
@@ -157,6 +162,7 @@ regexcpp:
 icon:
 	$(MAKE) -C ico
 	
+
 
 ## APPLICATIONS ################################################################
 ph:
@@ -403,9 +409,10 @@ test_httpget:
 	$(CC) $(CFLAGS) \
 		lib/httpget.c -o ../test/httpget$(_EXT) \
 		-DSKIP_PEER_VERIFICATION -DCURL_STATICLIB -DMAIN_GETFILE  \
-		-lcurl -lssl -lcrypto $(LIBS)
-#		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
-	
+		-lpcrecpp -lpcre -DPCRE_STATIC  \
+		-lcurl -lssl -lcrypto \
+		$(LIBS) -static -static-libgcc
+
 # example programs for library test
 find_param:
 	$(CC) $(CFLAGS) -c lib/stringlib.c

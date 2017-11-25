@@ -340,7 +340,7 @@ int main(int argc, char** argv, char **envp) {
 	 * displaying error mesages to the user. error.html should be installed in 
 	 * the same folder as tis executable.
 	 */
-	char env[strlen(dir)+9] = {0};
+	char env[MAX_CWD_LENGTH+1+9] = {0};
 	strcat(env, "PH_HOME=");
 	strcat(env, dir);
 	env[strlen(env)-1] = 0;
@@ -1094,11 +1094,13 @@ int create_ini(char* ini_file) {
 	fwrite(usage_str , sizeof(char), strlen(usage_str), fpreadme);
 	fclose(fpreadme);
 
+#ifdef __MINGW32__
 	FILE* fpreg;
 	fpreg = fopen("ph.reg", "wb+");
 	fwrite(reg_str , sizeof(char), strlen(reg_str), fpreg);
 	fclose(fpreg);
-	
+#endif
+
 	FILE* fperror;
 	fperror = fopen("error.html", "wb+");
 	fwrite(error_str , sizeof(char), strlen(error_str), fperror);

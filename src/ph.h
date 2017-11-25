@@ -37,7 +37,9 @@
 
 #include "generated/example_ini.h"
 #include "generated/README.h"
-#include "generated/reg.h"
+#ifdef __MINGW32__
+	#include "generated/reg.h"
+#endif
 #include "generated/error.h"
 
 #include "lib/regcpp.h"

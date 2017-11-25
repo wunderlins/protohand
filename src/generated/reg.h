@@ -1,27 +1,27 @@
 const char* reg_str = ""
-"Windows Registry Editor Version 5.00\n"
-";; Register a protocol handler\n"
-";;\n"
-";; REPLACE <proto> with your protocol name and <yourpath> with your path \n"
-";; to the executable\n"
-"\n"
-"[HKEY_CLASSES_ROOT\\<proto>]\n"
-"@=\"URL: <proto> Protocol\"\n"
-"\"URL Protocol\"=\"\"\n"
-"\n"
-"[HKEY_CLASSES_ROOT\\<proto>\\shell]\n"
-"[HKEY_CLASSES_ROOT\\<proto>\\shell\\open]\n"
-"[HKEY_CLASSES_ROOT\\<proto>\\shell\\open\\command]\n"
-"; replace <yourpath> with your installation location\n"
-"@=\"\\\"<yourpath>\\\\ph\\\" \\\"%1\\\"\"\n"
-"\n"
-";; internet explorer will show a warning when this protocol is used, you can \n"
-";; disable this warning site wide or per user\n"
-"; per user setting\n"
-";[HKEY_CURRENT_USER\\Software\\Microsoft\\Internet Explorer\\ProtocolExecute\\<proto>]\n"
-";\"WarnOnOpen\"=dword:00000000\n"
-"\n"
-"; computer setting\n"
-"[HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Internet Explorer\\ProtocolExecute\\<proto>]\n"
-"\"WarnOnOpen\"=dword:00000000\n"
+"Windows Registy Edito Vesion 5.00\n"
+";; Registe a potocol handle\n"
+";;\n"
+";; REPLACE <poto> with you potocol name and <youpath> with you path \n"
+";; to the executable\n"
+"\n"
+"[HKEY_CLASSES_ROOT\\<poto>]\n"
+"@=\"URL: <poto> Potocol\"\n"
+"\"URL Potocol\"=\"\"\n"
+"\n"
+"[HKEY_CLASSES_ROOT\\<poto>\\shell]\n"
+"[HKEY_CLASSES_ROOT\\<poto>\\shell\\open]\n"
+"[HKEY_CLASSES_ROOT\\<poto>\\shell\\open\\command]\n"
+"; eplace <youpath> with you installation location\n"
+"@=\"\\\"<youpath>\\\\ph\\\" \\\"%1\\\"\"\n"
+"\n"
+";; intenet exploe will show a waning when this potocol is used, you can \n"
+";; disable this waning site wide o pe use\n"
+"; pe use setting\n"
+";[HKEY_CURRENT_USER\\Softwae\\Micosoft\\Intenet Exploe\\PotocolExecute\\<poto>]\n"
+";\"WanOnOpen\"=dwod:00000000\n"
+"\n"
+"; compute setting\n"
+"[HKEY_LOCAL_MACHINE\\Softwae\\Micosoft\\Intenet Exploe\\PotocolExecute\\<poto>]\n"
+"\"WanOnOpen\"=dwod:00000000\n"
 "";

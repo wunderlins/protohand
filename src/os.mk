@@ -19,9 +19,6 @@ else
     ifeq ($(UNAME_S),Linux)
         operating_system=LINUX
     endif
-    ifeq ($(UNAME_S),Darwin)
-        operating_system=OSX
-    endif
     UNAME_P := $(shell uname -p)
     ifeq ($(UNAME_P),x86_64)
         operating_system=AMD64
@@ -32,4 +29,7 @@ else
     ifneq ($(filter arm%,$(UNAME_P)),)
         operating_system=ARM
     endif
+	ifeq ($(UNAME_S),Darwin)
+		operating_system=OSX
+	endif
 endif
