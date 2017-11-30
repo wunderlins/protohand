@@ -73,7 +73,7 @@ else
 	SSLOPT=linux-x86_64
 	REPLACE=
 	RN=
-	LIBS=-pthread
+	LIBS=-pthread -lz -ldl
 endif
 ifeq ($(UNAME_S),Darwin)
 	SSLOPT=darwin64-x86_64-cc
