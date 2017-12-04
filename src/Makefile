@@ -79,6 +79,9 @@ ifeq ($(UNAME_S),Darwin)
 	SSLOPT=darwin64-x86_64-cc
 endif
 
+CONFIG_STATIC  = --disable-shared --enable-static
+COMPILE_STATIC = -static -static-libgcc -DPCRE_STATIC -DCURL_STATICLIB
+
 COMPILE_PCRE=
 COMPILE_LIBPCRE=$(USR)/lib/libpcre.a
 ifneq ($(shell test -e $(COMPILE_LIBPCRE) && echo -n yes),yes)
@@ -118,7 +121,7 @@ app: clean create_error max_path doc $(BUILD_ICONS) dep ph testcmd testregex
 pcre:
 	-mkdir $(USR) | true
 	tar xfj pcre-$(PCRE_VERSION).tar.bz2 -C ..
-	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $(USR) --disable-shared --enable-static # --disable-cpp
+	cd ../pcre-$(PCRE_VERSION) && ./configure --prefix $(USR) $(CONFIG_STATIC) # --disable-cpp
 	cd ../pcre-$(PCRE_VERSION) && make
 	cd ../pcre-$(PCRE_VERSION) && make install
 
@@ -132,7 +135,7 @@ openssl:
 curl:
 	-mkdir $(USR) | true
 	tar xfz curl-$(CURL_VERSION).tar.gz -C ..
-	cd ../curl-$(CURL_VERSION) && ./configure --prefix $(USR) --with-ssl=$(USR) --disable-shared --enable-static # --disable-manual --disable-unix-sockets --disable-verbose --disable-versioned-symbols --enable-hidden-symbols --without-librtmp
+	cd ../curl-$(CURL_VERSION) && ./configure --prefix $(USR) --with-ssl=$(USR) $(CONFIG_STATIC) # --disable-manual --disable-unix-sockets --disable-verbose --disable-versioned-symbols --enable-hidden-symbols --without-librtmp
 	cd ../curl-$(CURL_VERSION) && make
 	-cd ../curl-$(CURL_VERSION) && make install
 
@@ -157,7 +160,7 @@ cmdparser:
 	$(CC) $(CFLAGS) -c lib/cmd_parser.c -o lib/cmd_parser.o
 	
 regexcpp:
-	g++ -static -DPCRE_STATIC -std=c++11 $(CFLAGS) -lpcrecpp -lpcre -c -o lib/regcpp.o lib/reg.cpp
+	g++ $(COMPILE_STATIC) -std=c++11 $(CFLAGS) -lpcrecpp -lpcre -c -o lib/regcpp.o lib/reg.cpp
 
 icon:
 	$(MAKE) -C ico
@@ -176,9 +179,9 @@ ph:
 		lib/ini.o lib/uriparse.o \
 		lib/cmd_parser.o \
 		lib/errstr.o \
-		ph.c $(APP_ICO) -lpcrecpp -lpcre -DPCRE_STATIC  \
+		ph.c $(APP_ICO) -lpcrecpp -lpcre \
 		-lcurl -lssl -lcrypto \
-		$(LIBS) -static -static-libgcc
+		$(LIBS) $(COMPILE_STATIC)
 
 max_path:
 	$(CC) $(CFLAGS) -o bin/MAX_CWD_LENGTH$(_EXT) bin/MAX_CWD_LENGTH.c
@@ -192,7 +195,7 @@ testcmd:
 
 # test targets
 testregex:
-	g++ $(CFLAGS) -o testregex$(_EXT) $(REALPATH) lib/regcpp.o testregex.c $(TESTREGEX_ICO) -lpcrecpp -lpcre -DPCRE_STATIC 
+	g++ $(CFLAGS) -o testregex$(_EXT) $(REALPATH) lib/regcpp.o testregex.c $(TESTREGEX_ICO) -lpcrecpp -lpcre $(COMPILE_STATIC)
 
 ## DOCUMENTATION ###############################################################
 # auto-update documentation
@@ -408,10 +411,10 @@ ini_test:
 test_httpget:	
 	$(CC) $(CFLAGS) \
 		lib/httpget.c -o ../test/httpget$(_EXT) \
-		-DSKIP_PEER_VERIFICATION -DCURL_STATICLIB -DMAIN_GETFILE  \
-		-lpcrecpp -lpcre -DPCRE_STATIC  \
+		-DSKIP_PEER_VERIFICATION -DMAIN_GETFILE  \
+		-lpcrecpp -lpcre \
 		-lcurl -lssl -lcrypto \
-		$(LIBS) -static -static-libgcc
+		$(LIBS) $(COMPILE_STATIC)
 
 # example programs for library test
 find_param:
@@ -446,4 +449,4 @@ compare:
 
 test_regcpp:
 	#g++ -o regcpp.exe reg.cpp -lpcrecpp -lpcre -DPCRE_STATIC -DCPPMAIN
-	g++ $(CFLAGS) -static -DCPPMAIN -DPCRE_STATIC -o ../test/regcpp$(_EXT) lib/reg.cpp -lpcrecpp -lpcre 
+	g++ $(CFLAGS) $(COMPILE_STATIC) -std=c++11 -DCPPMAIN -o ../test/regcpp$(_EXT) lib/reg.cpp -lpcrecpp -lpcre 
