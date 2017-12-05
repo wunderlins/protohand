@@ -96,9 +96,12 @@ int transcode_str(char* strin, long* fsize, char** strout, char* key) {
 	char *result = (char*) malloc(outlen);
 	if (mode == ENCODE) {
 		memcpy(result, xor_magic, 4);
-		memcpy(result+4, _xor(strin, key, *fsize), *fsize);
+		//printf("Before encoding: %ld\n", *fsize);
+		char* encoded = _xor(strin, key, *fsize);
+		//printf("After encoding:  %ld\n", *fsize);
+		memcpy(result+4, encoded, *fsize);
 	} else 
-		memcpy(result, _xor(strin, key, *fsize), *fsize);
+		memcpy(result, _xor(strin, key, *fsize), outlen);
 	
 	/*
 	long i;

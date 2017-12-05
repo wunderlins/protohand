@@ -139,12 +139,14 @@ curl:
 	cd ../curl-$(CURL_VERSION) && make
 	-cd ../curl-$(CURL_VERSION) && make install
 
-dep: regexcpp errstr cmdparser $(DEP_REALPATH) dep_httpget
+dep: regexcpp errstr cmdparser $(DEP_REALPATH) dep_httpget dep_xor
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
 	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
+
+dep_xor:
 	$(CC) $(CFLAGS) -c lib/xor.c -o lib/xor.o
 
 dep_httpget:

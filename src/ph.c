@@ -220,10 +220,12 @@ int encode_file(int argc, char** argv) {
 	fclose(f);
 	
 	char *result;
+	//printf("fsize before: %ld\n", fsize);
 	transcode_str(string, &fsize, &result, encodek);
+	//printf("fsize after: %ld\n", fsize);
 	
 	f = fopen(outfile, "wb");
-	fwrite(result, 1, fsize-4, f);
+	fwrite(result, 1, fsize, f);
 	if (f == NULL)
 		return 2;
 	
@@ -433,6 +435,7 @@ int main(int argc, char** argv, char **envp) {
 			}
 		}
 	}
+	//printf("ini_file: %s\n", ini_file);
 	
 	/**
 	 * Read the config file
@@ -457,13 +460,16 @@ int main(int argc, char** argv, char **envp) {
 	// read and unencode file if encoded
 	char *ini_content;
 	if (is_encoded(string) == 1) {
-		printf("encoded\n");
+		//printf("encoded\n");
+		//printf("fsize 1: %ld\n", fsize);
 		res = transcode_str(string, &fsize, &ini_content, encodek);
+		//printf("fsize 2: %ld\n", fsize);
 	} else {
 		ini_content = string;
 	}
 	
-	// read the global configuration 
+	// read the global configuration
+	//printf(ini_content);
 	global_configuration cfg = DEFAULT_GCONFIG;
 	retp = ini_parse_string(ini_content, global_callback, &cfg);
 	
@@ -494,9 +500,7 @@ int main(int argc, char** argv, char **envp) {
 	int log_length = LOG_LENGTH;
 	if (strcmp(cfg.max_log_size_bytes, "") != 0) {
 		log_length = atoi(cfg.max_log_size_bytes);
-		char buffer[50];
-		strcat(buffer, my_itoa(loglevel));
-		if (strcmp(buffer, cfg.max_log_size_bytes) != 0 || log_length <= 1024) {
+		if (log_length <= 1024) {
 			log_length = LOG_LENGTH;
 			fprintf(stderr, "invalid value max_log_size_bytes in configuration, using default: %d\n", LOG_LENGTH);
 		}
@@ -504,7 +508,7 @@ int main(int argc, char** argv, char **envp) {
 	
 	if (strcmp(cfg.log_level, "") != 0) {
 		loglevel = atoi(cfg.log_level);
-		char buffer[50];
+		char buffer[50] = {0};
 		strcat(buffer, my_itoa(loglevel));
 		if (strcmp(buffer, cfg.log_level) != 0 || loglevel < 0) {
 			loglevel = 1;
