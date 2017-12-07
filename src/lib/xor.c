@@ -100,8 +100,10 @@ int transcode_str(char* strin, long* fsize, char** strout, char* key) {
 		char* encoded = _xor(strin, key, *fsize);
 		//printf("After encoding:  %ld\n", *fsize);
 		memcpy(result+4, encoded, *fsize);
-	} else 
+	} else {
 		memcpy(result, _xor(strin, key, *fsize), outlen);
+		result[outlen] = '\0';
+	}
 	
 	/*
 	long i;
