@@ -23,3 +23,8 @@ Windows Registry Editor Version 5.00
 ; computer setting
 [HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer\ProtocolExecute\<proto>]
 "WarnOnOpen"=dword:00000000
+
+[HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\Low Rights\ElevationPolicy\{F9563559-9391-423F-96D3-963A9773F88F}]
+"AppName"="PROGNAME_SHORT_EXT"
+"AppPath"="<yourpath>"
+"Policy"=dword:00000003
