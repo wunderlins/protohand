@@ -79,4 +79,5 @@ httpget:
 		-DSKIP_PEER_VERIFICATION -DMAIN_GETFILE \
 		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
 		
-
+transform:
+	$(CC) $(CFLAGS) -DTRANSFORM_MAIN -o transform.exe transform.c
