@@ -61,6 +61,7 @@ ifeq ($(OS),Windows_NT)
 	REPLACE=-win
 	RN=\r
 	LIBS=-lgdi32 -lwldap32 -lz -lws2_32
+	ZIP=bin/zip.exe
 else
 	REALPATH=
 	APP_ICO=
@@ -74,6 +75,7 @@ else
 	REPLACE=
 	RN=
 	LIBS=-pthread -lz -ldl
+	ZIP=zip
 endif
 ifeq ($(UNAME_S),Darwin)
 	SSLOPT=darwin64-x86_64-cc
@@ -190,9 +192,8 @@ max_path:
 	$(eval MAX_CWD_LENGTH := $(shell sh -c './bin/MAX_CWD_LENGTH$(_EXT)'))
 
 # generate a simple cmd utility that will print all parameters
-testcmd:
+testcmd: $(DEP_REALPATH)
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
-	$(CC) $(CFLAGS) -c lib/realpath.c -o lib/realpath.o
 	$(CC) $(CFLAGS) -o testcmd$(_EXT) $(REALPATH) lib/mydir.o testcmd.c $(TESTCMD_ICO)
 
 # test targets
@@ -309,11 +310,12 @@ release: release_doc test_httpget
 	
 	# build the application
 	#$(MAKE) all
+	mkdir ../build/doc/integration | true
 	cp ../doc/integration/* ../build/doc/integration
 	
 	# make release directory
 	@echo $(R_DIR)/$(rel)
-	mkdir "$(R_DIR)/$(rel)"
+	mkdir "$(R_DIR)/$(rel)" | true
 	
 	# copy files to release directory
 	cp $(PROGNAME_SHORT)$(_EXT) "$(B_DIR)/"
@@ -328,8 +330,9 @@ release: release_doc test_httpget
 	strip "$(B_DIR)/testhttp$(_EXT)"
 		
 	# create zip file
-	cd $(B_DIR)/; ../src/bin/zip.exe -r "../$(rel).zip" * 
-	mv "../$(rel).zip" ../release
+	$(shell cd $(B_DIR)/; $(ZIP) -q -r ../$(rel).zip * )
+	mv "../$(rel).zip" ../release 
+	#$(shell test $(B_DIR)/zip.zip && mv $(B_DIR)/zip.zip "../$(rel).zip") | true
 	
 	#cp $(R_DIR)/$(rel)/* ../build
 	
