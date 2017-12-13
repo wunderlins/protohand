@@ -337,7 +337,7 @@ release: release_doc test_httpget
 	#cp $(R_DIR)/$(rel)/* ../build
 	
 	# remove working directory
-	#rm -r "$(R_DIR)/$(rel)"
+	rm -r "$(R_DIR)/$(rel)"
 	
 	# add to git repo, tag release and push changes/tags
 	#git add release/*.zip
