@@ -7,6 +7,7 @@ extern "C" {
 #endif
 
 #include <stdio.h>
+#include "../lib/nvlist.h"
 
 #ifdef __cplusplus
 }

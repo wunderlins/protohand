@@ -80,4 +80,6 @@ httpget:
 		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
 		
 transform:
-	$(CC) $(CFLAGS) -DTRANSFORM_MAIN -o transform.exe transform.c
+	$(CC) $(CFLAGS) -c -o ../lib/stringlib.o ../lib/stringlib.c 
+	$(CC) $(CFLAGS) -c -o ../lib/nvlist.o ../lib/stringlib.o ../lib/nvlist.c
+	$(CC) $(CFLAGS) -DTRANSFORM_MAIN -o transform.exe ../lib/nvlist.o transform.c
