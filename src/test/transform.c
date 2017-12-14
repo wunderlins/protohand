@@ -42,7 +42,7 @@ typedef struct {
 void my_printf(char *format, ...) {
 	va_list args;
 	va_start(args, format);
-	printf(format, args);
+	vprintf(format, args);
 	va_end(args);
 }
 
@@ -62,11 +62,11 @@ int main(int argc, char** argv) {
 	
 	fn_printf.func("blah, %d\n", 1);
 	
-
 	struct nvlist_list rep = nvlist_create(2);
 	
 	nvlist_addpair(&rep, "k1", "v1");
 	nvlist_addpair(&rep, "k2", "v2");
+	
 	nvlist_addstr(&rep, "k3&v3", '&');
 	nvlist_addstr(&rep, "k4&v+4", '&');
 	nvlist_addstr(&rep, "k5&v+5", '&');
