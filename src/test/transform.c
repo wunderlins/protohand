@@ -1,4 +1,6 @@
 #include "transform.h"
+#include <stdarg.h>
+#include <stdlib.h>
 
 #define DEFAULT_TRANSFORM_ITEM {"", "", NULL, "", 0}
 typedef struct {
@@ -14,8 +16,53 @@ typedef struct {
 	int length;
 } transform_list_t;
 
+int get_function_def(struct nvlist_list *func) {
+	//struct nvlist_list func = nvlist_create(0);
+	int ret;
+	ret = nvlist_addpair(func, "fallnr_zero", "printf(%08d)");
+	if (ret < 0) return ret;
+	ret = nvlist_addpair(func, "patnr_zero", "printf(%08d)");
+	if (ret < 0) return ret;
+	ret = nvlist_addpair(func, "fallnr_nozero", "str2int");
+	if (ret < 0) return ret;
+	ret = nvlist_addpair(func, "patnr_nozero", "str2int");
+	if (ret < 0) return ret;
+	
+	return 0;
+}
+
+typedef struct {
+	char* name;
+	int   numargs;
+	char** arguments;
+	void (*func)(char* value, ...);
+} fn_t;
+
+
+void my_printf(char *format, ...) {
+	va_list args;
+	va_start(args, format);
+	printf(format, args);
+	va_end(args);
+}
+
 #ifdef TRANSFORM_MAIN
 int main(int argc, char** argv) {
+
+	struct nvlist_list func = nvlist_create(0);
+	get_function_def(&func);
+	//printf("func length %d\n", func.length);
+	
+	//typedef int (*fn_printf_ptr) (char const *str, ...);
+	fn_t fn_printf = {"printf", -1, NULL, NULL};
+	//fn_printf.func = &printf;
+	
+	//void (*ptr_printf)(char *str, ...);
+	fn_printf.func = &my_printf;
+	
+	fn_printf.func("blah, %d\n", 1);
+	
+
 	struct nvlist_list rep = nvlist_create(2);
 	
 	nvlist_addpair(&rep, "k1", "v1");
