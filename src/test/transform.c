@@ -1,13 +1,37 @@
+/**
+ * Transformation for URL parameters
+ * 
+ * It might be necessary tro transform urlparameters. For example 
+ * leading zeros mmust be added or removed.
+ * 
+ * Sometimes it is required to use the same transformation function 
+ * several times with the same parameter (for example printf(%08d). 
+ * For convenience such functiosn can be regisetered as alias.
+ * 
+ * Aliases are stored in `alias_lsit_t` which holds the alias name 
+ * and the real function including it's default parmameters.
+ * 
+ * `fn_list_t` contains the function definition.
+ * 
+ * `transform_list_t` contains a list of all parameters and their 
+ * respective transformation function defined in `transform_item_t`.
+ * 
+ * 2017, Simon Wunderlin
+ */ 
+
 #include "transform.h"
 #include <stdarg.h>
 #include <stdlib.h>
+#include <string.h>
 
-#define DEFAULT_TRANSFORM_ITEM {"", "", NULL, "", 0}
+#define DEFAULT_TRANSFORM_ITEM {"", "", "", "", NULL, NULL, 0}
 typedef struct transform_item {
 	char* name;
 	char* value_in; 
 	char* value_out; 
 	char* method;
+	void* fn; // pointer to fn_t
+	char** args;
 	int transformed; 
 } transform_item_t;
 
@@ -15,6 +39,17 @@ typedef struct transform_list {
 	transform_item_t *items;
 	int length;
 } transform_list_t;
+
+typedef struct fn {
+	char* name;
+	int   numargs;
+	void (*func)(transform_item_t* item);
+} fn_t;
+
+typedef struct fn_list {
+	fn_t *items;
+	int length;
+} fn_list_t;
 
 int get_function_def(struct nvlist_list *func) {
 	//struct nvlist_list func = nvlist_create(0);
@@ -29,25 +64,6 @@ int get_function_def(struct nvlist_list *func) {
 	if (ret < 0) return ret;
 	
 	return 0;
-}
-
-typedef struct fn {
-	char* name;
-	int   numargs;
-	void (*func)(char* value, ...);
-} fn_t;
-
-typedef struct fn_list {
-	fn_t *items;
-	int length;
-} fn_list_t;
-
-
-void my_printf(char *format, ...) {
-	va_list args;
-	va_start(args, format);
-	vprintf(format, args);
-	va_end(args);
 }
 
 int add_func(fn_list_t* funcs, fn_t* fnc) {
@@ -68,28 +84,89 @@ int add_func(fn_list_t* funcs, fn_t* fnc) {
 	return 0;
 }
 
+void my_printf(transform_item_t* item) {
+	
+}
+
+void ltrimzero(transform_item_t* item) {
+	//printf("in: %s\n", item->value_in);
+	
+	char *tmp = (char*) malloc(sizeof(char) * (strlen(item->value_in)+1));
+	strcpy(tmp, item->value_in);
+	
+	while((tmp[0] == '0' || tmp[0] == ' ') && tmp[0] != 0)
+		tmp++;
+
+	//printf("tmp: %s\n", tmp);
+	item->value_out = (char*) malloc(sizeof(char) * (strlen(tmp)+1));
+	strcpy(item->value_out, tmp);
+	
+	item->transformed = 1;
+}
+
+int run(transform_item_t* item) {
+	//printf("in:  %s\n", item->value_in);
+	
+	if (item->fn == NULL) {
+		fprintf(stdout, "Error: Unknown function '%s' for parameter "
+		                "'%s'\n", item->method, item->name);
+		return 1;
+	}
+
+	// dereference void pointer and set type, then run the method
+	fn_t *cfn = (fn_t*) item->fn;
+	
+	cfn->func(item);
+	//printf("out: %s\n", item->value_out);
+	
+	return 0;
+}
+
 #ifdef TRANSFORM_MAIN
 int main(int argc, char** argv) {
-
+	
+	int i;
 	struct nvlist_list func = nvlist_create(0);
 	get_function_def(&func);
 	//printf("func length %d\n", func.length);
 	
 	//typedef int (*fn_printf_ptr) (char const *str, ...);
+	/*
 	fn_t fn_printf = {"printf", -1, NULL};
 	fn_printf.numargs = 1;
-	//fn_printf.func = &printf;
-	
-	//void (*ptr_printf)(char *str, ...);
 	fn_printf.func = &my_printf;	
+	*/
+	
+	fn_t fn_ltrimzero = {"ltrimzero", -1, NULL};
+	fn_ltrimzero.numargs = 0;
+	fn_ltrimzero.func = &ltrimzero;	
 	
 	fn_list_t funcs;
 	funcs.length = 0;
-	add_func(&funcs, &fn_printf);
-	//add_func(&funcs, &fn_printf);
+	add_func(&funcs, &fn_ltrimzero);
 	 
-	funcs.items[0].func("blah, %08d\n", 1);
+	transform_item_t item = DEFAULT_TRANSFORM_ITEM;
+	item.name = "FALLNR";
+	item.value_in = "0000005";
+	item.method = "ltrimz9ero";
+	for (i=0; i<funcs.length; i++) {
+		if (strcmp(item.method, funcs.items[i].name) == 0) {
+			item.fn = &funcs.items[0]; // fn_ltrimzero
+			break;
+		}
+	}
+	//item.fn = &funcs.items[0]; // fn_ltrimzero
 	
+	/*
+	printf("in:  %s\n", item.value_in);
+	// dereference void pointer and set type, then run the method
+	fn_t *cfn = (fn_t*) item.method;
+	cfn->func(&item);
+	*/
+	printf("in:  %s\n", item.value_in);
+	run(&item);
+	printf("out: %s\n", item.value_out);
+	return 0;
 	
 	struct nvlist_list rep = nvlist_create(2);
 	
@@ -104,7 +181,6 @@ int main(int argc, char** argv) {
 	tlist.items = malloc(sizeof(transform_item_t) * rep.length);
 	tlist.length = rep.length;
 	
-	int i;
 	for (i=0; i<rep.length; i++) {
 		transform_item_t item = DEFAULT_TRANSFORM_ITEM;
 		tlist.items[i] = item;
