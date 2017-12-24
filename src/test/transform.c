@@ -126,16 +126,8 @@ int run(transform_item_t* item) {
 int main(int argc, char** argv) {
 	
 	int i;
-	struct nvlist_list func = nvlist_create(0);
-	get_function_def(&func);
-	//printf("func length %d\n", func.length);
-	
-	//typedef int (*fn_printf_ptr) (char const *str, ...);
-	/*
-	fn_t fn_printf = {"printf", -1, NULL};
-	fn_printf.numargs = 1;
-	fn_printf.func = &my_printf;	
-	*/
+	struct nvlist_list registry = nvlist_create(0);
+	get_function_def(&registry);
 	
 	fn_t fn_ltrimzero = {"ltrimzero", -1, NULL};
 	fn_ltrimzero.numargs = 0;
@@ -148,21 +140,14 @@ int main(int argc, char** argv) {
 	transform_item_t item = DEFAULT_TRANSFORM_ITEM;
 	item.name = "FALLNR";
 	item.value_in = "0000005";
-	item.method = "ltrimz9ero";
+	item.method = "ltrimzero";
 	for (i=0; i<funcs.length; i++) {
 		if (strcmp(item.method, funcs.items[i].name) == 0) {
 			item.fn = &funcs.items[0]; // fn_ltrimzero
 			break;
 		}
 	}
-	//item.fn = &funcs.items[0]; // fn_ltrimzero
 	
-	/*
-	printf("in:  %s\n", item.value_in);
-	// dereference void pointer and set type, then run the method
-	fn_t *cfn = (fn_t*) item.method;
-	cfn->func(&item);
-	*/
 	printf("in:  %s\n", item.value_in);
 	run(&item);
 	printf("out: %s\n", item.value_out);
