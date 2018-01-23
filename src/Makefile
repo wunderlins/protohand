@@ -455,3 +455,6 @@ compare:
 test_regcpp:
 	#g++ -o regcpp.exe reg.cpp -lpcrecpp -lpcre -DPCRE_STATIC -DCPPMAIN
 	g++ $(CFLAGS) $(COMPILE_STATIC) -std=c++11 -DCPPMAIN -o ../test/regcpp$(_EXT) lib/reg.cpp -lpcrecpp -lpcre 
+
+test_transform:
+	$(CC) $(CFLAGS) -DTRANSFORM_MAIN -o ../test/transform$(_EXT) lib/nvlist.o lib/transform.c
