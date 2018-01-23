@@ -10,6 +10,9 @@ extern "C" {
 #include <string.h>
 #include "../lib/nvlist.h"
 
+int transform_lpadzero(char* strin, char* strout, int maxlen);
+int transform_ltrimzero(char* strin, char* strout);
+
 #ifdef __cplusplus
 }
 #endif

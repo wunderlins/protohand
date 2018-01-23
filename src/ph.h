@@ -45,8 +45,8 @@
 #include "lib/regcpp.h"
 #include "lib/mydir.h"
 #include "lib/errstr.h"
-
 #include "lib/httpget.h"
+#include "lib/transform.h"
 
 // error codes
 #define OK 0
@@ -93,7 +93,7 @@ extern char* errstr[];
 extern char* expandvar_err_var_name;
 
 // can hold one ini file entry
-#define DEFAULT_CONFIG { "", "", "", "", "", "", "", 0}
+#define DEFAULT_CONFIG { "", "", "", "", "", "", "", 0, NULL, NULL}
 typedef struct {
 	const char* section; // the section we are searchin for
 	const char* default_path;
@@ -103,6 +103,8 @@ typedef struct {
 	const char* replace_regex;
 	const char* cmd;
 	int found; // 1 if the section was found. initialize it to 0 otherwise
+	struct str_array* ltrimzero;
+	struct str_array* lpadzero;
 } configuration;
 
 #define DEFAULT_GCONFIG {"_global", "", "0", "${env.windir}\\cmd.exe /c hh.exe -800", "${env.windir}\\cmd.exe /c", "10240000", 0}

@@ -713,6 +713,24 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "found: %d", config.found); 
 		writelog(3, logbuffer);
+		
+		if (loglevel > 3) {
+			// FIXME: accessing unallocated memory in config.lpadzero! fix in ini_callback()
+			sprintf(logbuffer, "lpadzero: %d", config.lpadzero->length); 
+			writelog(4, logbuffer);
+			/*
+			if (config.lpadzero != 0) {
+				for(i=0; i<config.lpadzero->length; i++) {
+					sprintf(logbuffer, "[%d] '%s'", i, config.lpadzero->items[i]);
+					writelog(4, logbuffer);
+				}
+			} else {
+				sprintf(logbuffer, "NULL");
+				writelog(4, logbuffer);
+			}
+			*/
+		}
+
 	}
 	
 	if (config.found == 0) {
@@ -993,6 +1011,23 @@ static int ini_callback(void* user, const char* section, const char* name,
 		} else if (MATCH(section, "replace_regex")) {
 			pconfig->replace_regex = strdup(value);
 			pconfig->found = 1;
+			
+		} else if (MATCH(section, "ltrimzero")) {
+			// FIXME: we need to properly allocate memory here. the local 
+			//        var is passted by reference to a global struct which 
+			//        results in a segfault
+			struct str_array tmp = str_array_split((char*) value, (char*) ",");
+			pconfig->ltrimzero = &tmp;
+			pconfig->found = 1;
+			
+		} else if (MATCH(section, "lpadzero")) {
+			// FIXME: we need to properly allocate memory here. the local 
+			//        var is passted by reference to a global struct which 
+			//        results in a segfault
+			struct str_array tmp = str_array_split((char*) value, (char*) ",");
+			pconfig->lpadzero = &tmp;
+			pconfig->found = 1;
+			
 		} else {
 			sprintf(logbuffer, "Found unknown directive '%s' with value '%s' "
 			                   "in ini file.", name, value); 

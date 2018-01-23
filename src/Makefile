@@ -147,7 +147,8 @@ dep: regexcpp errstr cmdparser $(DEP_REALPATH) dep_httpget dep_xor
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
-
+	$(CC) $(CFLAGS) -c lib/transform.c -o lib/transform.o
+	
 dep_xor:
 	$(CC) $(CFLAGS) -c lib/xor.c -o lib/xor.o
 
@@ -183,6 +184,7 @@ ph:
 		lib/ini.o lib/uriparse.o \
 		lib/cmd_parser.o \
 		lib/errstr.o \
+		lib/transform.o \
 		ph.c $(APP_ICO) -lpcrecpp -lpcre \
 		-lcurl -lssl -lcrypto \
 		$(LIBS) $(COMPILE_STATIC)
@@ -376,7 +378,7 @@ clearlog:
 
 
 ## TEST ########################################################################
-test: dep test_cmdparser $(TEST_REALPATH) test_mydir test_nvlist test_regcpp test_httpget
+test: dep test_cmdparser $(TEST_REALPATH) test_mydir test_nvlist test_regcpp test_httpget test_transform
 	#g++ -std=c++11 $(CFLAGS) -o ../test/regcpp$(_EXT) lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -o ../test/uriparse$(_EXT) lib/nvlist.o lib/stringlib.o lib/uriparse.o
@@ -388,6 +390,7 @@ test: dep test_cmdparser $(TEST_REALPATH) test_mydir test_nvlist test_regcpp tes
 	../test/regcpp$(_EXT)
 	../test/uriparse$(_EXT)
 	../test/httpget$(_EXT) "https://www.example.com"
+	../test/transform$(_EXT)
 
 test_nvlist:
 	$(CC) $(CFLAGS) -D NVLIST_MAIN -o ../test/nvlist$(_EXT) lib/stringlib.o lib/nvlist.c
@@ -407,7 +410,7 @@ uriparse: stringlib
 	$(CC) $(CFLAGS) -c -o lib/nvlist.o lib/nvlist.c
 	$(CC) $(CFLAGS) -DDEBUG=0 -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
 	$(CC) $(CFLAGS) -o ../test/uriparse$(_EXT) lib/nvlist.o lib/stringlib.o lib/uriparse.o
-	../test/uriparse$(_EXT)
+	#../test/uriparse$(_EXT)
 
 ini_test:
 	$(CC) $(CFLAGS) -c ini.c
