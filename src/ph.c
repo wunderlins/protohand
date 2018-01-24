@@ -1013,29 +1013,13 @@ static int ini_callback(void* user, const char* section, const char* name,
 			pconfig->found = 1;
 			
 		} else if (MATCH(section, "ltrimzero")) {
-			// FIXME: we need to properly allocate memory here. the local 
-			//        var is passted by reference to a global struct which 
-			//        results in a segfault
-			printf("%s\n", value);
-			struct str_array tmp = str_array_split((char*) value, (char*) ",");
-			pconfig->ltrimzero = &tmp;
+			pconfig->ltrimzero = (str_array*) malloc(sizeof(struct str_array));
+			str_array_split_p(pconfig->ltrimzero, (char*) value, (char*) ",");
 			pconfig->found = 1;
 			
 		} else if (MATCH(section, "lpadzero")) {
-			// FIXME: we need to properly allocate memory here. the local 
-			//        var is passted by reference to a global struct which 
-			//        results in a segfault
-			//struct str_array tmp = str_array_split((char*) value, (char*) ",");
-			
-			/*
-			pconfig->lpadzero = (str_array*) malloc(sizeof(struct str_array));
-			pconfig->lpadzero->items = (char**) malloc(sizeof(char*)*50);
-			*/
-			
 			pconfig->lpadzero = (str_array*) malloc(sizeof(struct str_array));
 			str_array_split_p(pconfig->lpadzero, (char*) value, (char*) ",");
-			printf("%s, %s\n", value, pconfig->lpadzero->items[0]);
-			
 			pconfig->found = 1;
 			
 		} else {

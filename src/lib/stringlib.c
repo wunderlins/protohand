@@ -259,7 +259,7 @@ int str_array_split_p(struct str_array* ret, char* string, char* delim) {
 		char* tmp = (char*) malloc(sizeof(char) * (strlen(p)+1));
 		strcpy(tmp, p);
 		ret->items[i] = tmp;
-		printf("ret->items %s = %s\n", ret->items[i], tmp);
+		//printf("ret->items %s = %s\n", ret->items[i], tmp);
 		ret->length = ++i;
 		p = strtok (NULL, delim);
 	}
