@@ -279,7 +279,7 @@ int main(int argc, char** argv, char **envp) {
 	logfile = NULL;
 	
 	int i = 0;
-	//int ii = 0;
+	int ii = 0;
 	int l = 0;
 	int ret = 0;
 	int res;
@@ -812,6 +812,45 @@ int main(int argc, char** argv, char **envp) {
 			return display_error(ret);
 		}
 	}
+	
+	// run transformers on url parameters
+	if (config.lpadzero != 0 && config.lpadzero->length > 0) {
+		for(i=0; i<uri_parsed.nvquery.length; i++) {
+			//sprintf(logbuffer, "[%d] '%s'='%s'", i, uri_parsed.nvquery.items[i].key, uri_parsed.nvquery.items[i].value);
+			//writelog(4, logbuffer);
+			
+			for(ii=0; ii<config.lpadzero->length; ii++) {
+				//printf("%s, %s\n", config.lpadzero->items[ii], uri_parsed.nvquery.items[i].key);
+				if (strcmp(config.lpadzero->items[ii], uri_parsed.nvquery.items[i].key) != 0)
+					continue;
+				
+				char out[10] = "";
+				transform_lpadzero(uri_parsed.nvquery.items[i].value, out, 9);
+				//printf("out: %s\n", out);
+				uri_parsed.nvquery.items[i].value = out;
+			}
+		}
+	}
+	
+	if (config.ltrimzero != 0 && config.ltrimzero->length > 0) {
+		for(i=0; i<uri_parsed.nvquery.length; i++) {
+			//sprintf(logbuffer, "[%d] '%s'='%s'", i, uri_parsed.nvquery.items[i].key, uri_parsed.nvquery.items[i].value);
+			//writelog(4, logbuffer);
+			
+			for(ii=0; ii<config.ltrimzero->length; ii++) {
+				//printf("%s, %s\n", config.ltrimzero->items[ii], uri_parsed.nvquery.items[i].key);
+				if (strcmp(config.ltrimzero->items[ii], uri_parsed.nvquery.items[i].key) != 0)
+					continue;
+				
+				char out[10] = "";
+				transform_ltrimzero(uri_parsed.nvquery.items[i].value, out);
+				//printf("out: %s\n", out);
+				uri_parsed.nvquery.items[i].value = out;
+			}
+		}
+	}
+	
+	
 	
 	// expand variables on cmd
 	char* cmd = (char*) malloc(sizeof(char*) * (strlen(config.cmd)+1));
