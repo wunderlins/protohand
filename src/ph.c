@@ -279,7 +279,7 @@ int main(int argc, char** argv, char **envp) {
 	logfile = NULL;
 	
 	int i = 0;
-	//int ii = 0;
+	int ii = 0;
 	int l = 0;
 	int ret = 0;
 	int res;
@@ -713,6 +713,36 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "found: %d", config.found); 
 		writelog(3, logbuffer);
+		
+		if (loglevel > 3) {
+			sprintf(logbuffer, "lpadzero: %d", config.lpadzero->length); 
+			writelog(4, logbuffer);
+			
+			if (config.lpadzero != 0) {
+				for(i=0; i<config.lpadzero->length; i++) {
+					sprintf(logbuffer, "[%d] '%s'", i, config.lpadzero->items[i]);
+					writelog(4, logbuffer);
+				}
+			} else {
+				sprintf(logbuffer, "NULL");
+				writelog(4, logbuffer);
+			}
+			
+			sprintf(logbuffer, "ltrimzero: %d", config.ltrimzero->length); 
+			writelog(4, logbuffer);
+			
+			if (config.ltrimzero != 0) {
+				for(i=0; i<config.ltrimzero->length; i++) {
+					sprintf(logbuffer, "[%d] '%s'", i, config.ltrimzero->items[i]);
+					writelog(4, logbuffer);
+				}
+			} else {
+				sprintf(logbuffer, "NULL");
+				writelog(4, logbuffer);
+			}
+			
+		}
+
 	}
 	
 	if (config.found == 0) {
@@ -794,6 +824,51 @@ int main(int argc, char** argv, char **envp) {
 			return display_error(ret);
 		}
 	}
+	
+	// run transformers on url parameters
+	if (config.lpadzero != 0 && config.lpadzero->length > 0) {
+		for(i=0; i<uri_parsed.nvquery.length; i++) {
+			//sprintf(logbuffer, "[%d] '%s'='%s'", i, uri_parsed.nvquery.items[i].key, uri_parsed.nvquery.items[i].value);
+			//writelog(4, logbuffer);
+			
+			for(ii=0; ii<config.lpadzero->length; ii++) {
+				//printf("%s, %s\n", config.lpadzero->items[ii], uri_parsed.nvquery.items[i].key);
+				if (strcmp(config.lpadzero->items[ii], uri_parsed.nvquery.items[i].key) != 0)
+					continue;
+				
+				char out[10] = "";
+				int r = transform_lpadzero(uri_parsed.nvquery.items[i].value, out, 9);
+				if (r != 0) {
+					sprintf(logbuffer, "Error while zeropadding %s, too long.", 
+							uri_parsed.nvquery.items[i].value);
+					writelog(1, logbuffer);
+					fprintf(stderr, "%s\n", logbuffer);
+					return display_error(FAILED_TO_ZEROPAD);
+				}
+				uri_parsed.nvquery.items[i].value = out;
+			}
+		}
+	}
+	
+	if (config.ltrimzero != 0 && config.ltrimzero->length > 0) {
+		for(i=0; i<uri_parsed.nvquery.length; i++) {
+			//sprintf(logbuffer, "[%d] '%s'='%s'", i, uri_parsed.nvquery.items[i].key, uri_parsed.nvquery.items[i].value);
+			//writelog(4, logbuffer);
+			
+			for(ii=0; ii<config.ltrimzero->length; ii++) {
+				//printf("%s, %s\n", config.ltrimzero->items[ii], uri_parsed.nvquery.items[i].key);
+				if (strcmp(config.ltrimzero->items[ii], uri_parsed.nvquery.items[i].key) != 0)
+					continue;
+				
+				char out[10] = "";
+				transform_ltrimzero(uri_parsed.nvquery.items[i].value, out);
+				//printf("out: %s\n", out);
+				uri_parsed.nvquery.items[i].value = out;
+			}
+		}
+	}
+	
+	
 	
 	// expand variables on cmd
 	char* cmd = (char*) malloc(sizeof(char*) * (strlen(config.cmd)+1));
@@ -993,6 +1068,17 @@ static int ini_callback(void* user, const char* section, const char* name,
 		} else if (MATCH(section, "replace_regex")) {
 			pconfig->replace_regex = strdup(value);
 			pconfig->found = 1;
+			
+		} else if (MATCH(section, "ltrimzero")) {
+			pconfig->ltrimzero = (str_array*) malloc(sizeof(struct str_array));
+			str_array_split_p(pconfig->ltrimzero, (char*) value, (char*) ",");
+			pconfig->found = 1;
+			
+		} else if (MATCH(section, "lpadzero")) {
+			pconfig->lpadzero = (str_array*) malloc(sizeof(struct str_array));
+			str_array_split_p(pconfig->lpadzero, (char*) value, (char*) ",");
+			pconfig->found = 1;
+			
 		} else {
 			sprintf(logbuffer, "Found unknown directive '%s' with value '%s' "
 			                   "in ini file.", name, value); 

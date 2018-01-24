@@ -32,6 +32,7 @@ int find_param(char* search, struct str_array* options);
 #define str_array_destroy(arr) ({ free(arr.items); })
 struct str_array str_array_make(char **elements, int count);
 struct str_array str_array_split(char* string, char* delim);
+int str_array_split_p(struct str_array* ret, char* string, char* delim);
 
 int strpos(char* string, char find);
 void urldecode2(char*, const char*);

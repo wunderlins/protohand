@@ -79,4 +79,9 @@ httpget:
 		-DSKIP_PEER_VERIFICATION -DMAIN_GETFILE \
 		-lcurl -lssl -lcrypto -lgdi32 -lwldap32 -lz -lws2_32
 		
-
+transform_dep:
+	$(CC) $(CFLAGS) -c -o ../lib/stringlib.o ../lib/stringlib.c 
+	$(CC) $(CFLAGS) -c -o ../lib/nvlist.o ../lib/stringlib.o ../lib/nvlist.c
+	
+transform:
+	$(CC) $(CFLAGS) -DTRANSFORM_MAIN -o transform.exe ../lib/nvlist.o transform.c

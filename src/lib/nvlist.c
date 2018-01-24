@@ -11,7 +11,9 @@ int nvlist_addpair(struct nvlist_list *rep, char* key, char* value) {
 	
 	if (rep->length+1 > rep->max) {
 		//printf("new size %d\n", rep->max+rep->_step);
-		nvlist_resize(rep, rep->max+rep->_step);
+		int r = nvlist_resize(rep, rep->max+rep->_step);
+		if (r < 0)
+			return r;
 	}
 	
 	rep->items[rep->length] = p;
