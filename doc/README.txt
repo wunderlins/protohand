@@ -144,11 +144,11 @@ Configuration directives:
     replace_file: 
         File to run a regex against
 
-    lzeropad: 
+    lpadzero: 
         Comma spearated list of url parameters that shall be zeropadded to 9
         digits. The pading will be done right before the command is executed.
 
-    lzerotrim: 
+    ltrimzero: 
         Comma spearated list of url parameters that shall be left trimmed of 
         '0' characters. The stripping will be done right before the command 
         is executed.
