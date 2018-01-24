@@ -33,6 +33,7 @@ void define_error_messages() {
 	errstr[19] = "Failed to open config file.";
 	errstr[20] = "Failed to open log file.";
 	errstr[21] = "Failed to download config file.";
+	errstr[22] = "Failed to zeropad an url parameter, string too long.";
 	
 	errstr[33] = "No equal sign found in expression expansion.";
 	errstr[34] = "No colon found in expression expansion.";

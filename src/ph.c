@@ -825,8 +825,14 @@ int main(int argc, char** argv, char **envp) {
 					continue;
 				
 				char out[10] = "";
-				transform_lpadzero(uri_parsed.nvquery.items[i].value, out, 9);
-				//printf("out: %s\n", out);
+				int r = transform_lpadzero(uri_parsed.nvquery.items[i].value, out, 9);
+				if (r != 0) {
+					sprintf(logbuffer, "Error while zeropadding %s, too long.", 
+							uri_parsed.nvquery.items[i].value);
+					writelog(1, logbuffer);
+					fprintf(stderr, "%s\n", logbuffer);
+					return display_error(FAILED_TO_ZEROPAD);
+				}
 				uri_parsed.nvquery.items[i].value = out;
 			}
 		}
