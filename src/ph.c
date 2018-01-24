@@ -715,13 +715,25 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 		
 		if (loglevel > 3) {
-			// FIXME: accessing unallocated memory in config.lpadzero! fix in ini_callback()
 			sprintf(logbuffer, "lpadzero: %d", config.lpadzero->length); 
 			writelog(4, logbuffer);
 			
 			if (config.lpadzero != 0) {
 				for(i=0; i<config.lpadzero->length; i++) {
 					sprintf(logbuffer, "[%d] '%s'", i, config.lpadzero->items[i]);
+					writelog(4, logbuffer);
+				}
+			} else {
+				sprintf(logbuffer, "NULL");
+				writelog(4, logbuffer);
+			}
+			
+			sprintf(logbuffer, "ltrimzero: %d", config.ltrimzero->length); 
+			writelog(4, logbuffer);
+			
+			if (config.ltrimzero != 0) {
+				for(i=0; i<config.ltrimzero->length; i++) {
+					sprintf(logbuffer, "[%d] '%s'", i, config.ltrimzero->items[i]);
 					writelog(4, logbuffer);
 				}
 			} else {
