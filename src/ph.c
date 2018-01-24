@@ -718,7 +718,7 @@ int main(int argc, char** argv, char **envp) {
 			// FIXME: accessing unallocated memory in config.lpadzero! fix in ini_callback()
 			sprintf(logbuffer, "lpadzero: %d", config.lpadzero->length); 
 			writelog(4, logbuffer);
-			/*
+			
 			if (config.lpadzero != 0) {
 				for(i=0; i<config.lpadzero->length; i++) {
 					sprintf(logbuffer, "[%d] '%s'", i, config.lpadzero->items[i]);
@@ -728,7 +728,7 @@ int main(int argc, char** argv, char **envp) {
 				sprintf(logbuffer, "NULL");
 				writelog(4, logbuffer);
 			}
-			*/
+			
 		}
 
 	}
@@ -1016,6 +1016,7 @@ static int ini_callback(void* user, const char* section, const char* name,
 			// FIXME: we need to properly allocate memory here. the local 
 			//        var is passted by reference to a global struct which 
 			//        results in a segfault
+			printf("%s\n", value);
 			struct str_array tmp = str_array_split((char*) value, (char*) ",");
 			pconfig->ltrimzero = &tmp;
 			pconfig->found = 1;
@@ -1024,8 +1025,17 @@ static int ini_callback(void* user, const char* section, const char* name,
 			// FIXME: we need to properly allocate memory here. the local 
 			//        var is passted by reference to a global struct which 
 			//        results in a segfault
-			struct str_array tmp = str_array_split((char*) value, (char*) ",");
-			pconfig->lpadzero = &tmp;
+			//struct str_array tmp = str_array_split((char*) value, (char*) ",");
+			
+			/*
+			pconfig->lpadzero = (str_array*) malloc(sizeof(struct str_array));
+			pconfig->lpadzero->items = (char**) malloc(sizeof(char*)*50);
+			*/
+			
+			pconfig->lpadzero = (str_array*) malloc(sizeof(struct str_array));
+			str_array_split_p(pconfig->lpadzero, (char*) value, (char*) ",");
+			printf("%s, %s\n", value, pconfig->lpadzero->items[0]);
+			
 			pconfig->found = 1;
 			
 		} else {

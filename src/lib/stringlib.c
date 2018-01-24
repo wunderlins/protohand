@@ -246,6 +246,30 @@ struct str_array str_array_make(char **elements, int count) {
  *
  * returns a str_array containing items and length
  */
+int str_array_split_p(struct str_array* ret, char* string, char* delim) {
+	ret->items = malloc(sizeof(char *) * 512);
+	if (ret->items == NULL)
+		return 1;
+	
+	int i = 0;
+	char *p = strtok(string, delim);
+
+	while (p != NULL) {
+		p = trim(p);
+		ret->items[i] = p;
+		printf("ret->items %s = %s\n", ret->items[i], p);
+		ret->length = ++i;
+		p = strtok (NULL, delim);
+	}
+	
+	return 0;
+}
+
+/**
+ * split string by delim.
+ *
+ * returns a str_array containing items and length
+ */
 struct str_array str_array_split(char* string, char* delim) {
 	char** result = malloc(sizeof(char *) * 512);
 	struct str_array ret;
