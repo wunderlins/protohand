@@ -148,6 +148,7 @@ dep: regexcpp errstr cmdparser $(DEP_REALPATH) dep_httpget dep_xor
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
 	$(CC) $(CFLAGS) -c lib/transform.c -o lib/transform.o
+	$(CC) $(CFLAGS) -c lib/getexe.c -o lib/getexe.o lib/stringlib.o
 	
 dep_xor:
 	$(CC) $(CFLAGS) -c lib/xor.c -o lib/xor.o
@@ -462,3 +463,6 @@ test_regcpp:
 
 test_transform:
 	$(CC) $(CFLAGS) -DTRANSFORM_MAIN -o ../test/transform$(_EXT) lib/nvlist.o lib/transform.c
+
+test_getexe:
+	$(CC) $(CFLAGS) -DGETEXE_MAIN -o ../test/getexe$(_EXT) lib/getexe.c lib/stringlib.o
