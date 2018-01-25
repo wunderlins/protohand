@@ -61,7 +61,7 @@ ifeq ($(OS),Windows_NT)
 	REPLACE=-win
 	RN=\r
 	LIBS=-lgdi32 -lwldap32 -lz -lws2_32
-	ZIP=bin/zip.exe
+	ZIP=7z.exe a
 else
 	REALPATH=
 	APP_ICO=
@@ -75,7 +75,7 @@ else
 	REPLACE=
 	RN=
 	LIBS=-pthread -lz -ldl
-	ZIP=zip
+	ZIP=zip -q -r
 endif
 ifeq ($(UNAME_S),Darwin)
 	SSLOPT=darwin64-x86_64-cc
@@ -317,7 +317,7 @@ release: release_doc test_httpget
 	
 	# make release directory
 	@echo $(R_DIR)/$(rel)
-	mkdir "$(R_DIR)/$(rel)" | true
+	#mkdir "$(R_DIR)/$(rel)" | true
 	
 	# copy files to release directory
 	cp $(PROGNAME_SHORT)$(_EXT) "$(B_DIR)/"
@@ -332,14 +332,15 @@ release: release_doc test_httpget
 	strip "$(B_DIR)/testhttp$(_EXT)"
 		
 	# create zip file
-	$(shell cd $(B_DIR)/; $(ZIP) -q -r ../$(rel).zip * )
+	#cp $(R_DIR)/$(rel)/* ../build
+	#$(shell cd $(B_DIR)/; $(ZIP) -q -r ../$(rel).zip * )
+	cd $(B_DIR)/ && $(ZIP) ../$(rel).zip *
 	mv "../$(rel).zip" ../release 
 	#$(shell test $(B_DIR)/zip.zip && mv $(B_DIR)/zip.zip "../$(rel).zip") | true
 	
-	#cp $(R_DIR)/$(rel)/* ../build
 	
 	# remove working directory
-	rm -r "$(R_DIR)/$(rel)"
+	#rm -r "$(R_DIR)/$(rel)"
 	
 	# add to git repo, tag release and push changes/tags
 	#git add release/*.zip
