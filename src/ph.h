@@ -47,6 +47,7 @@
 #include "lib/errstr.h"
 #include "lib/httpget.h"
 #include "lib/transform.h"
+#include "lib/getexe.h"
 
 // error codes
 #define OK 0

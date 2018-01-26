@@ -888,6 +888,15 @@ int main(int argc, char** argv, char **envp) {
 	}
 	
 	/**
+	 * check if the executable is available on the file system and if it is 
+	 * actually executable by the user.
+	 */
+	
+	char execfile[strlen(cmd)+1];
+	getexe(cmd, execfile);
+	printf("file to run: %s\n", execfile);
+	
+	/**
 	 * create the command
 	 *
 	 * create a command line object that can be passed to spawnve. We always

@@ -1,24 +1,25 @@
 #include "getexe.h"
 
 int getexe(char* cmd, char* exe) {
-	exe = (char*) malloc(sizeof(char) * (strlen(cmd)+1));
-	strcpy(exe, cmd);
+	char* tmp = (char*) malloc(sizeof(char) * (strlen(cmd)+1));
+	strcpy(tmp, cmd);
 	
-	exe = trim(exe);
-	char quote = isquoted(exe);
+	tmp = trim(tmp);
+	char quote = isquoted(tmp);
 	
 	// skip first quote char
-	if (quote != 0) exe++; else quote = ' ';
-	int l = strlen(exe);
+	if (quote != 0) tmp++; else quote = ' ';
+	int l = strlen(tmp);
 	int i = 0;
 	for (i=0; i<l; i++) {
-		if (exe[i] == quote) {
-			exe[i] = 0;
+		if (tmp[i] == quote) {
+			tmp[i] = 0;
 			break;
 		}
 	}
 	
-	//printf("%c, '%s'\n", quote, exe);
+	strcpy(exe, tmp);
+	printf("%c, '%s'\n", quote, exe);
 	
 	return 0;
 }

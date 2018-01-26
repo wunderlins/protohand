@@ -148,7 +148,10 @@ dep: regexcpp errstr cmdparser $(DEP_REALPATH) dep_httpget dep_xor
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
 	$(CC) $(CFLAGS) -c lib/transform.c -o lib/transform.o
-	$(CC) $(CFLAGS) -c lib/getexe.c -o lib/getexe.o lib/stringlib.o
+	$(CC) $(CFLAGS) -c lib/getexe.c -o lib/getexe.o
+
+dep_getexe:	
+	$(CC) $(CFLAGS) -c lib/getexe.c -o lib/getexe.o
 	
 dep_xor:
 	$(CC) $(CFLAGS) -c lib/xor.c -o lib/xor.o
@@ -186,6 +189,7 @@ ph:
 		lib/cmd_parser.o \
 		lib/errstr.o \
 		lib/transform.o \
+		lib/getexe.o \
 		ph.c $(APP_ICO) -lpcrecpp -lpcre \
 		-lcurl -lssl -lcrypto \
 		$(LIBS) $(COMPILE_STATIC)
