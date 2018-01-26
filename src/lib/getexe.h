@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
+
 #include "stringlib.h"
 
 /* Make this header file easier to include in C++ code */
