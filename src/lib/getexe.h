@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-int getexe(char* cmd, char* exe);
+int getexe(char* cmd, char** exe);
 
 #ifdef __cplusplus
 }
