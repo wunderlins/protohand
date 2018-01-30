@@ -5,7 +5,9 @@ int getexe(char* cmd, char** exe) {
 	strcpy(tmp, cmd);
 	
 	tmp = trim(tmp);
-	char quote = isquoted(tmp);
+	char quote = 0;
+	if (tmp[0] == '"')
+		quote = '"';
 	
 	// skip first quote char
 	if (quote != 0) tmp++; else quote = ' ';
@@ -24,7 +26,7 @@ int getexe(char* cmd, char** exe) {
 	
 	*exe = (char*) malloc(sizeof(char) * (strlen(tmp)+1));
 	strcpy(*exe, tmp);
-	printf("%c, '%s'\n", quote, *exe);
+	//printf("%c, '%s'\n", quote, *exe);
 	
 	return 0;
 }

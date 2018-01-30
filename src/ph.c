@@ -891,10 +891,17 @@ int main(int argc, char** argv, char **envp) {
 	 * check if the executable is available on the file system and if it is 
 	 * actually executable by the user.
 	 */
-	
-	char execfile[strlen(cmd)+1];
-	getexe(cmd, execfile);
-	printf("file to run: %s\n", execfile);
+	char* execfile;
+	getexe(cmd, &execfile);
+	struct stat sb;
+	if (stat(execfile, &sb) == 0 && sb.st_mode & S_IXUSR) {
+		sprintf(logbuffer, "Executable file: '%s'", execfile);
+		writelog(2, logbuffer);
+	} else {
+		sprintf(logbuffer, "Not executable: '%s'", execfile);
+		writelog(1, logbuffer);
+		return display_error(NOT_EXECUTABLE);
+	}
 	
 	/**
 	 * create the command
