@@ -143,7 +143,7 @@ curl:
 
 dep: regexcpp errstr cmdparser $(DEP_REALPATH) dep_httpget dep_xor
 	$(CC) $(CFLAGS) -c lib/mydir.c -o lib/mydir.o
-	$(CC) $(CFLAGS) -c lib/ini.c -o lib/ini.o
+	$(CC) $(CFLAGS) -c lib/ini.c -DINI_MAX_LINE=2048 -o lib/ini.o
 	$(CC) $(CFLAGS) -c lib/stringlib.c -o lib/stringlib.o
 	$(CC) $(CFLAGS) -c lib/uriparse.c -o lib/uriparse.o
 	$(CC) $(CFLAGS) -c lib/nvlist.c -o lib/nvlist.o
