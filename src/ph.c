@@ -699,8 +699,8 @@ int main(int argc, char** argv, char **envp) {
 	if (loglevel > 2) {
 		sprintf(logbuffer, "section: %s", config.section); 
 		writelog(3, logbuffer);
-		sprintf(logbuffer, "default_path: %s", config.default_path); 
-		writelog(3, logbuffer);
+		//sprintf(logbuffer, "default_path: %s", config.default_path); 
+		//writelog(3, logbuffer);
 		sprintf(logbuffer, "allowed_params: %s", config.allowed_params); 
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "path_params: %s", config.path_params); 
@@ -715,32 +715,35 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 		
 		if (loglevel > 3) {
-			sprintf(logbuffer, "lpadzero: %d", config.lpadzero->length); 
-			writelog(4, logbuffer);
-			
-			if (config.lpadzero != 0) {
-				for(i=0; i<config.lpadzero->length; i++) {
-					sprintf(logbuffer, "[%d] '%s'", i, config.lpadzero->items[i]);
+			if (config.lpadzero != NULL) {
+				sprintf(logbuffer, "lpadzero: %d", config.lpadzero->length); 
+				writelog(4, logbuffer);
+				
+				if (config.lpadzero != 0) {
+					for(i=0; i<config.lpadzero->length; i++) {
+						sprintf(logbuffer, "[%d] '%s'", i, config.lpadzero->items[i]);
+						writelog(4, logbuffer);
+					}
+				} else {
+					sprintf(logbuffer, "NULL");
 					writelog(4, logbuffer);
 				}
-			} else {
-				sprintf(logbuffer, "NULL");
-				writelog(4, logbuffer);
 			}
-			
-			sprintf(logbuffer, "ltrimzero: %d", config.ltrimzero->length); 
-			writelog(4, logbuffer);
-			
-			if (config.ltrimzero != 0) {
-				for(i=0; i<config.ltrimzero->length; i++) {
-					sprintf(logbuffer, "[%d] '%s'", i, config.ltrimzero->items[i]);
+				
+			if (config.ltrimzero != NULL) {
+				sprintf(logbuffer, "ltrimzero: %d", config.ltrimzero->length); 
+				writelog(4, logbuffer);
+				
+				if (config.ltrimzero != 0) {
+					for(i=0; i<config.ltrimzero->length; i++) {
+						sprintf(logbuffer, "[%d] '%s'", i, config.ltrimzero->items[i]);
+						writelog(4, logbuffer);
+					}
+				} else {
+					sprintf(logbuffer, "NULL");
 					writelog(4, logbuffer);
 				}
-			} else {
-				sprintf(logbuffer, "NULL");
-				writelog(4, logbuffer);
 			}
-			
 		}
 
 	}
@@ -868,12 +871,12 @@ int main(int argc, char** argv, char **envp) {
 		}
 	}
 	
-	
-	
 	// expand variables on cmd
 	char* cmd = (char*) malloc(sizeof(char*) * (strlen(config.cmd)+1));
 	strcpy(cmd, config.cmd);
 	ret = expand_vars(&cmd, &uri_parsed.nvquery);
+	
+	printf("cmd: %s\n", cmd);
 	
 	// FIXME: add information in error message which variable failed to expand.
 	if (ret != 0) {
@@ -890,7 +893,8 @@ int main(int argc, char** argv, char **envp) {
 	/**
 	 * check if the executable is available on the file system and if it is 
 	 * actually executable by the user.
-	 */
+	 *
+	 * FIXME: enable in production build
 	char* execfile;
 	getexe(cmd, &execfile);
 	struct stat sb;
@@ -902,6 +906,7 @@ int main(int argc, char** argv, char **envp) {
 		writelog(1, logbuffer);
 		return display_error(NOT_EXECUTABLE);
 	}
+	 */
 	
 	/**
 	 * create the command
