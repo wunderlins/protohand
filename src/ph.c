@@ -891,7 +891,7 @@ int main(int argc, char** argv, char **envp) {
 					continue;
 				
 				char out[10] = "";
-				int r = transform_lpadzero(uri_parsed.nvquery.items[i].value, out, 9);
+				int r = transform_lpadzero(uri_parsed.nvquery.items[i].value, out, 10);
 				if (r != 0) {
 					sprintf(logbuffer, "Error while zeropadding %s, too long.", 
 							uri_parsed.nvquery.items[i].value);
