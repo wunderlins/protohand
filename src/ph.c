@@ -977,6 +977,12 @@ int main(int argc, char** argv, char **envp) {
 	myargs[0] = (char*) "/C";
 	myargs[1] = (char*) cmd;
 	myargs[2] = NULL;
+
+	// This fixes bug #6 where the last parameter leads to a cmd parsing error
+	// the the argument is quoted.
+	strcat(myargs[1], " ");
+	
+	// quote the command
 	quote(&myargs[1]);
 	
 	// FIXME: for osx, use posix_spawn:
