@@ -35,6 +35,7 @@ void define_error_messages() {
 	errstr[21] = "Failed to download config file.";
 	errstr[22] = "Failed to zeropad an url parameter, string too long.";
 	errstr[23] = "cmd file not executable.";
+	errstr[24] = "`user_param` not found in url query.";
 	
 	errstr[33] = "No equal sign found in expression expansion.";
 	errstr[34] = "No colon found in expression expansion.";

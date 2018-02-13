@@ -711,6 +711,14 @@ int main(int argc, char** argv, char **envp) {
 		writelog(3, logbuffer);
 		sprintf(logbuffer, "cmd: %s", config.cmd); 
 		writelog(3, logbuffer);
+		
+		sprintf(logbuffer, "user_param: %s", config.user_param); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "cmd_usermatch: %s", config.cmd_usermatch); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "cmd_nousermatch: %s", config.cmd_nousermatch); 
+		writelog(3, logbuffer);
+		
 		sprintf(logbuffer, "found: %d", config.found); 
 		writelog(3, logbuffer);
 		
@@ -748,6 +756,7 @@ int main(int argc, char** argv, char **envp) {
 
 	}
 	
+	// check if we have found the requested section
 	if (config.found == 0) {
 		sprintf(logbuffer, "Ini section '%s' not found ", section);
 		writelog(1, logbuffer);
@@ -755,7 +764,49 @@ int main(int argc, char** argv, char **envp) {
 		return display_error(NO_INI_SECTION_FOUND);
 	}
 	
-	if (strcmp(config.cmd, "") == 0)
+	/**
+	 * check which command needs to be run.
+	 *
+	 * normally the `cmd` directive contains the executable command. However
+	 * if `user_param` is configured, we check if the value of the url 
+	 * parameter configure in `user_param` matches the locally logged in user.
+	 *
+	 * if the value of the url parameter in `user_param` matches the local user
+	 * then the command in `cmd_usermatch` is run. Else the command in
+	 * `cmd_nousermatch` is run.
+	 *
+	 * as soon as `user_param` is configured, `cmd` will be ignored. if neither 
+	 * `cmd_usermatch` nor `cmd_nousermatch` contains a valid command, 
+	 * we fail.
+	 */
+	const char *run_cmd = config.cmd;
+	if (strcmp(config.user_param, "") != 0) {
+		char *user_param = NULL;
+		for(i=0; i<uri_parsed.nvquery.length; i++) {
+			if(strcmp_lcase((char*) config.user_param, uri_parsed.nvquery.items[i].key) == 0) {
+				user_param = uri_parsed.nvquery.items[i].value;
+				sprintf(logbuffer, "user_param '%s'='%s'", uri_parsed.nvquery.items[i].key, uri_parsed.nvquery.items[i].value);
+				writelog(4, logbuffer);
+				break;
+			}
+		}
+		
+		if (user_param == NULL) {
+			sprintf(logbuffer, "config value user_param '%s' not found in query.", config.user_param);
+			writelog(1, logbuffer);
+			fprintf(stderr, "%s\n", logbuffer);
+			return display_error(NO_USER_PARAM_FOUND);
+		}
+		
+		// printf("user_param value: %s\n", user_param);
+		if (strcmp_lcase(getenv("USERNAME"), user_param) == 0)
+			run_cmd = config.cmd_usermatch;
+		else
+			run_cmd = config.cmd_nousermatch;
+	}
+	
+	// check if the command string is not empty (empty == unconfigured)
+	if (strcmp(run_cmd, "") == 0)
 		return display_error(NO_CMD_DIRECTIVE);
 	
 	/**
@@ -872,8 +923,8 @@ int main(int argc, char** argv, char **envp) {
 	}
 	
 	// expand variables on cmd
-	char* cmd = (char*) malloc(sizeof(char*) * (strlen(config.cmd)+1));
-	strcpy(cmd, config.cmd);
+	char* cmd = (char*) malloc(sizeof(char*) * (strlen(run_cmd)+1));
+	strcpy(cmd, run_cmd);
 	ret = expand_vars(&cmd, &uri_parsed.nvquery);
 	
 	printf("cmd: %s\n", cmd);
