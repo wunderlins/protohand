@@ -11,7 +11,7 @@ CURL_VERSION=7.56.1
 # LOG_TO_FILE=1 will send dbg output to stdout, else to protohand.log
 DEBUG=1
 LOG_TO_FILE=1
-VERSION=0.6.4
+VERSION=0.7.0
 # naming
 PROGNAME = protohand
 PROGNAME_SHORT = ph
