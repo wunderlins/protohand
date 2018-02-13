@@ -153,7 +153,25 @@ Configuration directives:
         '0' characters. The stripping will be done right before the command 
         is executed.
 
+    user_param:
+        provide an url parmater that will contain a username. The system checks
+        if the provided parameter value matches with the currently logged in 
+        user (case insensitive comparison).
+        
+        If the user name matches, the command in `cmd_usermatch` will be run,
+        otherwise, the ocmmand in `cmd_nousermatch` will be run. the 
+        `cmd` command will be ignored wif `user_param`.
     
+    cmd_usermatch
+        If `user_param` is set and the parameters value matches the currently 
+        logged in user this command will be run. `cmd` will
+        be ignored.
+    
+    cmd_nousermatch
+        If `user_param` is set and the parameters value does not match the 
+        currently logged in user this command will be run. `cmd` will
+        be ignored.
+
 
 ENVIRONMENT
 

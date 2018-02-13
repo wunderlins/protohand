@@ -96,7 +96,7 @@ extern char* errstr[];
 extern char* expandvar_err_var_name;
 
 // can hold one ini file entry
-#define DEFAULT_CONFIG { "", "", "", "", "", "", "", 0, NULL, NULL}
+#define DEFAULT_CONFIG { "", "", "", "", "", "", "", 0, NULL, NULL, "", "", ""}
 typedef struct {
 	const char* section; // the section we are searchin for
 	const char* default_path;
@@ -108,6 +108,10 @@ typedef struct {
 	int found; // 1 if the section was found. initialize it to 0 otherwise
 	struct str_array* ltrimzero;
 	struct str_array* lpadzero;
+	
+	const char* cmd_nousermatch;
+	const char* cmd_usermatch;
+	const char* user_param;
 } configuration;
 
 #define DEFAULT_GCONFIG {"_global", "", "0", "${env.windir}\\cmd.exe /c hh.exe -800", "${env.windir}\\cmd.exe /c", "10240000", 0}

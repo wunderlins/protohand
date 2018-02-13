@@ -1083,6 +1083,19 @@ static int ini_callback(void* user, const char* section, const char* name,
 		} else if (MATCH(section, "cmd")) {
 			pconfig->cmd = strdup(value);
 			pconfig->found = 1;
+
+
+		} else if (MATCH(section, "cmd_nousermatch")) {
+			pconfig->cmd_nousermatch = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "cmd_usermatch")) {
+			pconfig->cmd_usermatch = strdup(value);
+			pconfig->found = 1;
+		} else if (MATCH(section, "user_param")) {
+			pconfig->user_param = strdup(value);
+			pconfig->found = 1;
+
+			
 		} else if (MATCH(section, "replace_file")) {
 			pconfig->replace_file = strdup(value);
 			pconfig->found = 1;
