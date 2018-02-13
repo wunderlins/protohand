@@ -944,8 +944,7 @@ int main(int argc, char** argv, char **envp) {
 	/**
 	 * check if the executable is available on the file system and if it is 
 	 * actually executable by the user.
-	 *
-	 * FIXME: enable in production build
+	 */
 	char* execfile;
 	getexe(cmd, &execfile);
 	struct stat sb;
@@ -957,7 +956,6 @@ int main(int argc, char** argv, char **envp) {
 		writelog(1, logbuffer);
 		return display_error(NOT_EXECUTABLE);
 	}
-	 */
 	
 	/**
 	 * create the command
