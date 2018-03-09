@@ -377,7 +377,7 @@ int main(int argc, char** argv, char **envp) {
 	char env[MAX_CWD_LENGTH+1+9] = {0};
 	strcat(env, "PH_HOME=");
 	strcat(env, dir);
-	env[strlen(env)-1] = 0;
+	//env[strlen(env)-1] = 0; // removing this line, it will fail anyway if the string is not \0 terminated
 	putenv(env);
 	
 	
