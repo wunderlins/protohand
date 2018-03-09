@@ -24,6 +24,38 @@ char * my_itoa(int i) {
   sprintf(res, "%d", i);
   return res;
 }
+
+int runcmd(char* cmd, int mode) {
+	int ret = 127;
+	char exe[4096] = "";
+	strcat(exe, getenv("windir"));
+	strcat(exe, "\\System32\\cmd.exe");
+
+	char* myargs[3];
+	myargs[0] = (char*) "/C";
+	myargs[1] = (char*) cmd;
+	myargs[2] = NULL;
+
+	// This fixes bug #6 where the last parameter leads to a cmd parsing error
+	// the the argument is quoted.
+	strcat(myargs[1], " ");
+	
+	// quote the command
+	quote(&myargs[1]);
+	
+	ret = spawnve(mode, exe, myargs, environ);
+	if (ret < 0) {
+		sprintf(logbuffer, "spawnve() returned error: %d", ret);
+		writelog(1, logbuffer);
+		fprintf(stderr, "%s\n", logbuffer);
+		return ret;
+	}
+	
+	sprintf(logbuffer, "Success: %s /C %s", exe, myargs[1]);
+	writelog(1, logbuffer);
+	
+	return 0;
+}
  
 void writelog(int level, char* str) {
 	if (level == 0)
@@ -780,6 +812,7 @@ int main(int argc, char** argv, char **envp) {
 	 * we fail.
 	 */
 	const char *run_cmd = config.cmd;
+	const char *pre_run_cmd = config.precmd;
 	if (strcmp(config.user_param, "") != 0) {
 		char *user_param = NULL;
 		for(i=0; i<uri_parsed.nvquery.length; i++) {
@@ -799,10 +832,14 @@ int main(int argc, char** argv, char **envp) {
 		}
 		
 		// printf("user_param value: %s\n", user_param);
-		if (strcmp_lcase(getenv("USERNAME"), user_param) == 0)
+		if (strcmp_lcase(getenv("USERNAME"), user_param) == 0) {
 			run_cmd = config.cmd_usermatch;
-		else
+			pre_run_cmd = config.precmd_usermatch;
+		} else {
 			run_cmd = config.cmd_nousermatch;
+			pre_run_cmd = config.precmd_nousermatch;
+		}
+		//printf("pre_run_cmd: %s\n", pre_run_cmd );
 	}
 	
 	// check if the command string is not empty (empty == unconfigured)
@@ -922,12 +959,10 @@ int main(int argc, char** argv, char **envp) {
 		}
 	}
 	
-	// expand variables on cmd
+	// expand variables on cmd and precmd
 	char* cmd = (char*) malloc(sizeof(char*) * (strlen(run_cmd)+1));
 	strcpy(cmd, run_cmd);
 	ret = expand_vars(&cmd, &uri_parsed.nvquery);
-	
-	printf("cmd: %s\n", cmd);
 	
 	// FIXME: add information in error message which variable failed to expand.
 	if (ret != 0) {
@@ -941,10 +976,31 @@ int main(int argc, char** argv, char **envp) {
 		writelog(2, logbuffer);
 	}
 	
+	char* precmd = (char*) "";
+	if (strcmp(pre_run_cmd, "") != 0) {
+		precmd = (char*) malloc(sizeof(char*) * (strlen(pre_run_cmd)+1));
+		strcpy(precmd, pre_run_cmd);
+		//printf("precmd1: %s\n", precmd);
+		ret = expand_vars(&precmd, &uri_parsed.nvquery);
+		//printf("precmd2: %s\n", precmd);
+	
+		if (ret != 0) {
+			sprintf(logbuffer, "%s, varname=%s", errstr[ret+32], expandvar_err_var_name);
+			writelog(1, logbuffer);
+			return display_error(ret+32);
+		}
+		if (loglevel > 1) {
+			sprintf(logbuffer, "precmd expanded: %s", precmd); 
+			writelog(2, logbuffer);
+		}
+	}
+	//printf("cmd: %s\n", cmd);
+	
 	/**
 	 * check if the executable is available on the file system and if it is 
 	 * actually executable by the user.
 	 */
+	 /*
 	char* execfile;
 	getexe(cmd, &execfile);
 	struct stat sb;
@@ -956,6 +1012,7 @@ int main(int argc, char** argv, char **envp) {
 		writelog(1, logbuffer);
 		return display_error(NOT_EXECUTABLE);
 	}
+	*/
 	
 	/**
 	 * create the command
@@ -969,6 +1026,7 @@ int main(int argc, char** argv, char **envp) {
 	 * or later on due to user action or a bug in the called program.
 	 */
 #ifdef __MINGW32__
+	/*
 	char exe[4096] = "";
 	strcat(exe, getenv("windir"));
 	strcat(exe, "\\System32\\cmd.exe");
@@ -996,7 +1054,19 @@ int main(int argc, char** argv, char **envp) {
 	
 	sprintf(logbuffer, "Success: %s /C %s", exe, myargs[1]);
 	writelog(1, logbuffer);
+	*/
 	
+	/**
+	 * check if we need to run a command before the actual command
+	 */
+	 
+	if (strcmp(precmd, "") != 0) {
+		//printf("precmd: %s\n", precmd);
+		ret = runcmd(precmd, P_NOWAIT);
+	}
+	
+	// run the actual command
+	ret = runcmd(cmd, P_DETACH);
 #else
 	// Here be dragons
 	char exe[4096] = "/usr/bin/env sh -c '";
@@ -1166,6 +1236,18 @@ static int ini_callback(void* user, const char* section, const char* name,
 		} else if (MATCH(section, "lpadzero")) {
 			pconfig->lpadzero = (str_array*) malloc(sizeof(struct str_array));
 			str_array_split_p(pconfig->lpadzero, (char*) value, (char*) ",");
+			pconfig->found = 1;
+			
+		} else if (MATCH(section, "precmd")) {
+			pconfig->precmd = strdup(value);
+			pconfig->found = 1;
+			
+		} else if (MATCH(section, "precmd_usermatch")) {
+			pconfig->precmd_usermatch = strdup(value);
+			pconfig->found = 1;
+			
+		} else if (MATCH(section, "precmd_nousermatch")) {
+			pconfig->precmd_nousermatch = strdup(value);
 			pconfig->found = 1;
 			
 		} else {

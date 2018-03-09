@@ -171,6 +171,19 @@ Configuration directives:
         If `user_param` is set and the parameters value does not match the 
         currently logged in user this command will be run. `cmd` will
         be ignored.
+    
+    precmd:
+        This is an optional command that will be run before the actual command 
+        defined in `cmd`. Variables will be expanded the same way yas described 
+        in `cmd`. 
+
+    precmd_usermatch:
+        If the config parameter `user_param` is used and the user matches, 
+        this command will be run before `cmd_usermatch` is executed.
+
+    precmd_bousermatch:
+        If the config parameter `user_param` is used and the user matches, 
+        this command will be run before `cmd_nousermatch` is executed.
 
 
 ENVIRONMENT
