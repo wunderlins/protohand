@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <windows.h>
 
-int parse_wcmd(char* in, LPWSTR **args) {
+int parse_wcmd(char* in, wchar_t* **args) {
 	int i, c;
 	size_t s = 1 + strlen(in);
 	wchar_t inw[s];
@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
 	printf("%ls\n", argv[1]); 
 	
 	int i;
-	LPWSTR *a;
+	wchar_t* *a;
 	int c = parse_wcmd(GetCommandLine(), &a);
 	/*
 	if (c)
@@ -22,8 +22,8 @@ int main(int argc, char** argv) {
 			printf("%d=%ls\n", i, a[i]); 
 	*/
 	
-	LPWSTR exe = a[0];
-	LPWSTR args[c];
+	wchar_t* exe = a[0];
+	wchar_t* args[c];
 	for (i=1; i<c; i++) {
 		args[i-1] = a[i];
 		printf("%d=%ls\n", i, a[i]); 
