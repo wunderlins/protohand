@@ -44,6 +44,7 @@ int quote(char** str);
 int quote2(char** str, char q);
 int cmdquote(char** str);
 int cmdunquote(char** str);
+int split_arg(char* str, char*** args);
 
 
 #ifdef __cplusplus

@@ -500,6 +500,52 @@ int cmdunquote(char** str) {
 	return 0;
 }
 
+int split_arg(char* str, char*** args) {
+	size_t i = 0;
+	size_t len = strlen(str);
+	int open = 0;
+	char buffer[2048] = {0};
+	int buff_len = 0;
+	int arg_len = 0;
+	*args = malloc(sizeof(*args)*1024);
+	
+	for (i=0; i<len; i++) {
+		if (str[i] == '"') {
+			open = (open) ? 0 : 1;
+			continue;
+		}
+		
+		if (str[i] == ' ' && !open) {
+			printf("%s\n", buffer);
+			(*args)[arg_len] = (char*) malloc(sizeof(char)*(strlen(buffer)+1));
+			char *p = &(buffer)[0];
+			cmdunquote(&p);
+			strcpy((*args)[arg_len], buffer);
+			arg_len++;
+			//args++;
+			buffer[0] = 0;
+			buff_len = 0;
+			continue;
+		}
+		
+		buffer[buff_len++] = str[i];
+		buffer[buff_len] = 0;
+		
+		//printf("%c", str[i]);
+	}
+	
+	if(str[i] == 0 && i) {
+		(*args)[arg_len] = (char*) malloc(sizeof(char)*(strlen(buffer)+1));
+		char *p = &(buffer)[0];
+		cmdunquote(&p);
+		strcpy((*args)[arg_len], buffer);
+		arg_len++;
+		printf("%s\n", buffer);
+	}
+	
+	return arg_len;
+}
+
 /*
 int main () {
 	char buf[] ="abc/qwe/ccd";
