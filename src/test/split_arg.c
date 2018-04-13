@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #define BUFF_LEN 1024
 
-int split_arg(char* str, char** args) {
+int split_arg(char* str, char*** args) {
 	size_t i = 0;
 	size_t len = strlen(str);
 	int open = 0;
@@ -20,10 +20,10 @@ int split_arg(char* str, char** args) {
 		
 		if (str[i] == ' ' && !open) {
 			printf("%s\n", buffer);
-			*args = (char*) malloc(sizeof(char)*(strlen(buffer)+1));
-			strcpy(*args, buffer);
+			(*args)[arg_len] = (char*) malloc(sizeof(char)*(strlen(buffer)+1));
+			strcpy((*args)[arg_len], buffer);
 			arg_len++;
-			args++;
+			//args++;
 			buffer[0] = 0;
 			buff_len = 0;
 			continue;
@@ -36,8 +36,8 @@ int split_arg(char* str, char** args) {
 	}
 	
 	if(str[i] == 0 && i) {
-		*args = (char*) malloc(sizeof(char)*(strlen(buffer)+1));
-		strcpy(*args, buffer);
+		(*args)[arg_len] = (char*) malloc(sizeof(char)*(strlen(buffer)+1));
+		strcpy((*args)[arg_len], buffer);
 		arg_len++;
 		printf("%s\n", buffer);
 	}
@@ -50,14 +50,28 @@ int main() {
 	char** ar;
 	char* str1 = "\"arg 1\" arg2 \"arg 3\"";
 	char* str2 = "";
+	char* str3 = "123 456";
+	char* str4 = "one";
 
-	len = split_arg(str1, ar);
+	len = split_arg(str1, &ar);
 	printf("len: %d\n", len);
 	for (i=0; i<len; i++) {
 		printf("%d: %s\n", i, ar[i]);
 	}
 	
-	len = split_arg(str2, ar);
+	len = split_arg(str2, &ar);
+	printf("len: %d\n", len);
+	for (i=0; i<len; i++) {
+		printf("%d: %s\n", i, ar[i]);
+	}
+	
+	len = split_arg(str3, &ar);
+	printf("len: %d\n", len);
+	for (i=0; i<len; i++) {
+		printf("%d: %s\n", i, ar[i]);
+	}
+	
+	len = split_arg(str4, &ar);
 	printf("len: %d\n", len);
 	for (i=0; i<len; i++) {
 		printf("%d: %s\n", i, ar[i]);
