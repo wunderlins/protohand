@@ -384,7 +384,7 @@ clearlog:
 
 
 ## TEST ########################################################################
-test: dep test_cmdparser $(TEST_REALPATH) test_mydir test_nvlist test_regcpp test_httpget test_transform
+test: dep test_cmdparser $(TEST_REALPATH) test_mydir test_nvlist test_regcpp test_httpget test_transform test_split_arg
 	#g++ -std=c++11 $(CFLAGS) -o ../test/regcpp$(_EXT) lib/reg.cpp -lpcrecpp -lpcre -DCPPMAIN
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
 	$(CC) $(CFLAGS) -DURIPARSE_DEBUG=1 -o ../test/uriparse$(_EXT) lib/nvlist.o lib/stringlib.o lib/uriparse.o
@@ -397,6 +397,7 @@ test: dep test_cmdparser $(TEST_REALPATH) test_mydir test_nvlist test_regcpp tes
 	../test/uriparse$(_EXT)
 	../test/httpget$(_EXT) "https://www.example.com"
 	../test/transform$(_EXT)
+	../test/split_arg$(_EXT)
 
 test_nvlist:
 	$(CC) $(CFLAGS) -D NVLIST_MAIN -o ../test/nvlist$(_EXT) lib/stringlib.o lib/nvlist.c
@@ -412,6 +413,10 @@ test_cmdparser:
 test_ph: ph
 	$(PROGNAME_SHORT)$(_EXT) 'proto:auth?query=value%201&param2&param3 '
 
+test_split_arg:
+	$(CC) $(CFLAGS) -o ../test/split_arg$(_EXT) lib/stringlib.o test/split_arg.c
+	
+	
 uriparse: stringlib
 	$(CC) $(CFLAGS) -c -o lib/nvlist.o lib/nvlist.c
 	$(CC) $(CFLAGS) -DDEBUG=0 -DURIPARSE_DEBUG=1 -c -o lib/uriparse.o lib/uriparse.c
