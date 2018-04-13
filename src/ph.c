@@ -67,14 +67,14 @@ int runcmd(char* cmd, int mode) {
 	strcpy(exe, args[0]);
 	//args++;
 	
-	printf("arg1: %s, %d, cmd: %s\n", args[0], len, cmd);
+	//printf("arg1: %s, %d, cmd: %s\n", args[0], len, cmd);
 	//return 0;
 	
 	char strargs[MAX_PATH] = {0};
 	for(i=1; i<len; i++) {
 		strcat(strargs, "\"");
 		strcat(strargs, args[i]);
-		printf("arg %d, val: %s\n", i, args[i]);
+		//printf("arg %d, val: %s\n", i, args[i]);
 		strcat(strargs, "\"");
 		strcat(strargs, " ");
 	}
@@ -82,7 +82,7 @@ int runcmd(char* cmd, int mode) {
 	sprintf(logbuffer, "running: %s %s\n", exe, strargs);
 	writelog(1, logbuffer);
 	
-	printf("running: %s %s\n", exe, strargs);
+	//printf("running: %s %s\n", exe, strargs);
 	
 	ret = spawnve(mode, exe, args, environ);
 	

@@ -540,7 +540,7 @@ int split_arg(char* str, char*** args) {
 		cmdunquote(&p);
 		strcpy((*args)[arg_len], buffer);
 		arg_len++;
-		printf("%s\n", buffer);
+		//printf("%s\n", buffer);
 	}
 	
 	(*args)[arg_len] = NULL;
