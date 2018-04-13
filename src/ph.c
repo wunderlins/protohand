@@ -25,7 +25,7 @@ char * my_itoa(int i) {
   return res;
 }
 
-int runcmd(char* cmd, int mode) {
+int _runcmd(char* cmd, int mode) {
 	int ret = 127;
 	char exe[4096] = "";
 	strcat(exe, getenv("windir"));
@@ -53,6 +53,45 @@ int runcmd(char* cmd, int mode) {
 	
 	sprintf(logbuffer, "Success: %s /C %s", exe, myargs[1]);
 	writelog(1, logbuffer);
+	
+	return 0;
+}
+
+int runcmd(char* cmd, int mode) {
+	int ret = 127;
+	int i;
+	
+	char **args;
+	int len = split_arg(cmd, &args);
+	char exe[4096];
+	strcpy(exe, args[0]);
+	//args++;
+	
+	printf("arg1: %s, %d, cmd: %s\n", args[0], len, cmd);
+	//return 0;
+	
+	char strargs[MAX_PATH] = {0};
+	for(i=1; i<len; i++) {
+		strcat(strargs, "\"");
+		strcat(strargs, args[i]);
+		printf("arg %d, val: %s\n", i, args[i]);
+		strcat(strargs, "\"");
+		strcat(strargs, " ");
+	}
+	
+	sprintf(logbuffer, "running: %s %s\n", exe, strargs);
+	writelog(1, logbuffer);
+	
+	printf("running: %s %s\n", exe, strargs);
+	
+	ret = spawnve(mode, exe, args, environ);
+	
+	if (ret < 0) {
+		sprintf(logbuffer, "spawnve() returned error: %d, '%s'", ret, cmd);
+		writelog(1, logbuffer);
+		fprintf(stderr, "%s\n", logbuffer);
+		return ret;
+	}
 	
 	return 0;
 }

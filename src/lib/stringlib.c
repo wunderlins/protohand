@@ -516,7 +516,7 @@ int split_arg(char* str, char*** args) {
 		}
 		
 		if (str[i] == ' ' && !open) {
-			printf("%s\n", buffer);
+			//printf("%s\n", buffer);
 			(*args)[arg_len] = (char*) malloc(sizeof(char)*(strlen(buffer)+1));
 			char *p = &(buffer)[0];
 			cmdunquote(&p);
@@ -542,6 +542,8 @@ int split_arg(char* str, char*** args) {
 		arg_len++;
 		printf("%s\n", buffer);
 	}
+	
+	(*args)[arg_len] = NULL;
 	
 	return arg_len;
 }
