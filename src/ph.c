@@ -125,7 +125,7 @@ if( access(file, F_OK) != -1 )
 int display_error(int code) {
 	char params[MAX_CWD_LENGTH];
 	
-	sprintf(params, "%s/error.html?%d", getenv("PH_HOME"), code);
+	sprintf(params, "%serror.html?%d", getenv("PH_HOME"), code);
 	const char* myargs[5] = {
 		"/C"
 		"hh.exe",
@@ -1039,7 +1039,6 @@ int main(int argc, char** argv, char **envp) {
 	 * check if the executable is available on the file system and if it is 
 	 * actually executable by the user.
 	 */
-	 /*
 	char* execfile;
 	getexe(cmd, &execfile);
 	struct stat sb;
@@ -1051,7 +1050,6 @@ int main(int argc, char** argv, char **envp) {
 		writelog(1, logbuffer);
 		return display_error(NOT_EXECUTABLE);
 	}
-	*/
 	
 	/**
 	 * create the command
