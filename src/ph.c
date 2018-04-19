@@ -58,6 +58,50 @@ int _runcmd(char* cmd, int mode) {
 }
 
 int runcmd(char* cmd, int mode) {
+	//system(cmd);
+	
+	STARTUPINFO sti = { 0 }; 
+	PROCESS_INFORMATION pi = { 0 }; 
+	SECURITY_ATTRIBUTES sats = { 0 }; 
+	
+	
+	//set SECURITY_ATTRIBUTES struct fields 
+	sats.nLength = sizeof(sats); 
+	sats.bInheritHandle = TRUE; 
+	sats.lpSecurityDescriptor = NULL; 
+	
+	//now set STARTUPINFO struct fields (from the child's point of view) 
+	sti.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES; 
+	sti.wShowWindow = SW_SHOWNORMAL; 
+	//sti.hStdInput = pipin_r;
+	
+	/*
+	// for debugging purpose, create a output log
+	HANDLE h = CreateFile("out.log",
+		FILE_APPEND_DATA,
+		FILE_SHARE_WRITE | FILE_SHARE_READ,
+		&sats,
+		OPEN_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL );
+	sti.hStdOutput = h; 
+	sti.hStdError = h; 	
+	*/
+		
+	CreateProcess(
+	  NULL, // _In_opt_    LPCTSTR               lpApplicationName,
+	  cmd, // _Inout_opt_ LPTSTR                lpCommandLine,
+	  &sats, // _In_opt_    LPSECURITY_ATTRIBUTES lpProcessAttributes,
+	  &sats, // _In_opt_    LPSECURITY_ATTRIBUTES lpThreadAttributes,
+	  TRUE, //_In_        BOOL                  bInheritHandles,
+	  NORMAL_PRIORITY_CLASS, //_In_        DWORD                 dwCreationFlags,
+	  NULL, // _In_opt_    LPVOID                lpEnvironment,
+	  NULL, // _In_opt_    LPCTSTR               lpCurrentDirectory,
+	  &sti, // _In_        LPSTARTUPINFO         lpStartupInfo,
+	  &pi // _Out_       LPPROCESS_INFORMATION lpProcessInformation
+	);
+	
+	/*
 	int ret = 127;
 	int i;
 	
@@ -70,13 +114,21 @@ int runcmd(char* cmd, int mode) {
 	//printf("arg1: %s, %d, cmd: %s\n", args[0], len, cmd);
 	//return 0;
 	
-	char strargs[MAX_PATH] = {0};
+	char** args2 = (char**) malloc(sizeof(char*) * len);
 	for(i=1; i<len; i++) {
+		args2[i-1] = args[i];
+	}
+	
+	char strargs[MAX_PATH] = {0};
+	printf("exe: %s\n", exe);
+	for(i=0; i<len-1; i++) {
 		strcat(strargs, "\"");
-		strcat(strargs, args[i]);
+		//quote(&(args2)[i]);
+		strcat(strargs, args2[i]);
 		//printf("arg %d, val: %s\n", i, args[i]);
 		strcat(strargs, "\"");
 		strcat(strargs, " ");
+		printf("---> %s\n", args2[i]);
 	}
 	
 	sprintf(logbuffer, "running: %s %s\n", exe, strargs);
@@ -84,7 +136,7 @@ int runcmd(char* cmd, int mode) {
 	
 	//printf("running: %s %s\n", exe, strargs);
 	
-	ret = spawnve(mode, exe, args, environ);
+	ret = spawnve(mode, exe, args2, environ);
 	
 	if (ret < 0) {
 		sprintf(logbuffer, "spawnve() returned error: %d, '%s'", ret, cmd);
@@ -92,6 +144,7 @@ int runcmd(char* cmd, int mode) {
 		fprintf(stderr, "%s\n", logbuffer);
 		return ret;
 	}
+	*/
 	
 	return 0;
 }
@@ -1096,13 +1149,13 @@ int main(int argc, char** argv, char **envp) {
 	/**
 	 * check if we need to run a command before the actual command
 	 */
-	 
 	if (strcmp(precmd, "") != 0) {
 		//printf("precmd: %s\n", precmd);
 		ret = runcmd(precmd, P_NOWAIT);
 	}
 	
 	// run the actual command
+	//printf("cmd: %s\n", cmd);
 	ret = runcmd(cmd, P_DETACH);
 #else
 	// Here be dragons
