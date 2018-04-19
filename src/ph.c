@@ -18,6 +18,7 @@ char logbuffer[4096];
 char log_file[MAX_CWD_LENGTH];
 
 char encodek[20];
+char *url;
 
 char * my_itoa(int i) {
   char * res = (char*) malloc(8*sizeof(int));
@@ -132,8 +133,10 @@ if( access(file, F_OK) != -1 )
 
 int display_error(int code) {
 	char params[MAX_CWD_LENGTH];
+	char *urlescaped = curl_escape(url, strlen(url));
 	
-	sprintf(params, "%serror.html?%d", getenv("PH_HOME"), code);
+	sprintf(params, "\"%serror.html?code=%d&url=%s\"", getenv("PH_HOME"), code, urlescaped);
+	//printf("params: %s\n", params);
 	const char* myargs[5] = {
 		"/C"
 		"hh.exe",
@@ -352,6 +355,10 @@ int test_regex(int argc, char** argv) {
 #ifndef PH_NO_MAIN
 //char **environ;
 int main(int argc, char** argv, char **envp) {
+	
+	url = NULL;
+	if (argc > 1)
+		url = argv[1];
 	
 	// setup globals
 	environ = envp;

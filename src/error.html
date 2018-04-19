@@ -57,6 +57,7 @@
 	</div>
 	<br/>
 	<small>
+	<p id="url"></p>
 	<div id="date"></div>
 	<hr size="1"/>
 	<em>Check the error log for more information.</em>
@@ -64,8 +65,24 @@
 	
 </body>
 <script type="text/javascript">
-var code = window.location.search.slice(1);
+var query = window.location.search.slice(1);
+var vars = query.split('&');
+var code = 0;
+var url = "";
+
+for (var i = 0; i < vars.length; i++) {
+	var pair = vars[i].split('=');
+	if (decodeURIComponent(pair[0]) == "code") {
+		code = decodeURIComponent(pair[1]);
+	}
+	if (decodeURIComponent(pair[0]) == "url") {
+		url = decodeURIComponent(pair[1]);
+	}
+}
+
 document.getElementById("code").innerHTML = code;
+document.getElementById("url").innerHTML = "url: " + url;
+
 try {
 	document.getElementById("err"+code).style.display = "block";
 } catch (e) {;}
