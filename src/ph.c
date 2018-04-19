@@ -72,7 +72,7 @@ int runcmd(char* cmd, int mode) {
 	
 	//now set STARTUPINFO struct fields (from the child's point of view) 
 	sti.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES; 
-	sti.wShowWindow = SW_SHOWNORMAL; 
+	sti.wShowWindow = mode; 
 	//sti.hStdInput = pipin_r;
 	
 	/*
@@ -100,51 +100,6 @@ int runcmd(char* cmd, int mode) {
 	  &sti, // _In_        LPSTARTUPINFO         lpStartupInfo,
 	  &pi // _Out_       LPPROCESS_INFORMATION lpProcessInformation
 	);
-	
-	/*
-	int ret = 127;
-	int i;
-	
-	char **args;
-	int len = split_arg(cmd, &args);
-	char exe[4096];
-	strcpy(exe, args[0]);
-	//args++;
-	
-	//printf("arg1: %s, %d, cmd: %s\n", args[0], len, cmd);
-	//return 0;
-	
-	char** args2 = (char**) malloc(sizeof(char*) * len);
-	for(i=1; i<len; i++) {
-		args2[i-1] = args[i];
-	}
-	
-	char strargs[MAX_PATH] = {0};
-	printf("exe: %s\n", exe);
-	for(i=0; i<len-1; i++) {
-		strcat(strargs, "\"");
-		//quote(&(args2)[i]);
-		strcat(strargs, args2[i]);
-		//printf("arg %d, val: %s\n", i, args[i]);
-		strcat(strargs, "\"");
-		strcat(strargs, " ");
-		printf("---> %s\n", args2[i]);
-	}
-	
-	sprintf(logbuffer, "running: %s %s\n", exe, strargs);
-	writelog(1, logbuffer);
-	
-	//printf("running: %s %s\n", exe, strargs);
-	
-	ret = spawnve(mode, exe, args2, environ);
-	
-	if (ret < 0) {
-		sprintf(logbuffer, "spawnve() returned error: %d, '%s'", ret, cmd);
-		writelog(1, logbuffer);
-		fprintf(stderr, "%s\n", logbuffer);
-		return ret;
-	}
-	*/
 	
 	return 0;
 }
@@ -1116,47 +1071,24 @@ int main(int argc, char** argv, char **envp) {
 	 * or later on due to user action or a bug in the called program.
 	 */
 #ifdef __MINGW32__
-	/*
-	char exe[4096] = "";
-	strcat(exe, getenv("windir"));
-	strcat(exe, "\\System32\\cmd.exe");
-
-	char* myargs[3];
-	myargs[0] = (char*) "/C";
-	myargs[1] = (char*) cmd;
-	myargs[2] = NULL;
-
-	// This fixes bug #6 where the last parameter leads to a cmd parsing error
-	// the the argument is quoted.
-	strcat(myargs[1], " ");
-	
-	// quote the command
-	quote(&myargs[1]);
-	
-	// FIXME: for osx, use posix_spawn:
-	// https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man2/posix_spawn.2.html
-	ret = spawnve(P_DETACH, exe, myargs, environ);
-	if (ret < 0) {
-		sprintf(logbuffer, "spawnve() returned error: %d", ret);
-		writelog(1, logbuffer);
-		fprintf(stderr, "%s\n", logbuffer);
-	}
-	
-	sprintf(logbuffer, "Success: %s /C %s", exe, myargs[1]);
-	writelog(1, logbuffer);
-	*/
 	
 	/**
 	 * check if we need to run a command before the actual command
 	 */
 	if (strcmp(precmd, "") != 0) {
 		//printf("precmd: %s\n", precmd);
-		ret = runcmd(precmd, P_NOWAIT);
+		ret = runcmd(precmd, SW_SHOWNORMAL);
 	}
 	
+	// set window mode
+	int mode = SW_SHOWNORMAL;
+	if (strcmp(config.start_minimized, "1") == 0)
+		mode = SW_SHOWMINNOACTIVE;
+	if (strcmp(config.start_hidden, "1") == 0)
+		mode = SW_HIDE;
+	
 	// run the actual command
-	//printf("cmd: %s\n", cmd);
-	ret = runcmd(cmd, P_DETACH);
+	ret = runcmd(cmd, mode);
 #else
 	// Here be dragons
 	char exe[4096] = "/usr/bin/env sh -c '";
@@ -1338,6 +1270,14 @@ static int ini_callback(void* user, const char* section, const char* name,
 			
 		} else if (MATCH(section, "precmd_nousermatch")) {
 			pconfig->precmd_nousermatch = strdup(value);
+			pconfig->found = 1;
+			
+		} else if (MATCH(section, "start_hidden")) {
+			pconfig->start_hidden = strdup(value);
+			pconfig->found = 1;
+			
+		} else if (MATCH(section, "start_minimized")) {
+			pconfig->start_minimized = strdup(value);
 			pconfig->found = 1;
 			
 		} else {

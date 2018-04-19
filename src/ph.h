@@ -97,7 +97,7 @@ extern char* errstr[];
 extern char* expandvar_err_var_name;
 
 // can hold one ini file entry
-#define DEFAULT_CONFIG { "", "", "", "", "", "", "", 0, NULL, NULL, "", "", "", "", "", ""}
+#define DEFAULT_CONFIG { "", "", "", "", "", "", "", 0, NULL, NULL, "", "", "", "", "", "", "", ""}
 typedef struct {
 	const char* section; // the section we are searchin for
 	const char* default_path;
@@ -117,6 +117,9 @@ typedef struct {
 	const char* precmd;
 	const char* precmd_nousermatch;
 	const char* precmd_usermatch;
+	
+	const char* start_hidden;
+	const char* start_minimized;
 } configuration;
 
 #define DEFAULT_GCONFIG {"_global", "", "0", "${env.windir}\\cmd.exe /c hh.exe -800", "${env.windir}\\cmd.exe /c", "10240000", 0}

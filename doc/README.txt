@@ -185,7 +185,14 @@ Configuration directives:
         If the config parameter `user_param` is used and the user matches, 
         this command will be run before `cmd_nousermatch` is executed.
 
-
+    start_hidden
+        If set to 1, the application will be started and the main window is 
+        hidden (no taskbar entry).
+    
+    start_minimized
+        If set to 1, the program will be launched and minimized into the 
+        taskbar. `start_hidden` will overrride this feature.
+        
 ENVIRONMENT
 
     PH_HOME  is set upon startup of the program in it's own process and will 
