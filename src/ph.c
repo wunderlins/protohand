@@ -141,7 +141,7 @@ int display_error(int code) {
 		es = curl_escape(error_string, strlen(error_string));
 	
 	sprintf(params, "\"%serror.html?code=%d&url=%s&str=%s\"", getenv("PH_HOME"), code, urlescaped, es);
-	printf("params: %s\n", params);
+	//printf("params: %s\n", params);
 	const char* myargs[5] = {
 		"/C"
 		"hh.exe",
@@ -469,6 +469,18 @@ int main(int argc, char** argv, char **envp) {
 	if (argc > 1 && strcmp(argv[1], "-r") == 0)
 		return test_regex(argc, argv);
 
+	// display help
+	if (argc > 1 && 
+	    (strcmp(argv[1], "-h") == 0 || 
+		 strcmp(argv[1], "--help") == 0 || 
+		 strcmp(argv[1], "/h") == 0 || 
+		 strcmp(argv[1], "/H") == 0 || 
+		 strcmp(argv[1], "/?") == 0
+		)) {
+		usage();
+		return OK;
+	}
+
 	/**
 	 * figure out where to config file is
 	 *
@@ -672,18 +684,6 @@ int main(int argc, char** argv, char **envp) {
 	else
 		sprintf(logbuffer, "Current ini file:    %s", ini_file);
 	writelog(1, logbuffer);
-	
-	// display help
-	if (argc > 1 && 
-	    (strcmp(argv[1], "-h") == 0 || 
-		 strcmp(argv[1], "--help") == 0 || 
-		 strcmp(argv[1], "/h") == 0 || 
-		 strcmp(argv[1], "/H") == 0 || 
-		 strcmp(argv[1], "/?") == 0
-		)) {
-		usage();
-		return OK;
-	}
 	
 	// check input
 	if(argc < 2) {
