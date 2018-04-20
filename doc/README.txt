@@ -192,6 +192,18 @@ Configuration directives:
     start_minimized
         If set to 1, the program will be launched and minimized into the 
         taskbar. `start_hidden` will overrride this feature.
+    
+    file_must_exist
+        Check if a file exists. if not, the program will exit with exit code 
+        25 and display a custom error message configured in
+        `file_must_exist_error`.
+        
+    file_must_exist_error
+        This is the custom error message which is display to the user if 
+        the file in `file_must_exist` is not found. You may use HTML in this 
+        message. Beware: the whole html code must be on one line in the ini 
+        file and may not exceed 4000 characters.
+
         
 ENVIRONMENT
 
@@ -241,6 +253,8 @@ LIMITATIONS
     4. It is unclear how this program will behave on multibyte character sets 
        coming from user input. It will probably crash and burn your computer 
        and desk down. Huzzah!
+    
+    5. The line length in the ini file is limited to max 4096 characters.
 
 
 COPYRIGHT

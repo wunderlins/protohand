@@ -19,6 +19,7 @@ char log_file[MAX_CWD_LENGTH];
 
 char encodek[20];
 char *url;
+char *error_string = NULL;
 
 char * my_itoa(int i) {
   char * res = (char*) malloc(8*sizeof(int));
@@ -126,7 +127,8 @@ void writelog(int level, char* str) {
 }
 
 int file_exists(char* file) {
-if( access(file, F_OK) != -1 )
+	//printf("file: %s\n", file);
+	if(access(file, F_OK) == -1)
 		return 0;
 	return 1;
 }
@@ -134,9 +136,12 @@ if( access(file, F_OK) != -1 )
 int display_error(int code) {
 	char params[MAX_CWD_LENGTH];
 	char *urlescaped = curl_escape(url, strlen(url));
+	char *es = (char*) "";
+	if(error_string != NULL)
+		es = curl_escape(error_string, strlen(error_string));
 	
-	sprintf(params, "\"%serror.html?code=%d&url=%s\"", getenv("PH_HOME"), code, urlescaped);
-	//printf("params: %s\n", params);
+	sprintf(params, "\"%serror.html?code=%d&url=%s&str=%s\"", getenv("PH_HOME"), code, urlescaped, es);
+	printf("params: %s\n", params);
 	const char* myargs[5] = {
 		"/C"
 		"hh.exe",
@@ -153,7 +158,7 @@ int display_error(int code) {
 	
 #else
 	// FIXME: add global handling
-	printf("We would isplay an error here\n");
+	printf("We would Display an error here\n");
 #endif
 	
 	//define_error_messages();
@@ -805,6 +810,11 @@ int main(int argc, char** argv, char **envp) {
 		sprintf(logbuffer, "cmd_nousermatch: %s", config.cmd_nousermatch); 
 		writelog(3, logbuffer);
 		
+		sprintf(logbuffer, "file_must_exist: %s", config.file_must_exist); 
+		writelog(3, logbuffer);
+		sprintf(logbuffer, "file_must_exist_error: %s", config.file_must_exist_error); 
+		writelog(3, logbuffer);
+		
 		sprintf(logbuffer, "found: %d", config.found); 
 		writelog(3, logbuffer);
 		
@@ -932,6 +942,32 @@ int main(int argc, char** argv, char **envp) {
 	if (loglevel > 1) {
 		sprintf(logbuffer, "replace_file expanded: %s", config.replace_file); 
 		writelog(2, logbuffer);
+	}
+	
+	char* file_must_exist = (char*) malloc(sizeof(char*) * (strlen(config.file_must_exist)+1));
+	strcpy(file_must_exist, config.file_must_exist);
+	ret = expand_vars(&file_must_exist, &uri_parsed.nvquery);
+	if (ret != 0) {
+		return display_error(FAILED_TO_EXPAND_ENV);
+	}
+	config.file_must_exist = file_must_exist;
+	if (loglevel > 1) {
+		sprintf(logbuffer, "file_must_exist expanded: %s", config.file_must_exist); 
+		writelog(2, logbuffer);
+	}
+	
+	/**
+	 * if the file_must_exist directive exists and is not empty, check if we 
+	 * can stat the file.
+	 *
+	 * If we cannot stat the file, abort and display a custom message.
+	 */
+	if (strcmp(config.file_must_exist, "") != 0) {
+		//printf("config.file_must_exist: %s\n", config.file_must_exist);
+		if (file_exists((char*) config.file_must_exist) == 0) {
+			error_string = (char*) config.file_must_exist_error;
+			return display_error(FILE_NOT_FOUND);
+		}
 	}
 	
 	/** 
@@ -1238,7 +1274,6 @@ static int ini_callback(void* user, const char* section, const char* name,
 			pconfig->cmd = strdup(value);
 			pconfig->found = 1;
 
-
 		} else if (MATCH(section, "cmd_nousermatch")) {
 			pconfig->cmd_nousermatch = strdup(value);
 			pconfig->found = 1;
@@ -1248,7 +1283,6 @@ static int ini_callback(void* user, const char* section, const char* name,
 		} else if (MATCH(section, "user_param")) {
 			pconfig->user_param = strdup(value);
 			pconfig->found = 1;
-
 			
 		} else if (MATCH(section, "replace_file")) {
 			pconfig->replace_file = strdup(value);
@@ -1286,7 +1320,15 @@ static int ini_callback(void* user, const char* section, const char* name,
 		} else if (MATCH(section, "start_minimized")) {
 			pconfig->start_minimized = strdup(value);
 			pconfig->found = 1;
-			
+		
+		} else if (MATCH(section, "file_must_exist")) {
+			pconfig->file_must_exist = strdup(value);
+			pconfig->found = 1;
+		
+		} else if (MATCH(section, "file_must_exist_error")) {
+			pconfig->file_must_exist_error = strdup(value);
+			pconfig->found = 1;
+		
 		} else {
 			sprintf(logbuffer, "Found unknown directive '%s' with value '%s' "
 			                   "in ini file.", name, value); 

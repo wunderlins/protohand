@@ -10,13 +10,13 @@
 		body {font-family: arial, helvetica, sans;}
 		h1 {border-bottom: 1px solid gray;}
 		.detail {display: none;}
+		p {padding-top: 0; margin-top: 0;}
 	</style>
 </head>
 
 <body>
-	<h1>Error: <span id="code"></span></h1>
-	<p id="description"></p>
-	
+	<p id="dsc"></p>
+	<small>
 	<div>
 		<div class="detail" id="err0">Ok</div>
 		<div class="detail" id="err1">Argument 1 missing.</div>
@@ -43,6 +43,7 @@
 		<div class="detail" id="err22">Failed to zeropad an url parameter, string too long.</div>
 		<div class="detail" id="err23">cmd file not executable.</div>
 		<div class="detail" id="err24">`user_param` not found in url query.</div>
+		<div class="detail" id="err25">File not found. Most probably an application is not installed.</div>
 		<div class="detail" id="err33">No equal sign found in expression expansion.</div>
 		<div class="detail" id="err34">No colon found in expression expansion.</div>
 		<div class="detail" id="err35">Failed to dynamically allocate memmory while expanding variables (malloc).</div>
@@ -54,11 +55,10 @@
 		<div class="detail" id="err130">Failed to parse URI, error in query string.</div>
 		<div class="detail" id="err131">Failed to parse URI, error in fragment.</div>
 
-	</div>
-	<br/>
-	<small>
-	<p id="url"></p>
+</div>
+	<div id="url"></div>
 	<div id="date"></div>
+	<div>Code: <span id="code"></span></div>
 	<hr size="1"/>
 	<em>Check the error log for more information.</em>
 	</small>
@@ -69,6 +69,7 @@ var query = window.location.search.slice(1);
 var vars = query.split('&');
 var code = 0;
 var url = "";
+var description = "";
 
 for (var i = 0; i < vars.length; i++) {
 	var pair = vars[i].split('=');
@@ -78,10 +79,15 @@ for (var i = 0; i < vars.length; i++) {
 	if (decodeURIComponent(pair[0]) == "url") {
 		url = decodeURIComponent(pair[1]);
 	}
+	if (decodeURIComponent(pair[0]) == "str") {
+		if(pair[1])
+			description = decodeURIComponent(pair[1]);
+	}
 }
 
 document.getElementById("code").innerHTML = code;
 document.getElementById("url").innerHTML = "url: " + url;
+document.getElementById("dsc").innerHTML = "Error: " + description;
 
 try {
 	document.getElementById("err"+code).style.display = "block";

@@ -78,6 +78,7 @@
 #define FAILED_TO_ZEROPAD 22
 #define NOT_EXECUTABLE 23
 #define NO_USER_PARAM_FOUND 24
+#define FILE_NOT_FOUND 25
 
 #define PH_EXP_ERR_NO_EQUAL (EXP_ERR_NO_EQUAL+32) 
 #define PH_EXP_ERR_NO_COLON (EXP_ERR_NO_COLON+32)
@@ -97,7 +98,7 @@ extern char* errstr[];
 extern char* expandvar_err_var_name;
 
 // can hold one ini file entry
-#define DEFAULT_CONFIG { "", "", "", "", "", "", "", 0, NULL, NULL, "", "", "", "", "", "", "", ""}
+#define DEFAULT_CONFIG { "", "", "", "", "", "", "", 0, NULL, NULL, "", "", "", "", "", "", "", "", "", ""}
 typedef struct {
 	const char* section; // the section we are searchin for
 	const char* default_path;
@@ -120,6 +121,9 @@ typedef struct {
 	
 	const char* start_hidden;
 	const char* start_minimized;
+	
+	const char* file_must_exist;
+	const char* file_must_exist_error;
 } configuration;
 
 #define DEFAULT_GCONFIG {"_global", "", "0", "${env.windir}\\cmd.exe /c hh.exe -800", "${env.windir}\\cmd.exe /c", "10240000", 0}
