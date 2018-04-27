@@ -59,6 +59,9 @@ int _runcmd(char* cmd, int mode) {
 	return 0;
 }
 
+/**
+ * @see: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682425(v=vs.85).aspx
+ */
 int runcmd(char* cmd, int mode) {
 	//system(cmd);
 	
