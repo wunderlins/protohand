@@ -9,7 +9,9 @@ CURL_VERSION=7.56.1
 
 # DUBUG=0 disables debugging, other levels from 1-3
 # LOG_TO_FILE=1 will send dbg output to stdout, else to protohand.log
-DEBUG=1
+ifndef DEBUG
+	DEBUG=1
+endif
 LOG_TO_FILE=1
 VERSION=0.7.3
 # naming
