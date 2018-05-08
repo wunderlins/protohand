@@ -13,7 +13,10 @@ extern "C" {
 #include "../lib/nvlist.h"
 #include "../lib/uriparse.h"
 
-#define BLOCKSIZE 100
+// FIXME: BLOCKSIZE should not be that large. This is a temporary because we 
+//        believe that memory realocation of the out variable in expand_vars() 
+//        leads to a stack error. Needs further investigation.
+#define BLOCKSIZE 4096
 
 #define EXP_ERR_NO_EQUAL 1 
 #define EXP_ERR_NO_COLON 2

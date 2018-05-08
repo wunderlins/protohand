@@ -138,8 +138,9 @@ int parse_conditional(char* varname, t_conditional* cond, struct nvlist_list* qu
 
 int append_resize(char* string, char* append, int bufflength, int blocksize) {
 	int new_l = strlen(string) + strlen(append) + 1;
-	if (new_l > bufflength) { // realloc mor memmory
+	if (new_l > bufflength) { // realloc more memmory
 		int diff = bufflength - new_l;
+		// FIXME: this will always fail. diff/BLOCKSIZE results in a floating point value which will be 0 (add is an integer)
 		int add  = (diff/BLOCKSIZE*BLOCKSIZE)+BLOCKSIZE;
 		string = (char *) realloc(string, bufflength+add);
 		if (string == NULL)
@@ -225,7 +226,7 @@ int expand_vars(char** str, struct nvlist_list* query) {
 			} else { // variable
 				//printf("Resolving variable\n");
 				ret = find_var_value(varname, query, &result);
-				//printf("var: %s, result: %d, result: %s\n", varname, ret, result);
+				//printf("buffl: %d, var: %s, result: %d, result: %s\n", buffer_length, varname, ret, result);
 				if (ret == 1) {
 					//printf("Var value Result: %s, ret: %d\n", result, ret);
 					expandvar_err_var_name = varname;
@@ -351,6 +352,14 @@ int main(int argc, char*argv[]) {
 	cmd = (char*) "${env.windir}\\notepad.exe /A \"${name1}\" ${name2} ${env.MYVAR=name2:--debug}";
 	putenv("MYVAR=XXX");
 	expect = (char*) "C:\\WINDOWS\\notepad.exe /A \"vaue1\" xxx --debug";
+	ret = cmdparser_test(uri, &cmd, expect);
+	res += ret;
+	//printf("ret: %d\n", ret);
+
+	uri = (char*) "proto:auth/path?name1=vaue1&name2=xxx.....................................................................................";
+	cmd = (char*) "${env.windir}\\notepad.exe /A \"${name1}\" ${name2}";
+	putenv("MYVAR=XXX");
+	expect = (char*) "C:\\WINDOWS\\notepad.exe /A \"vaue1\" xxx.....................................................................................";
 	ret = cmdparser_test(uri, &cmd, expect);
 	res += ret;
 	//printf("ret: %d\n", ret);

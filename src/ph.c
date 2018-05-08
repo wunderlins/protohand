@@ -18,7 +18,7 @@ char logbuffer[4096];
 char log_file[MAX_CWD_LENGTH];
 
 char encodek[20];
-char *url;
+char *url = NULL;
 char *error_string = NULL;
 
 char * my_itoa(int i) {
@@ -138,7 +138,10 @@ int file_exists(char* file) {
 
 int display_error(int code) {
 	char params[MAX_CWD_LENGTH];
-	char *urlescaped = curl_escape(url, strlen(url));
+	char *urlescaped = (char*) "";
+	if (url != NULL) {
+		urlescaped = curl_escape(url, strlen(url));
+	}
 	char *es = (char*) "";
 	if(error_string != NULL)
 		es = curl_escape(error_string, strlen(error_string));
@@ -442,7 +445,6 @@ int main(int argc, char** argv, char **envp) {
 	//env[strlen(env)-1] = 0; // removing this line, it will fail anyway if the string is not \0 terminated
 	putenv(env);
 	
-	
 	// check command line parameters for mode
 	
 	/**
@@ -528,13 +530,13 @@ int main(int argc, char** argv, char **envp) {
 		strcat(ini_file, str(PROGNAME_SHORT));
 		strcat(ini_file, ".dat");
 		
-		if (file_exists(ini_file) != 0) {
+		if (file_exists(ini_file) == 0) {
 			strcpy(ini_file, dir);
 			strcat(ini_file, str(PROGNAME_SHORT));
 			strcat(ini_file, ".ini");
 			
 			// check if we have an ini file, if not, create it
-			if(file_exists(ini_file) != 0) {
+			if(file_exists(ini_file) == 0) {
 				ret = create_ini(ini_file);
 				printf("Example configuration file created in: %s\n", ini_file);
 				return OK;
@@ -692,6 +694,7 @@ int main(int argc, char** argv, char **envp) {
 	if(argc < 2) {
 		perror("argument 1 with uri missing");
 		usage();
+		//printf("ini_file: %s\n", ini_file); return 0;
 		return display_error(NO_INPUT);
 	}
 	
@@ -1056,6 +1059,7 @@ int main(int argc, char** argv, char **envp) {
 	char* cmd = (char*) malloc(sizeof(char*) * (strlen(run_cmd)+1));
 	strcpy(cmd, run_cmd);
 	ret = expand_vars(&cmd, &uri_parsed.nvquery);
+	//return 0;
 	
 	// FIXME: add information in error message which variable failed to expand.
 	if (ret != 0) {
@@ -1117,7 +1121,6 @@ int main(int argc, char** argv, char **envp) {
 	 * or later on due to user action or a bug in the called program.
 	 */
 #ifdef __MINGW32__
-	
 	/**
 	 * check if we need to run a command before the actual command
 	 */
