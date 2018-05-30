@@ -645,10 +645,13 @@ int main(int argc, char** argv, char **envp) {
 			strcat(log_file, ".log");
 		} else
 			return display_error(ERR_NO_USERDIR);
+	} else {
+		strcpy(log_file, tmp_log_path);
 	}
 	
 	// from here on we have a log file we can log to
 	// if (loglevel > 0) { // FIXME: replace all code that accesses log_file with writelog() before not opening he file on loglevel 0
+		printf("logfile: %s\n", log_file);
 		logfile = fopen(log_file, "ab+");
 		if (logfile == NULL)
 			return display_error(FAILED_TO_OPEN_LOGFILE);
