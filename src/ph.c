@@ -1032,7 +1032,9 @@ int main(int argc, char** argv, char **envp) {
 					fprintf(stderr, "%s\n", logbuffer);
 					return display_error(FAILED_TO_ZEROPAD);
 				}
-				uri_parsed.nvquery.items[i].value = out;
+				char* replacement = (char*) malloc((sizeof(char) * strlen(out)) + 1);
+				strcpy(replacement, out);
+				uri_parsed.nvquery.items[i].value = replacement;
 			}
 		}
 	}
@@ -1050,7 +1052,8 @@ int main(int argc, char** argv, char **envp) {
 				char out[10] = "";
 				transform_ltrimzero(uri_parsed.nvquery.items[i].value, out);
 				//printf("out: %s\n", out);
-				uri_parsed.nvquery.items[i].value = out;
+				strcpy(uri_parsed.nvquery.items[i].value, out);
+				//uri_parsed.nvquery.items[i].value = out;
 			}
 		}
 	}
