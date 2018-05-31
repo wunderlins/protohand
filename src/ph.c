@@ -1001,6 +1001,7 @@ int main(int argc, char** argv, char **envp) {
 	 */
 	if (strcmp(config.file_must_exist, "") != 0) {
 		//printf("config.file_must_exist: %s\n", config.file_must_exist);
+		cmdunquote((char**) &config.file_must_exist);
 		if (file_exists((char*) config.file_must_exist) == 0) {
 			error_string = (char*) config.file_must_exist_error;
 			return display_error(FILE_NOT_FOUND);
