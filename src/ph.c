@@ -93,7 +93,9 @@ int runcmd(char* cmd, int mode) {
 	sti.hStdOutput = h; 
 	sti.hStdError = h; 	
 	*/
-		
+	
+	//printf("start ... ");
+	//BOOL result = CreateProcess(
 	CreateProcess(
 	  NULL, // _In_opt_    LPCTSTR               lpApplicationName,
 	  cmd, // _Inout_opt_ LPTSTR                lpCommandLine,
@@ -107,6 +109,20 @@ int runcmd(char* cmd, int mode) {
 	  &pi // _Out_       LPPROCESS_INFORMATION lpProcessInformation
 	);
 	
+	/*
+	// Successfully created the process.  Wait for it to finish.
+	WaitForSingleObject( pi.hProcess, INFINITE );
+	printf("end: %s\n", cmd);
+
+	// Get the exit code.
+	DWORD exitCode;
+	result = GetExitCodeProcess(pi.hProcess, &exitCode);
+
+	// Close the handles.
+	CloseHandle( pi.hProcess );
+	CloseHandle( pi.hThread );
+	//sleep(1);
+	*/
 	return 0;
 }
  
@@ -237,6 +253,8 @@ int replace(const char* file, const char* regex) {
 	
 	//printf("regex: %s\n", regex);
 	result = regreplace(regex, string);
+	//printf("%s\n", result);
+	//printf("file: %s\n", file);
 	
 	if (result == NULL) {
 		printf("Failed to execute regex: %d\n", regerrno);
@@ -246,9 +264,17 @@ int replace(const char* file, const char* regex) {
 	//printf("%s\n", result);
 	
 	// write result
-	f = fopen(file, "wb");
-	fwrite(result, 1, strlen(result), f);
-	fclose(f);
+	FILE *f1 = fopen(file, "wb");
+	printf("file: %s, %p\n", file, f1);
+	fseek(f1, 0, SEEK_SET);
+	size_t l = strlen(result);
+	size_t r = fwrite(result, 1, l+1, f1);
+	if (l+1 != r) {
+		printf("Failed to write entire file in relplace.\n");
+		return 127;
+	}
+	fflush(f1);
+	fclose(f1);
 	
 	return OK;
 }
@@ -1051,6 +1077,7 @@ int main(int argc, char** argv, char **envp) {
 		}
 		
 		cmdunquote((char**) &config.replace_file);
+		//printf("config.replace_file: %s\n", config.replace_file);
 		ret = replace(config.replace_file, config.replace_regex);
 		
 		if (ret != 0) {
