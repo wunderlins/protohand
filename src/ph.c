@@ -2,6 +2,7 @@
 
 //const char* empty = "";
 extern char **environ;
+extern char lastvar[500];
 
 /**
  * Display usage
@@ -146,7 +147,16 @@ int display_error(int code) {
 	if(error_string != NULL)
 		es = curl_escape(error_string, strlen(error_string));
 	
-	sprintf(params, "\"%serror.html?code=%d&url=%s&str=%s\"", getenv("PH_HOME"), code, urlescaped, es);
+	sprintf(params, "\"%serror.html?code=%d&url=%s&str=%s&var=", getenv("PH_HOME"), code, urlescaped, es);
+	
+	// add variable name 
+	if (code == FAILED_TO_EXPAND_ENV) {
+		//printf("lastvar: %s\n", lastvar);
+		strcat(params, lastvar);
+		//printf("params: %s\n", params);
+	}
+	strcat(params, "\"");
+	
 	//printf("params: %s\n", params);
 	const char* myargs[5] = {
 		"/C"
@@ -592,16 +602,26 @@ int main(int argc, char** argv, char **envp) {
 	char* tmp_log_path = (char*) malloc(sizeof(char*) * (strlen(cfg.log_path)+1));
 	strcpy(tmp_log_path, cfg.log_path);
 	ret = expand_vars(&tmp_log_path, &tmp_nvlist);
+	if (ret != 0) {
+		//printf("varname: %s\n", lastvar);
+		return display_error(FAILED_TO_EXPAND_ENV);
+	}
 	cfg.log_path = tmp_log_path;
 	
 	char* tmp_prefix_help = (char*) malloc(sizeof(char*) * (strlen(cfg.prefix_help)+1));
 	strcpy(tmp_prefix_help, cfg.prefix_help);
 	ret = expand_vars(&tmp_prefix_help, &tmp_nvlist);
+	if (ret != 0) {
+		return display_error(FAILED_TO_EXPAND_ENV);
+	}
 	cfg.prefix_help = tmp_prefix_help;
 	
 	char* tmp_prefix_cmd = (char*) malloc(sizeof(char*) * (strlen(cfg.prefix_cmd)+1));
 	strcpy(tmp_prefix_cmd, cfg.prefix_cmd);
 	ret = expand_vars(&tmp_prefix_cmd, &tmp_nvlist);
+	if (ret != 0) {
+		return display_error(FAILED_TO_EXPAND_ENV);
+	}
 	cfg.prefix_cmd = tmp_prefix_cmd;
 	
 	// validate and convert values
@@ -645,10 +665,14 @@ int main(int argc, char** argv, char **envp) {
 			strcat(log_file, ".log");
 		} else
 			return display_error(ERR_NO_USERDIR);
+	} else {
+		strcpy(log_file, tmp_log_path);
 	}
 	
 	// from here on we have a log file we can log to
 	// if (loglevel > 0) { // FIXME: replace all code that accesses log_file with writelog() before not opening he file on loglevel 0
+		//printf("log_file: %s\n", log_file);
+		//printf("tmp_log_path: %s\n", tmp_log_path);
 		logfile = fopen(log_file, "ab+");
 		if (logfile == NULL)
 			return display_error(FAILED_TO_OPEN_LOGFILE);
@@ -1032,7 +1056,9 @@ int main(int argc, char** argv, char **envp) {
 					fprintf(stderr, "%s\n", logbuffer);
 					return display_error(FAILED_TO_ZEROPAD);
 				}
-				uri_parsed.nvquery.items[i].value = out;
+				char* replacement = (char*) malloc((sizeof(char) * strlen(out)) + 1);
+				strcpy(replacement, out);
+				uri_parsed.nvquery.items[i].value = replacement;
 			}
 		}
 	}
@@ -1050,7 +1076,8 @@ int main(int argc, char** argv, char **envp) {
 				char out[10] = "";
 				transform_ltrimzero(uri_parsed.nvquery.items[i].value, out);
 				//printf("out: %s\n", out);
-				uri_parsed.nvquery.items[i].value = out;
+				strcpy(uri_parsed.nvquery.items[i].value, out);
+				//uri_parsed.nvquery.items[i].value = out;
 			}
 		}
 	}

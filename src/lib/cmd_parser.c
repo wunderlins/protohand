@@ -1,5 +1,7 @@
 #include "cmd_parser.h"
 
+char lastvar[500] = "";
+
 int find_var_value(char* varname, struct nvlist_list* query, char** result) {
     int ii;
     
@@ -201,6 +203,7 @@ int expand_vars(char** str, struct nvlist_list* query) {
 			
 			strncpy(varname, *(str)+start+1, len);
 			varname[len] = 0;
+			strcpy(lastvar, varname);
 			
 			//printf("varname: %s\n", varname);
 			

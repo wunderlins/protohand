@@ -13,7 +13,7 @@ ifndef DEBUG
 	DEBUG=1
 endif
 LOG_TO_FILE=1
-VERSION=0.7.3
+VERSION=0.7.4
 # naming
 PROGNAME = protohand
 PROGNAME_SHORT = ph

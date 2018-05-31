@@ -56,6 +56,7 @@
 		<div class="detail" id="err131">Failed to parse URI, error in fragment.</div>
 
 </div>
+	<div id="var" style="display: none"></div>
 	<div id="url"></div>
 	<div id="date"></div>
 	<div>Code: <span id="code"></span></div>
@@ -82,6 +83,12 @@ for (var i = 0; i < vars.length; i++) {
 	if (decodeURIComponent(pair[0]) == "str") {
 		if(pair[1])
 			description = decodeURIComponent(pair[1]);
+	}
+	if (decodeURIComponent(pair[0]) == "var") {
+		if(pair[1]) {
+			document.getElementById("var").innerHTML = "Variable: <b>" + decodeURIComponent(pair[1]) + "</b>";
+			document.getElementById("var").style.display = "block";
+		}
 	}
 }
 
