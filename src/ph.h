@@ -88,6 +88,7 @@
 #define PH_EXP_ERR_REALLOC (EXP_ERR_REALLOC+32)
 
 #define LOG_LENGTH (1024*1000*1)
+#define CMD_MAX 2047
 
 /* Make this header file easier to include in C++ code */
 #ifdef __cplusplus

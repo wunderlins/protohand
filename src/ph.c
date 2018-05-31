@@ -138,7 +138,7 @@ int file_exists(char* file) {
 }
 
 int display_error(int code) {
-	char params[8000];
+	char params[4000];
 	char *urlescaped = (char*) "";
 	if (url != NULL) {
 		urlescaped = curl_escape(url, strlen(url));
@@ -172,6 +172,11 @@ int display_error(int code) {
 	sprintf(logbuffer, "Error string: %s", params);
 	if (logfile != NULL)
 		writelog(0, logbuffer);
+	
+	if (strlen(params) > CMD_MAX-15) {
+		printf("Command too long: %s\n", params);
+		return 127;
+	}
 	
 	//printf("Error path: %s\n", params);
 	//printf("params: %s\n", params);
