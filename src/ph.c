@@ -147,7 +147,14 @@ int display_error(int code) {
 	if(error_string != NULL)
 		es = curl_escape(error_string, strlen(error_string));
 	
-	sprintf(params, "\"%serror.html?code=%d&url=%s&str=%s&var=", getenv("PH_HOME"), code, urlescaped, es);
+	const char* hostname = getenv("HOSTNAME");
+	if (hostname == NULL)
+		hostname = getenv("COMPUTERNAME");
+	if (hostname == NULL)
+		hostname = "unknown";
+	char* eshostname =  curl_escape(hostname, strlen(hostname));
+	
+	sprintf(params, "\"%serror.html?code=%d&url=%s&str=%s&hostname=%s&var=", getenv("PH_HOME"), code, urlescaped, es, eshostname);
 	
 	// add variable name 
 	if (code == FAILED_TO_EXPAND_ENV) {
