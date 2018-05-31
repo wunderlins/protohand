@@ -138,12 +138,13 @@ int file_exists(char* file) {
 }
 
 int display_error(int code) {
-	char params[MAX_CWD_LENGTH];
+	char params[8000];
 	char *urlescaped = (char*) "";
 	if (url != NULL) {
 		urlescaped = curl_escape(url, strlen(url));
 	}
 	char *es = (char*) "";
+	//printf("error_string: %s\n", error_string);
 	if(error_string != NULL)
 		es = curl_escape(error_string, strlen(error_string));
 	
@@ -153,17 +154,26 @@ int display_error(int code) {
 	if (hostname == NULL)
 		hostname = "unknown";
 	char* eshostname =  curl_escape(hostname, strlen(hostname));
+	char* proto = (char*) "";
+	char* ph_home = getenv("PH_HOME");
+	if (ph_home[0] == '/' && ph_home[1] == '/') 
+		proto = (char*) "file:";
 	
-	sprintf(params, "\"%serror.html?code=%d&url=%s&str=%s&hostname=%s&var=", getenv("PH_HOME"), code, urlescaped, es, eshostname);
+	sprintf(params, "\"%s%serror.html?code=%d&url=%s&str=%s&hostname=%s&var=", proto, ph_home, code, urlescaped, es, eshostname);
 	
 	// add variable name 
-	if (code == FAILED_TO_EXPAND_ENV) {
+	if ((code == FAILED_TO_EXPAND_ENV || code == EXP_ERR_QUERYNVVAR_NOT_FOUND) && lastvar != NULL) {
 		//printf("lastvar: %s\n", lastvar);
 		strcat(params, lastvar);
 		//printf("params: %s\n", params);
 	}
 	strcat(params, "\"");
 	
+	sprintf(logbuffer, "Error string: %s", params);
+	if (logfile != NULL)
+		writelog(0, logbuffer);
+	
+	//printf("Error path: %s\n", params);
 	//printf("params: %s\n", params);
 	const char* myargs[5] = {
 		"/C"
@@ -1004,6 +1014,9 @@ int main(int argc, char** argv, char **envp) {
 		cmdunquote((char**) &config.file_must_exist);
 		if (file_exists((char*) config.file_must_exist) == 0) {
 			error_string = (char*) config.file_must_exist_error;
+			error_string = (char*) malloc((sizeof(char) * strlen(config.file_must_exist_error)) + 1);
+			strcpy(error_string, config.file_must_exist_error);
+			//printf("error_string: %s\n", error_string);
 			return display_error(FILE_NOT_FOUND);
 		}
 	}
