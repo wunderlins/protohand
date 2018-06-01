@@ -64,7 +64,6 @@ int _runcmd(char* cmd, int mode) {
  * @see: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682425(v=vs.85).aspx
  */
 int runcmd(char* cmd, int mode) {
-	//system(cmd);
 	
 	STARTUPINFO sti = { 0 }; 
 	PROCESS_INFORMATION pi = { 0 }; 
@@ -225,10 +224,13 @@ int display_error(int code) {
 	return code;
 }
 
-int replace(const char* file, const char* regex) {
+int replace(const char* fl, const char* regex) {
+	char* file = (char*) malloc((sizeof(char) * strlen(fl)) + 1);
+	strcpy(file, fl);
+	fwdslash(file);
 	
 	// open file
-	FILE *f = fopen(file, "rb");
+	FILE *f = fopen(file, "r");
 	if (f == NULL) {
 		fprintf(stderr, "Failed to open file %s for replacements.\n", file);
 		return FAILED_TO_OPEN_REPLACE_FILE;
@@ -244,6 +246,7 @@ int replace(const char* file, const char* regex) {
 		return FAILED_TO_ALLOC_MEM_FOR_FILE;
 	
 	fread(string, fsize, 1, f);
+	fflush(f);
 	fclose(f);
 
 	string[fsize] = 0;
@@ -261,11 +264,14 @@ int replace(const char* file, const char* regex) {
 		return FAILED_TO_PARSE_REGEX;
 	}
 	
-	//printf("%s\n", result);
+	printf("%s\n", result);
 	
 	// write result
-	FILE *f1 = fopen(file, "wb");
-	printf("file: %s, %p\n", file, f1);
+	char* outfile = (char*) malloc((sizeof(char) * strlen(file)) + 5);
+	strcpy(outfile, file);
+	strcat(outfile, ".new");
+	FILE *f1 = fopen(outfile, "w");
+	printf("file: %s, %p\n", outfile, f1);
 	fseek(f1, 0, SEEK_SET);
 	size_t l = strlen(result);
 	size_t r = fwrite(result, 1, l+1, f1);
@@ -273,8 +279,16 @@ int replace(const char* file, const char* regex) {
 		printf("Failed to write entire file in relplace.\n");
 		return 127;
 	}
-	fflush(f1);
-	fclose(f1);
+	
+	r = fflush(f1);
+	printf("fflush: %lld\n", r);
+	r = fclose(f1);
+	printf("fclose: %lld\n", r);
+	
+	r = remove(file);
+	printf("remove: %lld, %s\n", r, file);
+	//r = rename(outfile, file);
+	//printf("rename: %lld\n", r);
 	
 	return OK;
 }
@@ -1206,7 +1220,8 @@ int main(int argc, char** argv, char **envp) {
 	 */
 	if (strcmp(precmd, "") != 0) {
 		//printf("precmd: %s\n", precmd);
-		ret = runcmd(precmd, SW_SHOWNORMAL);
+		//ret = runcmd(precmd, SW_SHOWNORMAL);
+		system(precmd);
 	}
 	
 	// set window mode
